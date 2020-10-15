@@ -18,11 +18,10 @@ import java.util.logging.Logger;
 public class Events implements Listener {
 
     private final InGameChatProcessor inGameChatProcessor;
-    private final Logger logger;
+    private final Logger logger = Logger.getLogger(Events.class.getName());
 
     public Events(InGameChatProcessor inGameChatProcessor) {
         this.inGameChatProcessor = inGameChatProcessor;
-        logger = BungeeCross.logger;
     }
 
     @EventHandler
@@ -41,7 +40,7 @@ public class Events implements Listener {
         MessageUser user = new PlayerUser(sender.getName(), sender.getUniqueId());
 
         if (message.startsWith("/"))
-            return; // Do not relay commands
+            return; // Do not repeat commands
 
         logger.info(String.format("Chat message: %s, sender: %s", message, user));
         inGameChatProcessor.issue(new InGameMessage(message, user));

@@ -1,13 +1,14 @@
 package com.keuin.bungeecross;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.keuin.bungeecross.message.ingame.ConcreteInGameChatProcessor;
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.message.redis.RedisInstructionDispatcher;
-import com.keuin.bungeecross.message.relayer.InGameRelayer;
-import com.keuin.bungeecross.message.relayer.RedisManager;
+import com.keuin.bungeecross.message.repeater.InGameRepeater;
+import com.keuin.bungeecross.message.repeater.RedisManager;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -16,10 +17,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.util.logging.Logger;
 
 import static java.nio.file.StandardOpenOption.APPEND;
@@ -27,26 +26,23 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class BungeeCross extends Plugin {
 
-    public static Logger logger = null;
+    private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
 
     private BungeeCrossConfig config;
 
     private ProxyServer proxyServer;
-    private InGameRelayer inGameRelayer;
+    private InGameRepeater inGameRepeater;
     private RedisManager redisManager;
-    private InGameChatProcessor inGameChatProcessor = null;
+    private InGameChatProcessor inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
     private RedisInstructionDispatcher redisInstructionDispatcher;
 
-    private static final String relayMessagePrefix = "#";
+    private static final String repeatMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
     private static final String configurationFileName = "bungeecross.json";
 
     @Override
     public void onEnable() {
-        // enable logger
-        logger = getLogger();
-
         // get proxy server
         proxyServer = ProxyServer.getInstance();
 
@@ -67,13 +63,13 @@ public class BungeeCross extends Plugin {
         // load redis config
 //        RedisConfig redisConfig = new RedisConfig("121.36.38.51", 6379, "04mg0oB5$", "mc", "qq");
 
-        // initialize relayer
-        inGameRelayer = new InGameRelayer(proxyServer);
-        redisManager = new RedisManager(config.getRedis(), inGameRelayer);
+        // initialize repeater
+        inGameRepeater = new InGameRepeater(proxyServer);
+        redisManager = new RedisManager(config.getRedis(), inGameRepeater);
         interpreter = new MinInstructionInterpreter(redisManager);
         redisInstructionDispatcher = new RedisInstructionDispatcher(interpreter, redisManager);
         redisManager.setInstructionDispatcher(redisInstructionDispatcher);
-        inGameChatProcessor = new ConcreteInGameChatProcessor(relayMessagePrefix, inGameCommandPrefix, inGameRelayer, redisManager, false, logger, interpreter);
+        inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameRepeater, redisManager, false, interpreter);
 
         // register events
         getProxy().getPluginManager().registerListener(this, new Events(inGameChatProcessor));
@@ -81,8 +77,8 @@ public class BungeeCross extends Plugin {
         // start redis thread
         redisManager.start();
 
-//        // Start the relay thread
-//        getProxy().getScheduler().runAsync(this, this::messageRelayThread);
+//        // Start the repeat thread
+//        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
     }
 
     @Override
@@ -131,11 +127,11 @@ public class BungeeCross extends Plugin {
         if(file.exists())
             return false;
 
-        // generate default config programtically
+        // generate default config programmatically
         BungeeCrossConfig defaultConfig = new BungeeCrossConfig(
                 new RedisConfig("",6379,"","","")
         );
-        String jsonString = (new Gson()).toJson(defaultConfig);
+        String jsonString = (new GsonBuilder().setPrettyPrinting().create()).toJson(defaultConfig);
 
         // save to file
         try(BufferedOutputStream outputStream = new BufferedOutputStream(
@@ -150,12 +146,4 @@ public class BungeeCross extends Plugin {
         return true;
     }
 
-    /**
-     * The body of message relay thread.
-     * This thread processes the message queue, send them into the target TCP connection,
-     * and put all received messages into the
-     */
-    private void messageRelayThread() {
-
-    }
 }

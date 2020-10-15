@@ -1,12 +1,10 @@
 package com.keuin.bungeecross.message.ingame;
 
-import com.keuin.bungeecross.message.relayer.InGameRelayer;
-import com.keuin.bungeecross.message.relayer.RedisManager;
+import com.keuin.bungeecross.message.repeater.InGameRepeater;
+import com.keuin.bungeecross.message.repeater.RedisManager;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -17,14 +15,14 @@ import java.util.logging.Logger;
 
 public class ConcreteInGameChatProcessor implements InGameChatProcessor {
 
-    private final Logger logger;
+    private final Logger logger = Logger.getLogger(ConcreteInGameChatProcessor.class.getName());
 
-    private final String relayMessagePrefix;
+    private final String repeatMessagePrefix;
     private final String inGameCommandPrefix;
-    private final boolean relayCommandMessage;
+    private final boolean repeatCommandMessage;
 
     private final RedisManager redisManager;
-    private final InGameRelayer inGameRelayer;
+    private final InGameRepeater inGameRepeater;
 
     private final MinInstructionInterpreter interpreter;
     private final ChatProcessorDispatcher dispatcher = new ChatProcessorDispatcher();
@@ -32,57 +30,53 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
     /**
      * Construct a in-game chat message processor,
      * which handles message transforming between servers and mc-redis.
-     * @param relayMessagePrefix the prefix marks that the message should be sent to Redis.
-     * @param relayCommandMessage whether the command message should be relayed to other servers.
+     * @param repeatMessagePrefix the prefix marks that the message should be sent to Redis.
+     * @param repeatCommandMessage whether the command message should be repeated to other servers.
      */
-    public ConcreteInGameChatProcessor(String relayMessagePrefix, String inGameCommandPrefix, InGameRelayer inGameRelayer, RedisManager redisManager, boolean relayCommandMessage, Logger logger, MinInstructionInterpreter interpreter) {
-        this.relayMessagePrefix = relayMessagePrefix;
-        if(relayMessagePrefix == null)
-            throw new IllegalArgumentException("relayMessagePrefix must not be null.");
+    public ConcreteInGameChatProcessor(String repeatMessagePrefix, String inGameCommandPrefix, InGameRepeater inGameRepeater, RedisManager redisManager, boolean repeatCommandMessage, MinInstructionInterpreter interpreter) {
+        this.repeatMessagePrefix = repeatMessagePrefix;
+        if(repeatMessagePrefix == null)
+            throw new IllegalArgumentException("repeatMessagePrefix must not be null.");
         this.inGameCommandPrefix = inGameCommandPrefix;
         if(inGameCommandPrefix == null)
             throw new IllegalArgumentException("inGameCommandPrefix must not be null.");
-        this.relayCommandMessage = relayCommandMessage;
-        this.inGameRelayer = inGameRelayer;
-        if(inGameRelayer == null)
-            throw new IllegalArgumentException("inGameRelayer must not be null.");
+        this.repeatCommandMessage = repeatCommandMessage;
+        this.inGameRepeater = inGameRepeater;
+        if(inGameRepeater == null)
+            throw new IllegalArgumentException("inGameRepeater must not be null.");
         this.redisManager = redisManager; // Connect to Redis server here.
         if(redisManager == null)
             throw new IllegalArgumentException("redisManager must not be null.");
         this.interpreter = interpreter;
         if(interpreter == null)
             throw new IllegalArgumentException("interpreter must not be null.");
-
-        this.logger = logger;
     }
 
     private synchronized void process(InGameMessage message) {
         logger.info(String.format("InGameChatProcessor: processing message %s", message.toString()));
         boolean isCommand = false;
         // process as a command
-        if(message.getMessage().startsWith(inGameCommandPrefix)) {
+        if(message.getMessage().toLowerCase().startsWith(inGameCommandPrefix.toLowerCase())) {
             logger.info("Process as a command");
             isCommand = true;
             String cmd = message.getMessage();
-            // trim interval blankspace
+            // trim interval blank space
             cmd = cmd.substring(inGameCommandPrefix.length() + ((cmd.length() > inGameCommandPrefix.length()) ? 1 : 0));
             BaseComponent[] echo = interpreter.execute(cmd);
             echo(message.getSender().getUUID(), echo);
         }
 
-        if(!isCommand || relayCommandMessage) {
-            logger.info("Relay to other servers.");
-            // relay to other servers
-            inGameRelayer.relay(message);
+        if(!isCommand || repeatCommandMessage) {
+            logger.info("Repeat to other servers.");
+            // repeat to other servers
+            inGameRepeater.repeat(message);
         }
 
-        // relay to redis
-        if(!isCommand && message.getMessage().startsWith(relayMessagePrefix)) {
-            logger.info("Relay to Redis.");
-            redisManager.relay(message);
+        // repeat to redis
+        if(!isCommand && message.getMessage().startsWith(repeatMessagePrefix)) {
+            logger.info("Repeat to Redis.");
+            redisManager.repeat(message);
         }
-
-        logger.info("InGameChatProcessor: finish.");
     }
 
     /**

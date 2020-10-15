@@ -1,6 +1,5 @@
-package com.keuin.bungeecross.message.relayer;
+package com.keuin.bungeecross.message.repeater;
 
-import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import com.keuin.bungeecross.message.redis.RedisConfig;
@@ -16,11 +15,11 @@ import java.util.logging.Logger;
 /**
  * This manager holds a worker thread processing message inbound and outbound.
  */
-public class RedisManager implements MessageRelayer {
+public class RedisManager implements MessageRepeater {
 
     // TODO: Connect to redis server in constructor.
 
-    private final Logger logger = BungeeCross.logger;
+    private final Logger logger = Logger.getLogger(RedisManager.class.getName());
 
     private final AtomicBoolean enabled = new AtomicBoolean(true);
     private final RedisConfig redisConfig;
@@ -38,7 +37,7 @@ public class RedisManager implements MessageRelayer {
     private final InBoundMessageDispatcher inBoundMessageDispatcher;
 
     private final int POP_TIMEOUT = 1;
-    private final boolean relayCommandFromRedis = true;
+    private final boolean repeatCommandFromRedis = true;
     private final String redisCommandPrefix = "!";
 
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
@@ -79,7 +78,7 @@ public class RedisManager implements MessageRelayer {
     }
 
     @Override
-    public void relay(Message message) {
+    public void repeat(Message message) {
         // TODO
         sendQueue.add(message);
 //        jedis.lpush(pushQueueName, message.pack());
@@ -130,7 +129,7 @@ public class RedisManager implements MessageRelayer {
                             if (inboundMessage != null) {
                                 // send to Minecraft
                                 logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
-                                inBoundMessageDispatcher.relayInboundMessage(inboundMessage);
+                                inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
 
                                 // instructions
                                 if (instructionDispatcher != null && inboundMessage.getMessage().startsWith(redisCommandPrefix)) {

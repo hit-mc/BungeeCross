@@ -1,9 +1,10 @@
 package com.keuin.bungeecross.message.redis;
 
+/**
+ * Redis configuration section
+ * Immutable.
+ */
 public class RedisConfig {
-
-    // Immutable
-
     private final String host;
     private final int port;
     private final String password;

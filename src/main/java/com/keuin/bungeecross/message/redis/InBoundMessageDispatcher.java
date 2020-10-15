@@ -6,5 +6,5 @@ import com.keuin.bungeecross.message.Message;
  * This class is a visitor of other in-game message manager, which provides a inbound message apply interface.
  */
 public interface InBoundMessageDispatcher {
-    void relayInboundMessage(Message message);
+    void repeatInboundMessage(Message message);
 }

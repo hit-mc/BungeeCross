@@ -1,34 +1,30 @@
 package com.keuin.bungeecross.message.redis;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.ingame.InGameMessage;
-import com.keuin.bungeecross.message.relayer.MessageRelayer;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Handles instructions issued by RedisManager, execute them in serial, then echo to the MessageRelayer.
+ * Handles instructions issued by RedisManager, execute them in serial, then echo to the MessageRepeater.
  */
 public class RedisInstructionDispatcher {
 
     private final MinInstructionInterpreter interpreter;
-    private final MessageRelayer echoRelayer;
+    private final MessageRepeater echoRepeater;
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     private final LinkedBlockingQueue<String> instructionQueue = new LinkedBlockingQueue<>();
     private final DispatcherThread dispatcherThread = new DispatcherThread();
 
-    public RedisInstructionDispatcher(MinInstructionInterpreter interpreter, MessageRelayer echoRelayer) {
+    public RedisInstructionDispatcher(MinInstructionInterpreter interpreter, MessageRepeater echoRepeater) {
         this.interpreter = interpreter;
-        this.echoRelayer = echoRelayer;
+        this.echoRepeater = echoRepeater;
     }
 
     public void dispatch(String command) {
@@ -57,7 +53,7 @@ public class RedisInstructionDispatcher {
                     for (BaseComponent component : components) {
                         echoBuilder.append(component.toPlainText());
                     }
-                    echoRelayer.relay(new Message() {
+                    echoRepeater.repeat(new Message() {
                         @Override
                         public String getMessage() {
                             return echoBuilder.toString();

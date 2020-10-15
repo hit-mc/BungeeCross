@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.message.relayer;
+package com.keuin.bungeecross.message.repeater;
 
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
@@ -8,42 +8,41 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class InGameRelayer implements MessageRelayer, InBoundMessageDispatcher {
+public class InGameRepeater implements MessageRepeater, InBoundMessageDispatcher {
 
     private final Collection<ServerInfo> servers;
 
-    public InGameRelayer(ProxyServer proxyServer) {
+    public InGameRepeater(ProxyServer proxyServer) {
         servers = proxyServer.getServers().values();
     }
 
     /**
-     * Relay message to all other servers.
-     * @param message the message to be relayed.
+     * Repeat message to all other servers.
+     * @param message the message to be repeated.
      */
     @Override
-    public void relay(Message message) {
+    public void repeat(Message message) {
         UUID senderUUID = message.getSender().getUUID();
         for (ServerInfo targetServer : servers) {
-            boolean relay = true; // whether we should relay message to this server
+            boolean repeat = true; // whether we should repeat message to this server
             for (ProxiedPlayer player : targetServer.getPlayers()) {
                 if(senderUUID.equals(player.getUniqueId())) {
-                    relay = false;
+                    repeat = false;
                     break;
                 }
             }
-            if(relay) {
+            if(repeat) {
                 broadcastInServer(message, targetServer);
             }
         }
     }
 
     @Override
-    public void relayInboundMessage(Message message) {
+    public void repeatInboundMessage(Message message) {
         servers.forEach((server) -> broadcastInServer(message, server));
     }
 

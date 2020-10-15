@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction;
 
-import com.keuin.bungeecross.message.relayer.RedisManager;
+import com.keuin.bungeecross.message.repeater.RedisManager;
 import com.keuin.bungeecross.mininstruction.executor.InstructionExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ReloadExecutor;
@@ -43,7 +43,7 @@ public class MinInstructionInterpreter {
         ComponentBuilder echoBuilder = new ComponentBuilder();
 
         // default line
-        echoBuilder.append(new ComponentBuilder(String.format("CommandExecute{cmd=%s}\n", command)).color(ChatColor.DARK_BLUE).create());
+        echoBuilder.append(new ComponentBuilder(String.format("CommandExecute{cmd=%s}%n", command)).color(ChatColor.DARK_BLUE).create());
 
         // execute
         if (command.isEmpty()) {
@@ -54,7 +54,7 @@ public class MinInstructionInterpreter {
             // help command
             echoBuilder.append(new ComponentBuilder("All loaded instructions:\n").color(ChatColor.WHITE).create());
             for (Map.Entry<String, InstructionExecutor> entry : instructions.entrySet()) {
-                echoBuilder.append(new ComponentBuilder(String.format("+ %s%s\n", entry.getKey(), entry.getValue().getUsage())).create());
+                echoBuilder.append(new ComponentBuilder(String.format("+ %s%s%n", entry.getKey(), entry.getValue().getUsage())).create());
             }
         } else {
             InstructionExecutor executor = instructions.get(command);
