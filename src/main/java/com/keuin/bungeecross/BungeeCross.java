@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import static java.nio.file.StandardOpenOption.APPEND;
@@ -27,6 +28,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class BungeeCross extends Plugin {
 
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
+    public static String VERSION = "";
 
     private BungeeCrossConfig config;
 
@@ -40,6 +42,19 @@ public class BungeeCross extends Plugin {
     private static final String repeatMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
     private static final String configurationFileName = "bungeecross.json";
+
+    {
+        try {
+            // get version string
+            Properties properties = new Properties();
+//        properties.load(this.getClassLoader().getResourceAsStream("project.properties"));
+            properties.load(this.getClass(). getClassLoader().getResourceAsStream("project.properties"));
+            VERSION = properties.getProperty("version");
+//            System.out.println(properties.getProperty("artifactId"));
+        } catch (IOException e) {
+            logger.warning("Failed to get version string: " + e);
+        }
+    }
 
     @Override
     public void onEnable() {
