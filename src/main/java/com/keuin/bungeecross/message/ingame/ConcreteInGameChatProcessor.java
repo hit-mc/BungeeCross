@@ -73,9 +73,15 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
         }
 
         // repeat to redis
-        if(!isCommand && message.getMessage().startsWith(repeatMessagePrefix)) {
+        if(!isCommand
+                && message.getMessage().startsWith(repeatMessagePrefix)
+                && message.getMessage().length() > repeatMessagePrefix.length()
+        ) {
             logger.info("Repeat to Redis.");
-            redisManager.repeat(message);
+            redisManager.repeat(new InGameMessage(
+                    message.getMessage().substring(repeatMessagePrefix.length()), // remove the heading repeat prefix
+                    message.getSender()
+            ));
         }
     }
 
