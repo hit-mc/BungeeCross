@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.message.ingame;
 
 public interface InGameChatProcessor {
-    void process(InGameMessage message);
+    void issue(InGameMessage message);
+    void close();
 }

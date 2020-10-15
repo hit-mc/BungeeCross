@@ -28,8 +28,8 @@ public interface Message {
         Pattern pattern = Pattern.compile("([^|]*)(?:\\|\\|)([\\s\\S]*)");
         Matcher matcher = pattern.matcher(rawString);
         if (matcher.matches()) {
-            String sender = matcher.group(0);
-            String body = matcher.group(1);
+            String sender = matcher.group(1);
+            String body = matcher.group(2);
             return new RedisMessage(new RedisUser(sender), body);
         }
         return null;

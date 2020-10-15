@@ -5,8 +5,10 @@ import com.google.gson.JsonParseException;
 import com.keuin.bungeecross.message.ingame.ConcreteInGameChatProcessor;
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.redis.RedisConfig;
+import com.keuin.bungeecross.message.redis.RedisInstructionDispatcher;
 import com.keuin.bungeecross.message.relayer.InGameRelayer;
 import com.keuin.bungeecross.message.relayer.RedisManager;
+import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -33,6 +35,8 @@ public class BungeeCross extends Plugin {
     private InGameRelayer inGameRelayer;
     private RedisManager redisManager;
     private InGameChatProcessor inGameChatProcessor = null;
+    private MinInstructionInterpreter interpreter;
+    private RedisInstructionDispatcher redisInstructionDispatcher;
 
     private static final String relayMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
@@ -66,7 +70,10 @@ public class BungeeCross extends Plugin {
         // initialize relayer
         inGameRelayer = new InGameRelayer(proxyServer);
         redisManager = new RedisManager(config.getRedis(), inGameRelayer);
-        inGameChatProcessor = new ConcreteInGameChatProcessor(relayMessagePrefix, inGameCommandPrefix, inGameRelayer, redisManager, false, logger);
+        interpreter = new MinInstructionInterpreter(redisManager);
+        redisInstructionDispatcher = new RedisInstructionDispatcher(interpreter, redisManager);
+        redisManager.setInstructionDispatcher(redisInstructionDispatcher);
+        inGameChatProcessor = new ConcreteInGameChatProcessor(relayMessagePrefix, inGameCommandPrefix, inGameRelayer, redisManager, false, logger, interpreter);
 
         // register events
         getProxy().getPluginManager().registerListener(this, new Events(inGameChatProcessor));
@@ -82,7 +89,12 @@ public class BungeeCross extends Plugin {
     public void onDisable() {
         super.onDisable();
         logger.info("Stopping RedisManager...");
-        redisManager.stop();
+        if (redisManager != null)
+            redisManager.stop();
+        if (inGameChatProcessor != null)
+            inGameChatProcessor.close();
+        if (redisInstructionDispatcher != null)
+            redisInstructionDispatcher.close();
     }
 
     /**

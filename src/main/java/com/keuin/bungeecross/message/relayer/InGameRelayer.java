@@ -4,9 +4,11 @@ import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -46,8 +48,15 @@ public class InGameRelayer implements MessageRelayer, InBoundMessageDispatcher {
     }
 
     private void broadcastInServer(Message message, ServerInfo server) {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append(new ComponentBuilder(String.format("<%s> ", message.getSender().getName())).color(ChatColor.LIGHT_PURPLE).create());
+        builder.append(new ComponentBuilder(message.getMessage()).color(ChatColor.GRAY).create());
+        BaseComponent[] sentMessage = builder.create();
+
         for (ProxiedPlayer player : server.getPlayers()) {
-            player.sendMessage(new ComponentBuilder(message.toString()).color(ChatColor.DARK_PURPLE).create());
+            if(player != null) {
+                player.sendMessage(sentMessage);
+            }
         }
     }
 
