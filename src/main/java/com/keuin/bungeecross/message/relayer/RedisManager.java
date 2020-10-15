@@ -3,9 +3,8 @@ package com.keuin.bungeecross.message.relayer;
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
-import com.keuin.bungeecross.message.redis.RedisInstructionDispatcher;
 import com.keuin.bungeecross.message.redis.RedisConfig;
-import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
+import com.keuin.bungeecross.message.redis.RedisInstructionDispatcher;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;

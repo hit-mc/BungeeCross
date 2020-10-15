@@ -39,8 +39,11 @@ public class Events implements Listener {
         String message = event.getMessage();
         ProxiedPlayer sender = (ProxiedPlayer) event.getSender();
         MessageUser user = new PlayerUser(sender.getName(), sender.getUniqueId());
-        logger.info(String.format("Chat message: %s, sender: %s", message, user));
 
+        if (message.startsWith("/"))
+            return; // Do not relay commands
+
+        logger.info(String.format("Chat message: %s, sender: %s", message, user));
         inGameChatProcessor.issue(new InGameMessage(message, user));
 
 //        String rel = String.format("Broadcast! user=%s, msg=%s.", sender, message);
