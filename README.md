@@ -1,4 +1,4 @@
-# BungeeCross: A powerful & reliable BungeeCord/Waterfall based Multi-server intercommunicating repeater
+# BungeeCross: A powerful & reliable BungeeCord/Waterfall multi-server intercommunicating solution
 
 What's BungeeCross? **It integrates chatting & messaging among all your servers.**
 
