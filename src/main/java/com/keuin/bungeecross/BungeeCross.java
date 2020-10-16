@@ -6,8 +6,8 @@ import com.google.gson.JsonParseException;
 import com.keuin.bungeecross.message.ingame.ConcreteInGameChatProcessor;
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.redis.RedisConfig;
-import com.keuin.bungeecross.message.redis.RedisInstructionDispatcher;
-import com.keuin.bungeecross.message.repeater.InGameRepeater;
+import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
+import com.keuin.bungeecross.message.repeater.InGameBroadcastRepeater;
 import com.keuin.bungeecross.message.repeater.RedisManager;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import net.md_5.bungee.api.ProxyServer;
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -33,11 +34,11 @@ public class BungeeCross extends Plugin {
     private BungeeCrossConfig config;
 
     private ProxyServer proxyServer;
-    private InGameRepeater inGameRepeater;
+    private InGameBroadcastRepeater inGameBroadcastRepeater;
     private RedisManager redisManager;
     private InGameChatProcessor inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
-    private RedisInstructionDispatcher redisInstructionDispatcher;
+    private InstructionDispatcher instructionDispatcher;
 
     private static final String repeatMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
@@ -65,12 +66,12 @@ public class BungeeCross extends Plugin {
         File configFile = new File(configurationFileName);
         if (!configFile.exists()) {
             logger.warning(String.format("Config file %s does not exist. A skeleton file will be generated. Please edit it and reload BungeeCross.", configurationFileName));
-            generateDefaultConfig(configurationFileName);
+            generateDefaultConfig();
             return;
         }
 
         // load global config
-        if (!loadConfig(configurationFileName) || config == null) {
+        if (!loadConfig() || config == null) {
             logger.severe(String.format("Cannot read config from file: %s. BungeeCross is disabled.", configurationFileName));
             return;
         }
@@ -79,15 +80,15 @@ public class BungeeCross extends Plugin {
 //        RedisConfig redisConfig = new RedisConfig("121.36.38.51", 6379, "04mg0oB5$", "mc", "qq");
 
         // initialize repeater
-        inGameRepeater = new InGameRepeater(proxyServer);
-        redisManager = new RedisManager(config.getRedis(), inGameRepeater);
-        interpreter = new MinInstructionInterpreter(redisManager);
-        redisInstructionDispatcher = new RedisInstructionDispatcher(interpreter, redisManager);
-        redisManager.setInstructionDispatcher(redisInstructionDispatcher);
-        inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameRepeater, redisManager, false, interpreter);
+        inGameBroadcastRepeater = new InGameBroadcastRepeater(proxyServer);
+        redisManager = new RedisManager(config.getRedis(), inGameBroadcastRepeater);
+        interpreter = new MinInstructionInterpreter(redisManager, this);
+        instructionDispatcher = new InstructionDispatcher(interpreter);
+        redisManager.setInstructionDispatcher(instructionDispatcher);
+        inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
 
         // register events
-        getProxy().getPluginManager().registerListener(this, new Events(inGameChatProcessor));
+        getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor));
 
         // start redis thread
         redisManager.start();
@@ -104,28 +105,28 @@ public class BungeeCross extends Plugin {
             redisManager.stop();
         if (inGameChatProcessor != null)
             inGameChatProcessor.close();
-        if (redisInstructionDispatcher != null)
-            redisInstructionDispatcher.close();
+        if (instructionDispatcher != null)
+            instructionDispatcher.close();
     }
 
     /**
      * Load global config.
      * @return whether it succeeds.
      */
-    private boolean loadConfig(String configFileName) {
+    private boolean loadConfig() {
         try {
-            File configFile = new File(configFileName);
+            File configFile = new File(BungeeCross.configurationFileName);
             if (!configFile.exists()) {
-                logger.severe(String.format("Specific config file %s does not exist.", configFileName));
+                logger.severe(String.format("Specific config file %s does not exist.", BungeeCross.configurationFileName));
                 return false;
             }
             Reader configReader = Files.newBufferedReader(configFile.toPath());
             config = (new Gson()).fromJson(configReader, BungeeCrossConfig.class);
         } catch (IOException e) {
-            logger.severe(String.format("Failed to read config file %s: %s.", configFileName, e));
+            logger.severe(String.format("Failed to read config file %s: %s.", BungeeCross.configurationFileName, e));
             return false;
         } catch (JsonParseException e) {
-            logger.severe(String.format("Malformed config file %s: %s.", configFileName, e));
+            logger.severe(String.format("Malformed config file %s: %s.", BungeeCross.configurationFileName, e));
             return false;
         }
         return true;
@@ -133,15 +134,8 @@ public class BungeeCross extends Plugin {
 
     /**
      * Generate default config file.
-     * @param configurationFileName file name.
-     * @return whether it succeeds.
      */
-    private boolean generateDefaultConfig(String configurationFileName) {
-        // if file already exists
-        File file = new File(configurationFileName);
-        if(file.exists())
-            return false;
-
+    private void generateDefaultConfig() {
         // generate default config programmatically
         BungeeCrossConfig defaultConfig = new BungeeCrossConfig(
                 new RedisConfig("",6379,"","","")
@@ -150,15 +144,12 @@ public class BungeeCross extends Plugin {
 
         // save to file
         try(BufferedOutputStream outputStream = new BufferedOutputStream(
-                Files.newOutputStream(file.toPath(), CREATE_NEW, APPEND)
+                Files.newOutputStream(Paths.get(BungeeCross.configurationFileName),CREATE_NEW, APPEND)
         )) {
             outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-            logger.severe(String.format("Failed to generate default config file %s: %s.", configurationFileName, e));
-            return false;
+            logger.severe(String.format("Failed to generate default config file %s: %s.", BungeeCross.configurationFileName, e));
         }
-
-        return true;
     }
 
 }

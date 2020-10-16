@@ -2,21 +2,19 @@ package com.keuin.bungeecross.message.repeater;
 
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class InGameRepeater implements MessageRepeater, InBoundMessageDispatcher {
+public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageDispatcher {
 
     private final Collection<ServerInfo> servers;
 
-    public InGameRepeater(ProxyServer proxyServer) {
+    public InGameBroadcastRepeater(ProxyServer proxyServer) {
         servers = proxyServer.getServers().values();
     }
 
@@ -47,10 +45,7 @@ public class InGameRepeater implements MessageRepeater, InBoundMessageDispatcher
     }
 
     private void broadcastInServer(Message message, ServerInfo server) {
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append(new ComponentBuilder(String.format("<%s> ", message.getSender().getName())).color(ChatColor.LIGHT_PURPLE).create());
-        builder.append(new ComponentBuilder(message.getMessage()).color(ChatColor.GRAY).create());
-        BaseComponent[] sentMessage = builder.create();
+        BaseComponent[] sentMessage = message.toRepeatedChatMessage();
 
         for (ProxiedPlayer player : server.getPlayers()) {
             if(player != null) {

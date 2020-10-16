@@ -23,4 +23,10 @@ public interface MessageUser {
      * @return the id.
      */
     String getId();
+
+    /**
+     * Get where the user is, such as the server name, or the Redis peer name (QQ).
+     * @return the location name.
+     */
+    String getLocation();
 }

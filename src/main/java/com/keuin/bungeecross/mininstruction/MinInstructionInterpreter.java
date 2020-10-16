@@ -9,6 +9,7 @@ import com.keuin.bungeecross.mininstruction.executor.StatExecutor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,10 +19,12 @@ import java.util.Map;
 public class MinInstructionInterpreter {
 
     private final RedisManager redisManager;
+    private final Plugin plugin;
     private final Map<String, InstructionExecutor> instructions = new HashMap<>();
 
-    public MinInstructionInterpreter(RedisManager redisManager) {
+    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin) {
         this.redisManager = redisManager;
+        this.plugin = plugin;
         registerInstructions();
     }
 
@@ -32,7 +35,7 @@ public class MinInstructionInterpreter {
     private void registerInstructions() {
         List<InstructionExecutor> inst = Arrays.asList(
                 ListExecutor.getInstance(),
-                ReloadExecutor.getInstance(),
+                ReloadExecutor.getInstance(plugin),
                 StatExecutor.getInstance(redisManager)
         );
         for (InstructionExecutor executor : inst) {
@@ -50,7 +53,7 @@ public class MinInstructionInterpreter {
         if (command.isEmpty()) {
             // blank command
             echoBuilder.append(new ComponentBuilder(String.format("MinInstruction Interpreter (BungeeCross %s)\n", BungeeCross.VERSION)).color(ChatColor.DARK_GREEN).create());
-            echoBuilder.append(new ComponentBuilder("Use /help to show usages.").create());
+            echoBuilder.append(new ComponentBuilder("Use 'help' to show usages.").create());
         } else if (command.equals("help")) {
             // help command
             echoBuilder.append(new ComponentBuilder("All loaded instructions:\n").color(ChatColor.WHITE).create());

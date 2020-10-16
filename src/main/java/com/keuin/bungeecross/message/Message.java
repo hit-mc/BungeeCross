@@ -1,8 +1,10 @@
 package com.keuin.bungeecross.message;
 
-import com.keuin.bungeecross.message.redis.RedisMessage;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.RedisUser;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 
 import java.util.regex.*;
 
@@ -33,5 +35,17 @@ public interface Message {
             return new RedisMessage(new RedisUser(sender), body);
         }
         return null;
+    }
+
+    /**
+     * Convert the message into BaseComponent[], which can be sent to the game by player.sendMessage directly.
+     * @return a BaseComponent[] instance.
+     */
+    default BaseComponent[] toRepeatedChatMessage() {
+        String header = String.format("<%s> ", this.getSender().getName());
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append(new ComponentBuilder(header).color(ChatColor.LIGHT_PURPLE).create());
+        builder.append(new ComponentBuilder(this.getMessage()).color(ChatColor.GRAY).create());
+        return builder.create();
     }
 }

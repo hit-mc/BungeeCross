@@ -9,6 +9,6 @@ public class MessageTest {
         Message message = Message.fromRedisRawString("sender||message");
         assertNotNull(message);
         assertEquals(message.getMessage(), "message");
-        assertEquals(message.getSender().getName(), "sender");
+        assertEquals(message.getSender().getName(), "sender@QQ");
     }
 }

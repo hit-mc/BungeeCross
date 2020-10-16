@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.message.redis;
+package com.keuin.bungeecross.message;
 
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.user.MessageUser;

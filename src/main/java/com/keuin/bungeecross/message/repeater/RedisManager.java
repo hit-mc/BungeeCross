@@ -3,8 +3,10 @@ package com.keuin.bungeecross.message.repeater;
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import com.keuin.bungeecross.message.redis.RedisConfig;
-import com.keuin.bungeecross.message.redis.RedisInstructionDispatcher;
+import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -32,12 +34,12 @@ public class RedisManager implements MessageRepeater {
     private final SenderThread senderThread = new SenderThread();
     private final ReceiverThread receiverThread = new ReceiverThread();
 
-    private RedisInstructionDispatcher instructionDispatcher;
+    private InstructionDispatcher instructionDispatcher;
 
     private final InBoundMessageDispatcher inBoundMessageDispatcher;
 
     private final int POP_TIMEOUT = 1;
-    private final boolean repeatCommandFromRedis = true;
+    private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
 
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
@@ -84,7 +86,7 @@ public class RedisManager implements MessageRepeater {
 //        jedis.lpush(pushQueueName, message.pack());
     }
 
-    public void setInstructionDispatcher(RedisInstructionDispatcher instructionDispatcher) {
+    public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
         this.instructionDispatcher = instructionDispatcher;
     }
 
@@ -95,18 +97,36 @@ public class RedisManager implements MessageRepeater {
     private class SenderThread extends Thread {
         @Override
         public void run() {
+            int retryCounter = MAX_RETRY_TIMES;
             try(Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
                 jedis.auth(redisConfig.getPassword());
                 try {
                     while (enabled.get()) {
                         Message outboundMessage = sendQueue.take();
                         // send outbound message
-                        jedis.lpush(pushQueueName, outboundMessage.pack());
+                        while (retryCounter > 0) {
+                            try {
+                                jedis.lpush(pushQueueName, outboundMessage.pack());
+                            } catch (JedisException e) {
+                                logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
+                                --retryCounter;
+                                continue;
+                            }
+                            retryCounter = MAX_RETRY_TIMES;
+                            break;
+                        }
+                        // max retry times reached
+                        if (retryCounter == 0) {
+                            logger.severe("Max retry times reached. Sender thread will quit.");
+                            return;
+                        }
                     }
                 } catch (InterruptedException ignored){
                     logger.info("Sender thread was interrupted. Quitting.");
                 }
                 logger.info("Sender thread is stopped.");
+            } catch (JedisConnectionException e) {
+                logger.severe("Failed to connect Redis server: " + e + " Sender thread will quit.");
             }
         }
     }
@@ -121,26 +141,45 @@ public class RedisManager implements MessageRepeater {
             try(Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
                 jedis.auth(redisConfig.getPassword());
                 while (enabled.get()) {
-                    // TODO
-                    List<String> list = jedis.brpop(POP_TIMEOUT, popQueueName);
+                    // receive from Redis
+                    List<String> list = null;
+                    int retryCounter = MAX_RETRY_TIMES;
+                    while (retryCounter > 0) {
+                        try {
+                            list = jedis.brpop(POP_TIMEOUT, popQueueName);
+                        } catch (JedisException e) {
+                            logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
+                            --retryCounter;
+                            continue;
+                        }
+                        break;
+                    }
+                    // max retry times reached
+                    if (retryCounter == 0) {
+                        logger.severe("Max retry times reached. Receiver thread will quit.");
+                        return;
+                    }
+
                     if (list != null) {
                         for (String rawSting : list) {
                             Message inboundMessage = Message.fromRedisRawString(rawSting);
                             if (inboundMessage != null) {
+                                boolean isCommand = inboundMessage.getMessage().startsWith(redisCommandPrefix);
                                 // send to Minecraft
-                                logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
-                                inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
+                                if (!isCommand) {
+                                    logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
+                                    inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
+                                }
 
-                                // instructions
-                                if (instructionDispatcher != null && inboundMessage.getMessage().startsWith(redisCommandPrefix)) {
-                                    // command from redis
+                                // Execute instruction
+                                if (isCommand && instructionDispatcher != null) {
                                     String cmd = inboundMessage.getMessage();
                                     if (redisCommandPrefix.length() == cmd.length())
                                         cmd = "";
                                     else
                                         cmd = cmd.substring(redisCommandPrefix.length());
                                     // dispatch the command
-                                    instructionDispatcher.dispatch(cmd);
+                                    instructionDispatcher.dispatchExecution(cmd, RedisManager.this);
                                 }
                             } else {
                                 logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));
@@ -152,6 +191,8 @@ public class RedisManager implements MessageRepeater {
                 }
             } catch (InterruptedException ignored) {
                 logger.info("Receiver thread was interrupted. Quitting.");
+            } catch (JedisConnectionException e) {
+                logger.severe("Failed to connect Redis server: " + e + " Receiver thread will quit.");
             }
             logger.info("Receiver thread is stopped.");
         }

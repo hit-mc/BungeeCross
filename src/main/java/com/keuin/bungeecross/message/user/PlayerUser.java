@@ -8,10 +8,12 @@ public class PlayerUser implements MessageUser {
 
     private final String playerName;
     private final UUID uuid;
+    private final String location;
 
-    public PlayerUser(String playerName, UUID uuid) {
+    public PlayerUser(String playerName, UUID uuid, String location) {
         this.playerName = playerName;
         this.uuid = uuid;
+        this.location = location;
     }
 
     @Override
@@ -20,8 +22,13 @@ public class PlayerUser implements MessageUser {
     }
 
     @Override
+    public String getLocation() {
+        return location;
+    }
+
+    @Override
     public String getName() {
-        return playerName;
+        return String.format("%s@%s", playerName, location);
     }
 
     @Override

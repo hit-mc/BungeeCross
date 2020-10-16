@@ -7,10 +7,11 @@ public class RedisUser implements MessageUser {
     // Immutable
 
     private final String userName;
-    private final String uniqueId; // may be null
+    private final String uniqueId;
+    private final String location = "QQ";
 
     public RedisUser(String userName) {
-        this(userName, null);
+        this(userName, userName);
     }
 
     public RedisUser(String userName, String uniqueId) {
@@ -20,7 +21,7 @@ public class RedisUser implements MessageUser {
 
     @Override
     public String getName() {
-        return userName;
+        return String.format("%s@%s", userName, location);
     }
 
     @Override
@@ -31,6 +32,11 @@ public class RedisUser implements MessageUser {
     @Override
     public String getId() {
         return uniqueId;
+    }
+
+    @Override
+    public String getLocation() {
+        return location;
     }
 
     @Override

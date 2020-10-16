@@ -1,31 +1,69 @@
 package com.keuin.bungeecross;
 
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
-import com.keuin.bungeecross.message.ingame.InGameMessage;
+import com.keuin.bungeecross.message.InGameMessage;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.PlayerUser;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class Events implements Listener {
 
     private final InGameChatProcessor inGameChatProcessor;
+    private final Plugin plugin;
     private final Logger logger = Logger.getLogger(Events.class.getName());
 
-    public Events(InGameChatProcessor inGameChatProcessor) {
+    private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
+
+    public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor) {
+        this.plugin = plugin;
         this.inGameChatProcessor = inGameChatProcessor;
     }
 
     @EventHandler
-    public void onPostLogin(PostLoginEvent event) {
+    public void onServerConnect(ServerConnectEvent event) {
+        joiningServers.put(event.getPlayer().getUniqueId(), event.getTarget());
+    }
+
+    @EventHandler
+    public void onPlayerJoined(ServerConnectedEvent event) {
+        if (!joiningServers.containsKey(event.getPlayer().getUniqueId())) {
+            logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
+            return;
+        }
+        // after a player joined
+        ProxiedPlayer player = event.getPlayer();
+        ProxyServer proxy = plugin.getProxy();
+        ServerInfo server = joiningServers.get(player.getUniqueId());
+
+        // build message
+//        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");
+//        joinedMessage.addWith(player.getName());
+        logger.info(String.format("Server: %s, player: %s, proxy: %s.", server, player, proxy));
+        BaseComponent[] joinedMessage = (new ComponentBuilder(String.format("%s joined server [%s].", player.getName(), server.getName()))).italic(true).color(ChatColor.YELLOW).create();
+
+        for (ServerInfo serverInfo : proxy.getServers().values()) {
+            // for all other servers
+            if (!serverInfo.getName().equals(server.getName()))
+                for (ProxiedPlayer dest : serverInfo.getPlayers())
+                    if (!dest.getUniqueId().equals(player.getUniqueId()))
+                        dest.sendMessage(joinedMessage); // repeat the join message
+        }
+
+        joiningServers.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -37,13 +75,13 @@ public class Events implements Listener {
 
         String message = event.getMessage();
         ProxiedPlayer sender = (ProxiedPlayer) event.getSender();
-        MessageUser user = new PlayerUser(sender.getName(), sender.getUniqueId());
+        MessageUser messageUser = new PlayerUser(sender.getName(), sender.getUniqueId(), sender.getServer().getInfo().getName());
 
         if (message.startsWith("/"))
             return; // Do not repeat commands
 
-        logger.info(String.format("Chat message: %s, sender: %s", message, user));
-        inGameChatProcessor.issue(new InGameMessage(message, user));
+        logger.info(String.format("Chat message: %s, sender: %s", message, messageUser));
+        inGameChatProcessor.issue(new InGameMessage(message, messageUser, sender));
 
 //        String rel = String.format("Broadcast! user=%s, msg=%s.", sender, message);
 //        BungeeCross.logger.info(rel);
