@@ -9,7 +9,23 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import java.util.regex.*;
 
 public interface Message {
+
+    /**
+     * Get the message in pure text formatting.
+     * @return the pure text message.
+     */
     String getMessage();
+
+    /**
+     * Get the message in minecraft rich text formatting.
+     * @return the rich text message.
+     */
+    BaseComponent[] getRichTextMessage();
+
+    /**
+     * Get the sender of this message.
+     * @return the sender.
+     */
     MessageUser getSender();
 
     /**

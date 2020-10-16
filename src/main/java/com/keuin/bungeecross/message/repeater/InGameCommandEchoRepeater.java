@@ -58,6 +58,6 @@ public class InGameCommandEchoRepeater implements MessageRepeater {
             assert proxyServer != null;
             player = proxyServer.getPlayer(playerId);
         }
-        player.sendMessage(message.getMessage());
+        player.sendMessage(message.getRichTextMessage());
     }
 }

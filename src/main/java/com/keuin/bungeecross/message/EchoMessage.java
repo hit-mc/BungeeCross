@@ -1,40 +1,31 @@
 package com.keuin.bungeecross.message;
 
 import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.message.user.MessageUserFactory;
+import com.keuin.bungeecross.util.MessageUtil;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 
-import java.util.UUID;
+import java.util.Arrays;
 
 public class EchoMessage implements Message {
 
     private final String echo;
+    private final BaseComponent[] baseComponents;
     private final String instruction;
-    private final MessageUser consoleUser;
-    private final String LOCATION = "SERVER";
 
-    public EchoMessage(String echo, String instruction) {
+    public EchoMessage(String instruction, String echo) {
         this.echo = echo;
         this.instruction = instruction;
-        this.consoleUser = new MessageUser() {
-            @Override
-            public String getName() {
-                return String.format("%s@%s", instruction, getLocation());
-            }
+        this.baseComponents = new ComponentBuilder(instruction).create();
+    }
 
-            @Override
-            public UUID getUUID() {
-                return null;
-            }
-
-            @Override
-            public String getId() {
-                return instruction;
-            }
-
-            @Override
-            public String getLocation() {
-                return LOCATION;
-            }
-        };
+    public EchoMessage(String instruction, BaseComponent[] baseComponents) {
+        BaseComponent[] copy = new BaseComponent[baseComponents.length];
+        System.arraycopy(baseComponents, 0, copy, 0, copy.length);
+        this.baseComponents = copy;
+        this.instruction = instruction;
+        this.echo = MessageUtil.getPlainTextOfBaseComponents(baseComponents);
     }
 
     public String getInstruction() {
@@ -47,7 +38,14 @@ public class EchoMessage implements Message {
     }
 
     @Override
+    public BaseComponent[] getRichTextMessage() {
+        BaseComponent[] copy = new BaseComponent[baseComponents.length];
+        System.arraycopy(baseComponents, 0, copy, 0, copy.length);
+        return copy;
+    }
+
+    @Override
     public MessageUser getSender() {
-        return consoleUser;
+        return MessageUserFactory.getConsoleUser(instruction);
     }
 }

@@ -1,9 +1,14 @@
 package com.keuin.bungeecross.message;
 
 import com.keuin.bungeecross.message.user.MessageUser;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import javax.xml.soap.Text;
+
 public class InGameMessage implements Message {
+
     private final String message;
     private final MessageUser sender;
     private final ProxiedPlayer proxiedPlayer;
@@ -18,6 +23,11 @@ public class InGameMessage implements Message {
 
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public BaseComponent[] getRichTextMessage() {
+        return new BaseComponent[]{new TextComponent(message)}; // copy to persist invariance
     }
 
     public MessageUser getSender() {

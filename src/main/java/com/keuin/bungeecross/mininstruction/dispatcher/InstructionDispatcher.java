@@ -44,16 +44,13 @@ public class InstructionDispatcher {
         public void run() {
             try {
                 while (running.get()) {
-                    Thread.sleep(100);
-                    ScheduledExecution inst = instructionQueue.take();
+                    Thread.sleep(100); // a simple mitigation
 
-                    StringBuilder echoBuilder = new StringBuilder();
-                    BaseComponent[] components = interpreter.execute(inst.getCommand());
-                    for (BaseComponent component : components) {
-                        echoBuilder.append(component.toPlainText());
-                    }
-                    // repeat as the SERVER user
-                    inst.getEchoRepeater().repeat(new EchoMessage(echoBuilder.toString(), inst.getCommand()));
+                    ScheduledExecution inst = instructionQueue.take();
+                    BaseComponent[] echoComponents = interpreter.execute(inst.getCommand());
+
+                    // repeat
+                    inst.getEchoRepeater().repeat(new EchoMessage(inst.getCommand(),echoComponents));
 //                    echoRepeater.repeat();
                 }
             } catch (InterruptedException ignored) {
