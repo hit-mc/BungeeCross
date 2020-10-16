@@ -5,8 +5,9 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import javax.xml.soap.Text;
-
+/**
+ * The message sent by a game player.
+ */
 public class InGameMessage implements Message {
 
     private final String message;

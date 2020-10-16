@@ -1,11 +1,11 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.logging.Logger;
 
-public class ReloadExecutor extends AbstractInstructionExecutor {
+public final class ReloadExecutor extends AbstractInstructionExecutor {
 
     private static final ReloadExecutor INSTANCE = new ReloadExecutor(
             "disable, reload all configurations, and finally enable BungeeCross.",
@@ -16,7 +16,7 @@ public class ReloadExecutor extends AbstractInstructionExecutor {
     private static Plugin plugin;
     private final Logger logger = Logger.getLogger(ReloadExecutor.class.getName());
 
-    protected ReloadExecutor(String description, String[] params) {
+    private ReloadExecutor(String description, String[] params) {
         super(description, params);
     }
 
@@ -26,7 +26,7 @@ public class ReloadExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public BaseComponent[] execute() {
+    public void execute(MessageRepeater echoRepeater) {
         plugin.getProxy().getScheduler().runAsync(plugin, new Runnable() {
             @Override
             public void run() {
@@ -41,7 +41,6 @@ public class ReloadExecutor extends AbstractInstructionExecutor {
                 logger.info("Soft reload finished.");
             }
         });
-        return new BaseComponent[0];
     }
 
     @Override

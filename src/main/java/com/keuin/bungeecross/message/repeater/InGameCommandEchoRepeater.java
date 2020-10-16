@@ -60,4 +60,18 @@ public class InGameCommandEchoRepeater implements MessageRepeater {
         }
         player.sendMessage(message.getRichTextMessage());
     }
+
+//    @Override
+//    public boolean setBuffer(boolean enabled) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isBufferEnabled() {
+//        return false;
+//    }
+//
+//    @Override
+//    public void flush() {
+//    }
 }

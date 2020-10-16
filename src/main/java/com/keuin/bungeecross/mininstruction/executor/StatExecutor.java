@@ -1,11 +1,12 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.redis.RedisQueueManager;
+import com.keuin.bungeecross.message.EchoMessage;
+import com.keuin.bungeecross.message.redis.RedisManager;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-public class StatExecutor extends AbstractInstructionExecutor {
+public final class StatExecutor extends AbstractInstructionExecutor {
 
     private static final StatExecutor INSTANCE = new StatExecutor(
             "show the status of BungeeCross.",
@@ -13,36 +14,35 @@ public class StatExecutor extends AbstractInstructionExecutor {
     );
 
     private static final String commandString = "stat";
-    private static RedisQueueManager redisQueueManager = null;
+    private static RedisManager redisManager = null;
 
-    protected StatExecutor(String description, String[] params) {
+    private StatExecutor(String description, String[] params) {
         super(description, params);
     }
 
-    public static StatExecutor getInstance(RedisQueueManager redisQueueManager) {
-        StatExecutor.redisQueueManager = redisQueueManager;
+    public static StatExecutor getInstance(RedisManager redisManager) {
+        StatExecutor.redisManager = redisManager;
         return INSTANCE;
     }
 
     @Override
-    public BaseComponent[] execute() {
-        if (redisQueueManager != null) {
+    public void execute(MessageRepeater echoRepeater) {
+        if (redisManager != null) {
             ComponentBuilder builder = new ComponentBuilder();
 //            builder.append("Stat:\n");
-            builder.append(new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create());
-            builder.append(redisQueueManager.isSenderAlive() ?
+            echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create()));
+            echoRepeater.repeat(new EchoMessage(commandString, redisManager.isSenderAlive() ?
+                    new ComponentBuilder("Alive\n").color(ChatColor.GREEN).create() :
+                    new ComponentBuilder("Stopped\n").color(ChatColor.RED).create()
+            ));
+
+            echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create()));
+            echoRepeater.repeat(new EchoMessage(commandString, redisManager.isReceiverAlive() ?
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
-                    new ComponentBuilder("Stopped").color(ChatColor.GREEN).create()
-            );
-            builder.append("\n");
-            builder.append(new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create());
-            builder.append(redisQueueManager.isReceiverAlive() ?
-                    new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
-                    new ComponentBuilder("Stopped").color(ChatColor.GREEN).create()
-            );
-            return builder.create();
+                    new ComponentBuilder("Stopped").color(ChatColor.RED).create()
+            ));
         } else {
-            return new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create();
+            echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create()));
         }
     }
 

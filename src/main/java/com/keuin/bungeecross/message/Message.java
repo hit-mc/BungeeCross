@@ -6,7 +6,8 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface Message {
 
@@ -57,7 +58,7 @@ public interface Message {
      * Convert the message into BaseComponent[], which can be sent to the game by player.sendMessage directly.
      * @return a BaseComponent[] instance.
      */
-    default BaseComponent[] toRepeatedChatMessage() {
+    default BaseComponent[] toChatInGameRepeatFormat() {
         String header = String.format("<%s> ", this.getSender().getName());
         ComponentBuilder builder = new ComponentBuilder();
         builder.append(new ComponentBuilder(header).color(ChatColor.LIGHT_PURPLE).create());

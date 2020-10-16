@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.message.redis;
 
 import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -16,9 +17,9 @@ import java.util.logging.Logger;
  * This class manages the Redis connection and its inbound/outbound queue.
  * It handles the message input and output.
  */
-public class RedisQueueManager {
+public class RedisManager implements MessageRepeater {
 
-    private final Logger logger = Logger.getLogger(RedisQueueManager.class.getName());
+    private final Logger logger = Logger.getLogger(RedisManager.class.getName());
 
     private final AtomicBoolean enabled = new AtomicBoolean(true);
     private final RedisConfig redisConfig;
@@ -38,7 +39,7 @@ public class RedisQueueManager {
     private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
 
-    public RedisQueueManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
+    public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
 
         this.pushQueueName = redisConfig.getPushQueueName();
@@ -75,7 +76,8 @@ public class RedisQueueManager {
         return receiverThread.isAlive();
     }
 
-    public void sendMessage(Message message) {
+    @Override
+    public void repeat(Message message) {
         sendQueue.add(message);
 //        jedis.lpush(pushQueueName, message.pack());
     }
@@ -173,7 +175,7 @@ public class RedisQueueManager {
                                     else
                                         cmd = cmd.substring(redisCommandPrefix.length());
                                     // dispatch the command
-                                    instructionDispatcher.dispatchExecution(cmd, RedisQueueManager.this);
+                                    instructionDispatcher.dispatchExecution(cmd, RedisManager.this);
                                 }
                             } else {
                                 logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));

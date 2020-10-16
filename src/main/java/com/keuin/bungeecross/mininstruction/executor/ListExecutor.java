@@ -1,12 +1,18 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
+import com.keuin.bungeecross.message.EchoMessage;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-public class ListExecutor extends AbstractInstructionExecutor {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public final class ListExecutor extends AbstractInstructionExecutor {
 
     private static final ListExecutor INSTANCE = new ListExecutor(
             "show online players in all servers.",
@@ -15,7 +21,7 @@ public class ListExecutor extends AbstractInstructionExecutor {
 
     private static final String commandString = "list";
 
-    protected ListExecutor(String description, String[] params) {
+    private ListExecutor(String description, String[] params) {
         super(description, params);
     }
 
@@ -24,22 +30,22 @@ public class ListExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public BaseComponent[] execute() {
+    public void execute(MessageRepeater echoRepeater) {
         ProxyServer proxy = ProxyServer.getInstance();
-        ComponentBuilder builder = new ComponentBuilder();
         int onlinePlayers = proxy.getOnlineCount();
-        builder.append(new ComponentBuilder(String.format(
+
+        echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder(String.format(
                 "There %s %d %s online%s\n",
                 onlinePlayers <= 1 ? "is" : "are",
                 onlinePlayers,
                 onlinePlayers <= 1 ? "player" : "players",
                 onlinePlayers == 0 ? "." : ":"
-                )).color(ChatColor.WHITE).create());
+        )).color(ChatColor.WHITE).create()));
 
         // players
-        proxy.getPlayers().forEach(player -> builder.append(getPlayerPrettyComponent(player)));
-
-        return builder.create();
+        List<BaseComponent> players = new ArrayList<>();
+        proxy.getPlayers().forEach(player -> players.addAll(Arrays.asList(getPlayerPrettyComponent(player))));
+        echoRepeater.repeat(new EchoMessage(commandString, (BaseComponent[]) players.toArray()));
     }
 
     @Override

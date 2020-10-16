@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
 
 public abstract class AbstractInstructionExecutor {
 
@@ -14,9 +14,9 @@ public abstract class AbstractInstructionExecutor {
 
     /**
      * Execute the command.
-     * @return the echo.
+     * While executing, the output should be put in the echoRepeater.
      */
-    public abstract BaseComponent[] execute();
+    public abstract void execute(MessageRepeater echoRepeater);
 
     /**
      * Get the command string.
@@ -31,10 +31,13 @@ public abstract class AbstractInstructionExecutor {
      */
     public final String getUsage() {
         StringBuilder paramBuilder = new StringBuilder();
+        boolean isEmpty = true;
         for (String s : params) {
             paramBuilder.append(String.format("<%s> ", s));
+            isEmpty = false;
         }
-        paramBuilder.deleteCharAt(paramBuilder.length() - 1); // remove the ending ' '
+        if (!isEmpty)
+            paramBuilder.deleteCharAt(paramBuilder.length() - 1); // remove the ending ' '
         return String.format("%s %s: %s", getCommand(), paramBuilder.toString(), description);
     }
 }

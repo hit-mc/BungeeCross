@@ -1,9 +1,7 @@
 package com.keuin.bungeecross.mininstruction.dispatcher;
 
-import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,10 +45,10 @@ public class InstructionDispatcher {
                     Thread.sleep(100); // a simple mitigation
 
                     ScheduledExecution inst = instructionQueue.take();
-                    BaseComponent[] echoComponents = interpreter.execute(inst.getCommand());
+                    interpreter.execute(inst.getCommand(), inst.getEchoRepeater());
 
                     // repeat
-                    inst.getEchoRepeater().repeat(new EchoMessage(inst.getCommand(),echoComponents));
+//                    inst.getEchoRepeater().repeat(new EchoMessage(inst.getCommand(),echoComponents));
 //                    echoRepeater.repeat();
                 }
             } catch (InterruptedException ignored) {
