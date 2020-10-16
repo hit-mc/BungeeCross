@@ -8,7 +8,7 @@ import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.message.repeater.InGameBroadcastRepeater;
-import com.keuin.bungeecross.message.repeater.RedisManager;
+import com.keuin.bungeecross.message.redis.RedisQueueManager;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -35,7 +35,7 @@ public class BungeeCross extends Plugin {
 
     private ProxyServer proxyServer;
     private InGameBroadcastRepeater inGameBroadcastRepeater;
-    private RedisManager redisManager;
+    private RedisQueueManager redisQueueManager;
     private InGameChatProcessor inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
     private InstructionDispatcher instructionDispatcher;
@@ -48,7 +48,6 @@ public class BungeeCross extends Plugin {
         try {
             // get version string
             Properties properties = new Properties();
-//        properties.load(this.getClassLoader().getResourceAsStream("project.properties"));
             properties.load(this.getClass(). getClassLoader().getResourceAsStream("project.properties"));
             VERSION = properties.getProperty("version");
 //            System.out.println(properties.getProperty("artifactId"));
@@ -81,17 +80,17 @@ public class BungeeCross extends Plugin {
 
         // initialize repeater
         inGameBroadcastRepeater = new InGameBroadcastRepeater(proxyServer);
-        redisManager = new RedisManager(config.getRedis(), inGameBroadcastRepeater);
-        interpreter = new MinInstructionInterpreter(redisManager, this);
+        redisQueueManager = new RedisQueueManager(config.getRedis(), inGameBroadcastRepeater);
+        interpreter = new MinInstructionInterpreter(redisQueueManager, this);
         instructionDispatcher = new InstructionDispatcher(interpreter);
-        redisManager.setInstructionDispatcher(instructionDispatcher);
-        inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
+        redisQueueManager.setInstructionDispatcher(instructionDispatcher);
+        inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisQueueManager, instructionDispatcher);
 
         // register events
         getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor));
 
         // start redis thread
-        redisManager.start();
+        redisQueueManager.start();
 
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
@@ -100,11 +99,16 @@ public class BungeeCross extends Plugin {
     @Override
     public void onDisable() {
         super.onDisable();
+
         logger.info("Stopping RedisManager...");
-        if (redisManager != null)
-            redisManager.stop();
+        if (redisQueueManager != null)
+            redisQueueManager.stop();
+
+        logger.info("Stopping InGameChatProcessor...");
         if (inGameChatProcessor != null)
             inGameChatProcessor.close();
+
+        logger.info("Stopping InstructionDispatcher");
         if (instructionDispatcher != null)
             instructionDispatcher.close();
     }

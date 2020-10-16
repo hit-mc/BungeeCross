@@ -1,7 +1,8 @@
 package com.keuin.bungeecross.mininstruction;
 
 import com.keuin.bungeecross.BungeeCross;
-import com.keuin.bungeecross.message.repeater.RedisManager;
+import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.redis.RedisQueueManager;
 import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ReloadExecutor;
@@ -9,6 +10,7 @@ import com.keuin.bungeecross.mininstruction.executor.StatExecutor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.Arrays;
@@ -18,12 +20,12 @@ import java.util.Map;
 
 public class MinInstructionInterpreter {
 
-    private final RedisManager redisManager;
+    private final RedisQueueManager redisQueueManager;
     private final Plugin plugin;
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
 
-    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin) {
-        this.redisManager = redisManager;
+    public MinInstructionInterpreter(RedisQueueManager redisQueueManager, Plugin plugin) {
+        this.redisQueueManager = redisQueueManager;
         this.plugin = plugin;
         registerInstructions();
     }
@@ -36,15 +38,20 @@ public class MinInstructionInterpreter {
         List<AbstractInstructionExecutor> inst = Arrays.asList(
                 ListExecutor.getInstance(),
                 ReloadExecutor.getInstance(plugin),
-                StatExecutor.getInstance(redisManager)
+                StatExecutor.getInstance(redisQueueManager)
         );
         for (AbstractInstructionExecutor executor : inst) {
             instructions.put(executor.getCommand(), executor);
         }
     }
 
-    public synchronized BaseComponent[] execute(String command) {
-        ComponentBuilder echoBuilder = new ComponentBuilder();
+    /**
+     * Execute a command.
+     * @param command the command string.
+     * @param echoRepeater where to print the echo.
+     */
+    public synchronized void execute(String command, MessageRepeater echoRepeater) {
+//        ComponentBuilder echoBuilder = new ComponentBuilder();
 
         // default line
 //        echoBuilder.append(new ComponentBuilder(String.format("CommandExecute{cmd=%s}\n", command)).color(ChatColor.DARK_BLUE).create());
@@ -52,14 +59,14 @@ public class MinInstructionInterpreter {
         // execute
         if (command.isEmpty()) {
             // blank command
-            echoBuilder.append(new ComponentBuilder(String.format("MinInstruction Interpreter (BungeeCross %s)\n", BungeeCross.VERSION)).color(ChatColor.DARK_GREEN).create());
+            echoRepeater.repeat(new ComponentBuilder(String.format("MinInstruction Interpreter (BungeeCross %s)\n", BungeeCross.VERSION)).color(ChatColor.DARK_GREEN).create());
             echoBuilder.append(new ComponentBuilder("Use 'help' to show usages.").create());
-        } else if (command.equals("help")) {
+        } else if (command.equals("help")) { // here goes the inline instructions
             // help command
             echoBuilder.append(new ComponentBuilder("All loaded instructions:\n").color(ChatColor.WHITE).create());
-            for (Map.Entry<String, AbstractInstructionExecutor> entry : instructions.entrySet()) {
+            for (AbstractInstructionExecutor inst : instructions.values()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
-                echoBuilder.append(new ComponentBuilder(String.format("+ %s%s\n", entry.getKey(), entry.getValue().getUsage())).create());
+                echoBuilder.append(new TextComponent(String.format("+ %s\n", inst.getUsage())));
             }
         } else {
             AbstractInstructionExecutor executor = instructions.get(command);
@@ -74,4 +81,5 @@ public class MinInstructionInterpreter {
         // return
         return echoBuilder.create();
     }
+
 }

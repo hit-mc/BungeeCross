@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.repeater.RedisManager;
+import com.keuin.bungeecross.message.redis.RedisQueueManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -13,30 +13,30 @@ public class StatExecutor extends AbstractInstructionExecutor {
     );
 
     private static final String commandString = "stat";
-    private static RedisManager redisManager = null;
+    private static RedisQueueManager redisQueueManager = null;
 
     protected StatExecutor(String description, String[] params) {
         super(description, params);
     }
 
-    public static StatExecutor getInstance(RedisManager redisManager) {
-        StatExecutor.redisManager = redisManager;
+    public static StatExecutor getInstance(RedisQueueManager redisQueueManager) {
+        StatExecutor.redisQueueManager = redisQueueManager;
         return INSTANCE;
     }
 
     @Override
     public BaseComponent[] execute() {
-        if (redisManager != null) {
+        if (redisQueueManager != null) {
             ComponentBuilder builder = new ComponentBuilder();
 //            builder.append("Stat:\n");
             builder.append(new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create());
-            builder.append(redisManager.isSenderAlive() ?
+            builder.append(redisQueueManager.isSenderAlive() ?
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.GREEN).create()
             );
             builder.append("\n");
             builder.append(new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create());
-            builder.append(redisManager.isReceiverAlive() ?
+            builder.append(redisQueueManager.isReceiverAlive() ?
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.GREEN).create()
             );

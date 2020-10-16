@@ -53,18 +53,17 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
             String cmd = message.getMessage();
             // trim interval blank space
             cmd = cmd.substring(inGameCommandPrefix.length() + ((cmd.length() > inGameCommandPrefix.length()) ? 1 : 0));
-            // TODO: Delegate to dispatcher
 
+            // delegate to the dispatcher
             instructionDispatcher.dispatchExecution(cmd, new InGameCommandEchoRepeater(message.getProxiedPlayer()));
-//            echo(message.getSender().getUUID(), echo);
             return;
         }
 
-        logger.info("Repeat to other servers.");
         // repeat to other servers
+        logger.info("Repeat to other servers.");
         inGameRepeater.repeat(message);
 
-        // repeat to redis
+        // repeat to Redis
         if(message.getMessage().startsWith(repeatMessagePrefix) &&
                 message.getMessage().length() > repeatMessagePrefix.length()) {
             logger.info("Repeat to Redis.");

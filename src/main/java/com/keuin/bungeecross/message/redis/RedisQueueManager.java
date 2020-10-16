@@ -1,8 +1,6 @@
-package com.keuin.bungeecross.message.repeater;
+package com.keuin.bungeecross.message.redis;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
-import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -15,18 +13,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 /**
- * This manager holds a worker thread processing message inbound and outbound.
+ * This class manages the Redis connection and its inbound/outbound queue.
+ * It handles the message input and output.
  */
-public class RedisManager implements MessageRepeater {
+public class RedisQueueManager {
 
-    // TODO: Connect to redis server in constructor.
-
-    private final Logger logger = Logger.getLogger(RedisManager.class.getName());
+    private final Logger logger = Logger.getLogger(RedisQueueManager.class.getName());
 
     private final AtomicBoolean enabled = new AtomicBoolean(true);
     private final RedisConfig redisConfig;
 
-//    private final Jedis jedis;
     private final String pushQueueName;
     private final String popQueueName;
 
@@ -42,8 +38,8 @@ public class RedisManager implements MessageRepeater {
     private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
 
-    public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
-        logger.info(String.format("RedisManager created with redis info: %s", redisConfig.toString()));
+    public RedisQueueManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
+        logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
 
         this.pushQueueName = redisConfig.getPushQueueName();
         this.popQueueName = redisConfig.getPopQueueName();
@@ -79,9 +75,7 @@ public class RedisManager implements MessageRepeater {
         return receiverThread.isAlive();
     }
 
-    @Override
-    public void repeat(Message message) {
-        // TODO
+    public void sendMessage(Message message) {
         sendQueue.add(message);
 //        jedis.lpush(pushQueueName, message.pack());
     }
@@ -179,7 +173,7 @@ public class RedisManager implements MessageRepeater {
                                     else
                                         cmd = cmd.substring(redisCommandPrefix.length());
                                     // dispatch the command
-                                    instructionDispatcher.dispatchExecution(cmd, RedisManager.this);
+                                    instructionDispatcher.dispatchExecution(cmd, RedisQueueManager.this);
                                 }
                             } else {
                                 logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));
