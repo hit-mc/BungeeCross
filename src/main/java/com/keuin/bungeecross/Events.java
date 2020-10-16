@@ -5,9 +5,11 @@ import com.keuin.bungeecross.message.InGameMessage;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.PlayerUser;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.*;
@@ -15,6 +17,8 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -34,20 +38,33 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onPluginMessage(PluginMessageEvent event) {
+//        logger.info("PluginMessage: " + new String(event.getData(), StandardCharsets.UTF_8));
+    }
+
+    @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         joiningServers.put(event.getPlayer().getUniqueId(), event.getTarget());
     }
 
     @EventHandler
     public void onPlayerJoined(ServerConnectedEvent event) {
-        if (!joiningServers.containsKey(event.getPlayer().getUniqueId())) {
-            logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
-            return;
-        }
+
         // after a player joined
         ProxiedPlayer player = event.getPlayer();
         ProxyServer proxy = plugin.getProxy();
         ServerInfo server = joiningServers.get(player.getUniqueId());
+
+        // Set custom tab header
+//        player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("actionbar")); // invalid?
+//        player.sendMessage(ChatMessageType.CHAT, new TextComponent("chat"));
+//        player.sendMessage(ChatMessageType.SYSTEM, new TextComponent("system"));
+//        player.setTabHeader(new ComponentBuilder("Test Header 1").color(ChatColor.GOLD).create(), new ComponentBuilder("Test Header 2").color(ChatColor.GOLD).create());
+
+        if (!joiningServers.containsKey(event.getPlayer().getUniqueId())) {
+            logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
+            return;
+        }
 
         // build message
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");
