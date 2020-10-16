@@ -5,18 +5,23 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-public class StatExecutor implements InstructionExecutor {
+public class StatExecutor extends AbstractInstructionExecutor {
 
-    private static final StatExecutor INSTANCE = new StatExecutor();
+    private static final StatExecutor INSTANCE = new StatExecutor(
+            "show the status of BungeeCross.",
+            new String[0]
+    );
+
     private static final String commandString = "stat";
     private static RedisManager redisManager = null;
+
+    protected StatExecutor(String description, String[] params) {
+        super(description, params);
+    }
 
     public static StatExecutor getInstance(RedisManager redisManager) {
         StatExecutor.redisManager = redisManager;
         return INSTANCE;
-    }
-
-    private StatExecutor() {
     }
 
     @Override
@@ -46,8 +51,4 @@ public class StatExecutor implements InstructionExecutor {
         return commandString;
     }
 
-    @Override
-    public String getUsage() {
-        return ": show the status of BungeeCross.";
-    }
 }

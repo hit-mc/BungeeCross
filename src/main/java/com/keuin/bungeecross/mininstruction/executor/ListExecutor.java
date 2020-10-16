@@ -5,15 +5,19 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.protocol.packet.Chat;
 
-import javax.xml.soap.Text;
-import java.util.Map;
+public class ListExecutor extends AbstractInstructionExecutor {
 
-public class ListExecutor implements InstructionExecutor {
+    private static final ListExecutor INSTANCE = new ListExecutor(
+            "show online players in all servers.",
+            new String[0]
+    );
 
-    private static final ListExecutor INSTANCE = new ListExecutor();
     private static final String commandString = "list";
+
+    protected ListExecutor(String description, String[] params) {
+        super(description, params);
+    }
 
     public static ListExecutor getInstance() {
         return INSTANCE;
@@ -41,11 +45,6 @@ public class ListExecutor implements InstructionExecutor {
     @Override
     public String getCommand() {
         return commandString;
-    }
-
-    @Override
-    public String getUsage() {
-        return ": show online players in all servers.";
     }
 
     private BaseComponent[] getPlayerPrettyComponent(ProxiedPlayer player) {

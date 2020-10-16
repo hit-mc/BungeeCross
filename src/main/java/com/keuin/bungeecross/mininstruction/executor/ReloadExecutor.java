@@ -5,12 +5,20 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.logging.Logger;
 
-public class ReloadExecutor implements InstructionExecutor {
+public class ReloadExecutor extends AbstractInstructionExecutor {
 
-    private static final ReloadExecutor INSTANCE = new ReloadExecutor();
+    private static final ReloadExecutor INSTANCE = new ReloadExecutor(
+            "disable, reload all configurations, and finally enable BungeeCross.",
+            new String[0]
+    );
+
     private static final String commandString = "reload";
     private static Plugin plugin;
     private final Logger logger = Logger.getLogger(ReloadExecutor.class.getName());
+
+    protected ReloadExecutor(String description, String[] params) {
+        super(description, params);
+    }
 
     public static ReloadExecutor getInstance(Plugin plugin) {
         ReloadExecutor.plugin = plugin;
@@ -41,8 +49,4 @@ public class ReloadExecutor implements InstructionExecutor {
         return commandString;
     }
 
-    @Override
-    public String getUsage() {
-        return ": disable, reload all configurations, and finally enable BungeeCross.";
-    }
 }

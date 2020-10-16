@@ -2,7 +2,7 @@ package com.keuin.bungeecross.mininstruction;
 
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.repeater.RedisManager;
-import com.keuin.bungeecross.mininstruction.executor.InstructionExecutor;
+import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ReloadExecutor;
 import com.keuin.bungeecross.mininstruction.executor.StatExecutor;
@@ -20,7 +20,7 @@ public class MinInstructionInterpreter {
 
     private final RedisManager redisManager;
     private final Plugin plugin;
-    private final Map<String, InstructionExecutor> instructions = new HashMap<>();
+    private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
 
     public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin) {
         this.redisManager = redisManager;
@@ -33,12 +33,12 @@ public class MinInstructionInterpreter {
      * Non-registered instructions cannot be executed.
      */
     private void registerInstructions() {
-        List<InstructionExecutor> inst = Arrays.asList(
+        List<AbstractInstructionExecutor> inst = Arrays.asList(
                 ListExecutor.getInstance(),
                 ReloadExecutor.getInstance(plugin),
                 StatExecutor.getInstance(redisManager)
         );
-        for (InstructionExecutor executor : inst) {
+        for (AbstractInstructionExecutor executor : inst) {
             instructions.put(executor.getCommand(), executor);
         }
     }
@@ -57,12 +57,12 @@ public class MinInstructionInterpreter {
         } else if (command.equals("help")) {
             // help command
             echoBuilder.append(new ComponentBuilder("All loaded instructions:\n").color(ChatColor.WHITE).create());
-            for (Map.Entry<String, InstructionExecutor> entry : instructions.entrySet()) {
+            for (Map.Entry<String, AbstractInstructionExecutor> entry : instructions.entrySet()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
                 echoBuilder.append(new ComponentBuilder(String.format("+ %s%s\n", entry.getKey(), entry.getValue().getUsage())).create());
             }
         } else {
-            InstructionExecutor executor = instructions.get(command);
+            AbstractInstructionExecutor executor = instructions.get(command);
             if(executor != null) {
                 BaseComponent[] echo = executor.execute();
                 echoBuilder.append(echo);
