@@ -1,6 +1,5 @@
 package com.keuin.bungeecross.message;
 
-import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.user.MessageUser;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,6 +27,11 @@ public class RedisMessage implements Message {
     @Override
     public MessageUser getSender() {
         return sender;
+    }
+
+    @Override
+    public boolean isJoinable() {
+        return false;
     }
 
     @Override

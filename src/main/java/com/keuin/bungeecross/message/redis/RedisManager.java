@@ -3,13 +3,16 @@ package com.keuin.bungeecross.message.redis;
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
+import com.keuin.bungeecross.util.MessageUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -43,6 +46,9 @@ public class RedisManager implements MessageRepeater {
     private final int POP_TIMEOUT = 1;
     private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
+
+    private final int joinWaitMillis = 100;
+    private final int maxJoinedMessageCount = 10;
 
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
@@ -98,28 +104,49 @@ public class RedisManager implements MessageRepeater {
     private class SenderThread extends Thread {
         @Override
         public void run() {
-            int retryCounter = MAX_RETRY_TIMES;
             try(Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
                 jedis.auth(redisConfig.getPassword());
                 try {
                     while (enabled.get()) {
-                        Message outboundMessage = sendQueue.take();
-                        // send outbound message
-                        while (retryCounter > 0) {
-                            try {
-                                jedis.lpush(pushQueueName, outboundMessage.pack());
-                            } catch (JedisException e) {
-                                logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
-                                --retryCounter;
-                                continue;
+                        Message firstMessage = sendQueue.take();
+
+                        if (maxJoinedMessageCount > 1 && firstMessage.isJoinable()) {
+
+                            List<Message> joinList = new ArrayList<>(); // messages should be joined before sent (always contains the first message).
+                            joinList.add(firstMessage);
+
+                            Message tailMessage = null; // the last message that should be sent separately (if has).
+
+                            // get next messages with max count maxJoinedMessageCount.
+                            for (int i=0; i<maxJoinedMessageCount-1; ++i) {
+                                Message nextMessage = sendQueue.poll(joinWaitMillis, TimeUnit.MILLISECONDS);
+                                if (nextMessage == null) {
+                                    // no more messages
+                                    // just send the joinList as a single message.
+                                    break;
+                                } else if (!nextMessage.isJoinable() || !nextMessage.getSender().equals(firstMessage.getSender())) {
+
+                                    // the next message is not joinable.
+                                    // they have to be sent separately.
+                                    // 1. join the joinList and send them as a single message.
+                                    // 2. send the nextMessage as a single standalone message.
+                                    tailMessage = nextMessage;
+                                    break;
+                                } else {
+                                    joinList.add(nextMessage); // this message should be joined
+                                }
                             }
-                            retryCounter = MAX_RETRY_TIMES;
-                            break;
-                        }
-                        // max retry times reached
-                        if (retryCounter == 0) {
-                            logger.severe("Max retry times reached. Sender thread will quit.");
-                            return;
+
+                            // send the (1st) joined message.
+                            sendToRedis(jedis, MessageUtil.joinMessage(joinList));
+
+                            // send the (2nd) separated message nextMessage.
+                            if (tailMessage != null)
+                                sendToRedis(jedis, tailMessage);
+
+                        } else {
+                            // The first message is not joinable and should be sent separately.
+                            sendToRedis(jedis, firstMessage);
                         }
                     }
                 } catch (InterruptedException ignored){
@@ -128,6 +155,25 @@ public class RedisManager implements MessageRepeater {
                 logger.info("Sender thread is stopped.");
             } catch (JedisConnectionException e) {
                 logger.severe("Failed to connect Redis server: " + e + " Sender thread will quit.");
+            }
+        }
+
+        private void sendToRedis(Jedis jedis, Message message) {
+            int retryCounter = MAX_RETRY_TIMES;
+            // send outbound message
+            while (retryCounter > 0) {
+                try {
+                    jedis.lpush(pushQueueName, message.pack());
+                } catch (JedisException e) {
+                    logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
+                    --retryCounter;
+                    continue;
+                }
+                return;
+            }
+            // max retry times reached
+            if (retryCounter == 0) {
+                logger.severe("Max retry times reached. Failed to send to the Redis server.");
             }
         }
     }

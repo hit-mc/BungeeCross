@@ -35,6 +35,11 @@ public class InGameMessage implements Message {
         return sender;
     }
 
+    @Override
+    public boolean isJoinable() {
+        return false;
+    }
+
     public ProxiedPlayer getProxiedPlayer() {
         return proxiedPlayer;
     }

@@ -30,6 +30,12 @@ public interface Message {
     MessageUser getSender();
 
     /**
+     * If the message could be joined with neighbouring messages sent by the same user.
+     * @return true if joinable, false if not.
+     */
+    boolean isJoinable();
+
+    /**
      * Pack message into Redis format.
      * @return packed string.
      */
