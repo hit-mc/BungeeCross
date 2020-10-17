@@ -30,17 +30,20 @@ public final class StatExecutor extends AbstractInstructionExecutor {
         if (redisManager != null) {
             ComponentBuilder builder = new ComponentBuilder();
 //            builder.append("Stat:\n");
-            echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create()));
-            echoRepeater.repeat(new EchoMessage(commandString, redisManager.isSenderAlive() ?
-                    new ComponentBuilder("Alive\n").color(ChatColor.GREEN).create() :
-                    new ComponentBuilder("Stopped\n").color(ChatColor.RED).create()
-            ));
-
-            echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create()));
-            echoRepeater.repeat(new EchoMessage(commandString, redisManager.isReceiverAlive() ?
+            builder.append(new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create());
+            builder.append(redisManager.isSenderAlive() ?
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.RED).create()
-            ));
+            );
+            echoRepeater.repeat(new EchoMessage(commandString, builder.create()));
+
+            builder = new ComponentBuilder();
+
+            builder.append(new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create());
+            builder.append(redisManager.isReceiverAlive() ?
+                    new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
+                    new ComponentBuilder("Stopped").color(ChatColor.RED).create());
+            echoRepeater.repeat(new EchoMessage(commandString, builder.create()));
         } else {
             echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create()));
         }

@@ -1,24 +1,24 @@
 package com.keuin.bungeecross;
 
-import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.InGameMessage;
+import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.PlayerUser;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.*;
+import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.api.event.TargetedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +38,13 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onPluginMessage(PluginMessageEvent event) {
+    public void onTargeted(TargetedEvent event) {
+        if (event.getSender() instanceof Server && event.getReceiver() instanceof ProxiedPlayer) {
+            Server server = (Server) event.getSender();
+            ProxiedPlayer player = (ProxiedPlayer) event.getReceiver();
+
+            logger.info(event.toString());
+        }
 //        logger.info("PluginMessage: " + new String(event.getData(), StandardCharsets.UTF_8));
     }
 
@@ -65,6 +71,9 @@ public class Events implements Listener {
             logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
             return;
         }
+
+        // Show player's server in tab menu
+        player.setDisplayName(String.format("%s [%s]", player.getName(), server.getName()));
 
         // build message
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");

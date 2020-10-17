@@ -15,7 +15,7 @@ public class EchoMessage implements Message {
     public EchoMessage(String instruction, String echo) {
         this.echo = echo;
         this.instruction = instruction;
-        this.baseComponents = new ComponentBuilder(instruction).create();
+        this.baseComponents = new ComponentBuilder(echo).create();
     }
 
     public EchoMessage(String instruction, BaseComponent[] baseComponents) {

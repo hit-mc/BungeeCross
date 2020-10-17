@@ -35,7 +35,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         int onlinePlayers = proxy.getOnlineCount();
 
         echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder(String.format(
-                "There %s %d %s online%s\n",
+                "There %s %d %s online%s",
                 onlinePlayers <= 1 ? "is" : "are",
                 onlinePlayers,
                 onlinePlayers <= 1 ? "player" : "players",
@@ -45,7 +45,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         // players
         List<BaseComponent> players = new ArrayList<>();
         proxy.getPlayers().forEach(player -> players.addAll(Arrays.asList(getPlayerPrettyComponent(player))));
-        echoRepeater.repeat(new EchoMessage(commandString, (BaseComponent[]) players.toArray()));
+        echoRepeater.repeat(new EchoMessage(commandString, players.toArray(new BaseComponent[0])));
     }
 
     @Override
