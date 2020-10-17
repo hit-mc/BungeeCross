@@ -27,9 +27,14 @@ public class RedisManager implements MessageRepeater {
     private final String pushQueueName;
     private final String popQueueName;
 
+//    // The counter is used for message buffering and merging, which provides a line number of each line in the merged message.
+//    private final Map<MessageUser, Integer> messageCounter = new HashMap<>();
     private final BlockingQueue<Message> sendQueue = new LinkedBlockingQueue<>();
     private final SenderThread senderThread = new SenderThread();
     private final ReceiverThread receiverThread = new ReceiverThread();
+
+    private final int waitIntervalMillis = 100;
+    private final int waitRounds = 5;
 
     private InstructionDispatcher instructionDispatcher;
 

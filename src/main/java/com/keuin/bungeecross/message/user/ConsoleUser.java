@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.message.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class ConsoleUser implements MessageUser {
@@ -31,4 +32,16 @@ public class ConsoleUser implements MessageUser {
         return LOCATION;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConsoleUser that = (ConsoleUser) o;
+        return Objects.equals(instruction, that.instruction);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(LOCATION, instruction);
+    }
 }

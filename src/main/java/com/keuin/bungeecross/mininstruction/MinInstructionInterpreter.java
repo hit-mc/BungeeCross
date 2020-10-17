@@ -58,15 +58,15 @@ public class MinInstructionInterpreter {
         // execute
         if (command.isEmpty()) {
             // blank command
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(String.format("MinInstruction Interpreter (BungeeCross %s)\n", BungeeCross.VERSION)).color(ChatColor.DARK_GREEN).create()));
+            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.VERSION)).color(ChatColor.DARK_GREEN).create()));
             echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("Use 'help' to show usages.").create()));
 
         } else if (command.equals("help")) { // here goes the inline instructions
             // help command
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("All loaded instructions:\n").color(ChatColor.WHITE).create()));
+            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("All loaded instructions:").color(ChatColor.WHITE).create()));
             for (AbstractInstructionExecutor inst : instructions.values()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
-                echoRepeater.repeat(new EchoMessage(inst.getCommand(), String.format("+ %s\n", inst.getUsage())));
+                echoRepeater.repeat(new EchoMessage(inst.getCommand(), String.format("+ %s", inst.getUsage())));
             }
         } else {
             AbstractInstructionExecutor executor = instructions.get(command);

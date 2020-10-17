@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.message.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class RedisUser implements MessageUser {
@@ -45,5 +46,18 @@ public class RedisUser implements MessageUser {
                 "userName='" + userName + '\'' +
                 ", uniqueId='" + uniqueId + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RedisUser redisUser = (RedisUser) o;
+        return Objects.equals(userName, redisUser.userName) && Objects.equals(uniqueId, redisUser.uniqueId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, uniqueId, location);
     }
 }

@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.message.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerUser implements MessageUser {
@@ -42,5 +43,20 @@ public class PlayerUser implements MessageUser {
                 "playerName='" + playerName + '\'' +
                 ", uuid='" + uuid + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlayerUser that = (PlayerUser) o;
+        return Objects.equals(playerName, that.playerName) &&
+                Objects.equals(uuid, that.uuid) &&
+                Objects.equals(location, that.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerName, uuid, location);
     }
 }
