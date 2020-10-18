@@ -58,7 +58,12 @@ public class MinInstructionInterpreter {
         // execute
         if (command.isEmpty()) {
             // blank command
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.VERSION)).color(ChatColor.DARK_GREEN).create()));
+            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(
+                    String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.VERSION)
+            ).color(ChatColor.DARK_GREEN).create()));
+            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(
+                    String.format("Build time: %s", BungeeCross.BUILD_TIME)
+            ).color(ChatColor.DARK_GREEN).create()));
             echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("Use 'help' to show usages.").create()));
 
         } else if (command.equals("help")) { // here goes the inline instructions

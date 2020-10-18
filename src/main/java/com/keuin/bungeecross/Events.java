@@ -10,7 +10,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -39,18 +38,20 @@ public class Events implements Listener {
 
     @EventHandler
     public void onTargeted(TargetedEvent event) {
-        if (event.getSender() instanceof Server && event.getReceiver() instanceof ProxiedPlayer) {
-            Server server = (Server) event.getSender();
-            ProxiedPlayer player = (ProxiedPlayer) event.getReceiver();
-
-            logger.info(event.toString());
-        }
+//        if (event.getSender() instanceof Server && event.getReceiver() instanceof ProxiedPlayer) {
+//            Server server = (Server) event.getSender();
+//            ProxiedPlayer player = (ProxiedPlayer) event.getReceiver();
+//
+//            logger.info(event.toString());
+//        }
 //        logger.info("PluginMessage: " + new String(event.getData(), StandardCharsets.UTF_8));
     }
 
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
-        joiningServers.put(event.getPlayer().getUniqueId(), event.getTarget());
+        ProxiedPlayer player = event.getPlayer();
+        ServerInfo server = event.getTarget();
+        joiningServers.put(player.getUniqueId(), server);
     }
 
     @EventHandler
@@ -71,9 +72,6 @@ public class Events implements Listener {
             logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
             return;
         }
-
-        // Show player's server in tab menu
-        player.setDisplayName(String.format("%s [%s]", player.getName(), server.getName()));
 
         // build message
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");

@@ -29,7 +29,8 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class BungeeCross extends Plugin {
 
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
-    public static String VERSION = "";
+    public static String VERSION;
+    public static String BUILD_TIME;
 
     private BungeeCrossConfig config;
 
@@ -48,9 +49,11 @@ public class BungeeCross extends Plugin {
         try {
             // get version string
             Properties properties = new Properties();
-            properties.load(this.getClass(). getClassLoader().getResourceAsStream("project.properties"));
-            VERSION = properties.getProperty("version");
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+//            VERSION = properties.getProperty("version");
 //            System.out.println(properties.getProperty("artifactId"));
+            VERSION = properties.getProperty("version");
+            BUILD_TIME = properties.getProperty("build.date");
         } catch (IOException e) {
             logger.warning("Failed to get version string: " + e);
         }

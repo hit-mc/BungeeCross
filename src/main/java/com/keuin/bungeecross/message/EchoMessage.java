@@ -29,6 +29,10 @@ public class EchoMessage implements Message {
         this.echo = MessageUtil.getPlainTextOfBaseComponents(baseComponents);
     }
 
+    public EchoMessage(String instruction, BaseComponent baseComponent) {
+        this(instruction, new BaseComponent[]{baseComponent});
+    }
+
     public String getInstruction() {
         return instruction;
     }

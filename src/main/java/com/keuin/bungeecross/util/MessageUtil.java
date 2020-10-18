@@ -30,11 +30,18 @@ public class MessageUtil {
         MessageUser sender = firstMessage.getSender();
         ComponentBuilder contentBuilder = new ComponentBuilder();
 
+        boolean isFirst = true;
         for (Message msg : messages) {
-            if (!msg.getSender().equals(sender)) {
+            if (!msg.getSender().equals(sender)) { // check sender consistency
                 throw new IllegalArgumentException("Messages are not sent by the same user.");
             }
             BaseComponent[] baseComponents = msg.getRichTextMessage();
+
+            if (isFirst)
+                isFirst = false;
+            else
+                contentBuilder.append("\n"); // add CR between lines
+
             if (baseComponents != null && baseComponents.length != 0)
                 contentBuilder.append(baseComponents);
         }

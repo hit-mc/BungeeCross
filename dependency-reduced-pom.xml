@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keuin</groupId>
   <artifactId>bungeecross</artifactId>
-  <version>1.1.0+20201017</version>
+  <version>1.1.2+20201018</version>
   <build>
     <resources>
       <resource>
@@ -45,6 +45,25 @@
             </filter>
           </filters>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>timestamp-property</id>
+            <goals>
+              <goal>timestamp-property</goal>
+            </goals>
+            <configuration>
+              <name>build.time</name>
+              <pattern>yyyy.MM.dd hh:mm</pattern>
+              <locale>zh_CN</locale>
+              <timeZone>GMT+8</timeZone>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -32,8 +32,8 @@ public final class StatExecutor extends AbstractInstructionExecutor {
 //            builder.append("Stat:\n");
             builder.append(new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create());
             builder.append(redisManager.isSenderAlive() ?
-                    new ComponentBuilder("Alive\n").color(ChatColor.GREEN).create() :
-                    new ComponentBuilder("Stopped\n").color(ChatColor.RED).create()
+                    new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
+                    new ComponentBuilder("Stopped").color(ChatColor.RED).create()
             );
             echoRepeater.repeat(new EchoMessage(commandString, builder.create()));
 
