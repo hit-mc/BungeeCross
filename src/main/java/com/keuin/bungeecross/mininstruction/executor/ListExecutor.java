@@ -45,7 +45,8 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         // players
         List<BaseComponent> players = new ArrayList<>();
         proxy.getPlayers().forEach(player -> players.addAll(Arrays.asList(getPlayerPrettyComponent(player))));
-        echoRepeater.repeat(new EchoMessage(commandString, players.toArray(new BaseComponent[0])));
+        if (!players.isEmpty())
+            echoRepeater.repeat(new EchoMessage(commandString, players.toArray(new BaseComponent[0])));
     }
 
     @Override
