@@ -13,11 +13,10 @@ public final class StatExecutor extends AbstractInstructionExecutor {
             new String[0]
     );
 
-    private static final String commandString = "stat";
     private static RedisManager redisManager = null;
 
     private StatExecutor(String description, String[] params) {
-        super(description, params);
+        super("stat", description, params);
     }
 
     public static StatExecutor getInstance(RedisManager redisManager) {
@@ -35,7 +34,7 @@ public final class StatExecutor extends AbstractInstructionExecutor {
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.RED).create()
             );
-            echoRepeater.repeat(new EchoMessage(commandString, builder.create()));
+            echoRepeater.repeat(new EchoMessage(getCommand(), builder.create()));
 
             builder = new ComponentBuilder();
 
@@ -43,15 +42,10 @@ public final class StatExecutor extends AbstractInstructionExecutor {
             builder.append(redisManager.isReceiverAlive() ?
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.RED).create());
-            echoRepeater.repeat(new EchoMessage(commandString, builder.create()));
+            echoRepeater.repeat(new EchoMessage(getCommand(), builder.create()));
         } else {
-            echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create()));
+            echoRepeater.repeat(new EchoMessage(getCommand(), new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create()));
         }
-    }
-
-    @Override
-    public String getCommand() {
-        return commandString;
     }
 
 }

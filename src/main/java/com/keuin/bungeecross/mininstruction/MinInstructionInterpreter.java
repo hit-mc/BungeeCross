@@ -8,6 +8,8 @@ import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor
 import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ReloadExecutor;
 import com.keuin.bungeecross.mininstruction.executor.StatExecutor;
+import com.keuin.bungeecross.mininstruction.executor.history.HistoryExecutor;
+import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -21,11 +23,14 @@ public class MinInstructionInterpreter {
 
     private final RedisManager redisManager;
     private final Plugin plugin;
+    private final ActivityProvider activityProvider;
+
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
 
-    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin) {
+    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin, ActivityProvider activityProvider) {
         this.redisManager = redisManager;
         this.plugin = plugin;
+        this.activityProvider = activityProvider;
         registerInstructions();
     }
 
@@ -37,7 +42,8 @@ public class MinInstructionInterpreter {
         List<AbstractInstructionExecutor> inst = Arrays.asList(
                 ListExecutor.getInstance(),
                 ReloadExecutor.getInstance(plugin),
-                StatExecutor.getInstance(redisManager)
+                StatExecutor.getInstance(redisManager),
+                HistoryExecutor.getInstance(activityProvider)
         );
         for (AbstractInstructionExecutor executor : inst) {
             instructions.put(executor.getCommand(), executor);

@@ -1,13 +1,17 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
+import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 public abstract class AbstractInstructionExecutor {
 
     private final String description;
     private final String[] params;
+    private final String instruction;
 
-    protected AbstractInstructionExecutor(String description, String[] params) {
+    protected AbstractInstructionExecutor(String instruction, String description, String[] params) {
+        this.instruction = instruction;
         this.description = description;
         this.params = params;
     }
@@ -22,7 +26,9 @@ public abstract class AbstractInstructionExecutor {
      * Get the command string.
      * @return the command string.
      */
-    public abstract String getCommand();
+    public final String getCommand() {
+        return instruction;
+    }
 
     /**
      * Get the usage description, which includes the instruction description and parameters.
@@ -39,5 +45,17 @@ public abstract class AbstractInstructionExecutor {
         if (!isEmpty)
             paramBuilder.deleteCharAt(paramBuilder.length() - 1); // remove the ending ' '
         return String.format("%s %s: %s", getCommand(), paramBuilder.toString(), description);
+    }
+
+    protected final void echo(MessageRepeater echoRepeater, String echo) {
+        echoRepeater.repeat(new EchoMessage(getCommand(), echo));
+    }
+
+    protected final void echo(MessageRepeater echoRepeater, BaseComponent[] baseComponents) {
+        echoRepeater.repeat(new EchoMessage(getCommand(), baseComponents));
+    }
+
+    protected final void echo(MessageRepeater echoRepeater, BaseComponent baseComponent) {
+        echoRepeater.repeat(new EchoMessage(getCommand(), baseComponent));
     }
 }

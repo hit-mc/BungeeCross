@@ -12,12 +12,11 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
             new String[0]
     );
 
-    private static final String commandString = "reload";
     private static Plugin plugin;
     private final Logger logger = Logger.getLogger(ReloadExecutor.class.getName());
 
     private ReloadExecutor(String description, String[] params) {
-        super(description, params);
+        super("reload", description, params);
     }
 
     public static ReloadExecutor getInstance(Plugin plugin) {
@@ -27,25 +26,16 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
 
     @Override
     public void execute(MessageRepeater echoRepeater) {
-        plugin.getProxy().getScheduler().runAsync(plugin, new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Reloading BungeeCross....");
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+            logger.info("Reloading BungeeCross....");
 
-                logger.info("Disabling...");
-                plugin.onDisable();
+            logger.info("Disabling...");
+            plugin.onDisable();
 
-                logger.info("Enabling...");
-                plugin.onEnable();
+            logger.info("Enabling...");
+            plugin.onEnable();
 
-                logger.info("Soft reload finished.");
-            }
+            logger.info("Soft reload finished.");
         });
     }
-
-    @Override
-    public String getCommand() {
-        return commandString;
-    }
-
 }

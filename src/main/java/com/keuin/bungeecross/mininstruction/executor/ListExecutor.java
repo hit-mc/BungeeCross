@@ -19,10 +19,8 @@ public final class ListExecutor extends AbstractInstructionExecutor {
             new String[0]
     );
 
-    private static final String commandString = "list";
-
     private ListExecutor(String description, String[] params) {
-        super(description, params);
+        super("list", description, params);
     }
 
     public static ListExecutor getInstance() {
@@ -34,7 +32,8 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         ProxyServer proxy = ProxyServer.getInstance();
         int onlinePlayers = proxy.getOnlineCount();
 
-        echoRepeater.repeat(new EchoMessage(commandString, new ComponentBuilder(String.format(
+        // TODO: Simplify all repeat like this (using protected method echo())
+        echoRepeater.repeat(new EchoMessage(getCommand(), new ComponentBuilder(String.format(
                 "There %s %d %s online%s",
                 onlinePlayers <= 1 ? "is" : "are",
                 onlinePlayers,
@@ -46,12 +45,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         List<BaseComponent> players = new ArrayList<>();
         proxy.getPlayers().forEach(player -> players.addAll(Arrays.asList(getPlayerPrettyComponent(player))));
         if (!players.isEmpty())
-            echoRepeater.repeat(new EchoMessage(commandString, players.toArray(new BaseComponent[0])));
-    }
-
-    @Override
-    public String getCommand() {
-        return commandString;
+            echoRepeater.repeat(new EchoMessage(getCommand(), players.toArray(new BaseComponent[0])));
     }
 
     private BaseComponent[] getPlayerPrettyComponent(ProxiedPlayer player) {

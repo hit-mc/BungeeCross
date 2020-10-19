@@ -10,6 +10,7 @@ import com.keuin.bungeecross.message.redis.RedisManager;
 import com.keuin.bungeecross.message.repeater.InGameBroadcastRepeater;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
+import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -39,6 +40,7 @@ public class BungeeCross extends Plugin {
     private RedisManager redisManager;
     private InGameChatProcessor inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
+    private ActivityProvider activityProvider;
     private InstructionDispatcher instructionDispatcher;
 
     private static final String repeatMessagePrefix = "#";
@@ -61,42 +63,47 @@ public class BungeeCross extends Plugin {
 
     @Override
     public void onEnable() {
-        // get proxy server
-        proxyServer = ProxyServer.getInstance();
+        try {
+            // get proxy server
+            proxyServer = ProxyServer.getInstance();
 
-        // generate default config file (skeleton)
-        File configFile = new File(configurationFileName);
-        if (!configFile.exists()) {
-            logger.warning(String.format("Config file %s does not exist. A skeleton file will be generated. Please edit it and reload BungeeCross.", configurationFileName));
-            generateDefaultConfig();
-            return;
-        }
+            // generate default config file (skeleton)
+            File configFile = new File(configurationFileName);
+            if (!configFile.exists()) {
+                logger.warning(String.format("Config file %s does not exist. A skeleton file will be generated. Please edit it and reload BungeeCross.", configurationFileName));
+                generateDefaultConfig();
+                return;
+            }
 
-        // load global config
-        if (!loadConfig() || config == null) {
-            logger.severe(String.format("Cannot read config from file: %s. BungeeCross is disabled.", configurationFileName));
-            return;
-        }
+            // load global config
+            if (!loadConfig() || config == null) {
+                logger.severe(String.format("Cannot read config from file: %s. BungeeCross is disabled.", configurationFileName));
+                return;
+            }
 
-        // load redis config
-//        RedisConfig redisConfig = new RedisConfig("121.36.38.51", 6379, "04mg0oB5$", "mc", "qq");
+            // load redis config
 
-        // initialize repeater
-        inGameBroadcastRepeater = new InGameBroadcastRepeater(proxyServer);
-        redisManager = new RedisManager(config.getRedis(), inGameBroadcastRepeater);
-        interpreter = new MinInstructionInterpreter(redisManager, this);
-        instructionDispatcher = new InstructionDispatcher(interpreter);
-        redisManager.setInstructionDispatcher(instructionDispatcher);
-        inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
+            // initialize repeater
+            inGameBroadcastRepeater = new InGameBroadcastRepeater(proxyServer);
+            redisManager = new RedisManager(config.getRedis(), inGameBroadcastRepeater);
+            activityProvider = new ActivityProvider("activity.json");
+            interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider);
+            instructionDispatcher = new InstructionDispatcher(interpreter);
+            redisManager.setInstructionDispatcher(instructionDispatcher);
+            inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
 
-        // register events
-        getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor));
+            // register events
+            getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor));
 
-        // start redis thread
-        redisManager.start();
+            // start redis thread
+            redisManager.start();
 
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
+
+        } catch (IOException e) {
+            logger.severe("Failed to initialize: " + e);
+        }
     }
 
     @Override
