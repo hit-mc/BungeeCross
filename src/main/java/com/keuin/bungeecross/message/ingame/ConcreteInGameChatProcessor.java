@@ -47,6 +47,7 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
 
     private synchronized void process(InGameMessage message) {
         logger.info(String.format("InGameChatProcessor: processing message %s", message.toString()));
+
         // process as a command
         if(message.getMessage().toLowerCase().startsWith(inGameCommandPrefix.toLowerCase())) {
             logger.info("Process as a command");
@@ -78,10 +79,14 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
     @Override
     public void issue(InGameMessage message) {
         // add to queue
-        if(!dispatcher.isAlive()) {
-            dispatcher.start();
-        }
         dispatcher.issue(message);
+
+        // check the thread state. If the thread has not been started, then start it.
+        synchronized (this) {
+            if(!dispatcher.isAlive()) {
+                dispatcher.start();
+            }
+        }
     }
 
     @Override

@@ -97,7 +97,7 @@ public class BungeeCross extends Plugin {
                 activityProvider = new ActivityProvider(activityPersistenceFileName);
             }
 
-            interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider);
+            interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider, proxyServer);
             instructionDispatcher = new InstructionDispatcher(interpreter);
             redisManager.setInstructionDispatcher(instructionDispatcher);
             inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);

@@ -11,6 +11,7 @@ import com.keuin.bungeecross.mininstruction.executor.StatExecutor;
 import com.keuin.bungeecross.mininstruction.executor.history.HistoryExecutor;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -24,13 +25,15 @@ public class MinInstructionInterpreter {
     private final RedisManager redisManager;
     private final Plugin plugin;
     private final ActivityProvider activityProvider;
+    private final ProxyServer proxyServer;
 
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
 
-    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin, ActivityProvider activityProvider) {
+    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer) {
         this.redisManager = redisManager;
         this.plugin = plugin;
         this.activityProvider = activityProvider;
+        this.proxyServer = proxyServer;
         registerInstructions();
     }
 
@@ -43,7 +46,7 @@ public class MinInstructionInterpreter {
                 ListExecutor.getInstance(),
                 ReloadExecutor.getInstance(plugin),
                 StatExecutor.getInstance(redisManager),
-                HistoryExecutor.getInstance(activityProvider)
+                HistoryExecutor.getInstance(activityProvider, proxyServer)
         );
         for (AbstractInstructionExecutor executor : inst) {
             instructions.put(executor.getCommand(), executor);
