@@ -46,6 +46,7 @@ public class BungeeCross extends Plugin {
     private static final String repeatMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
     private static final String configurationFileName = "bungeecross.json";
+    private static final String activityPersistenceFileName = "activity.json";
 
     {
         try {
@@ -86,14 +87,23 @@ public class BungeeCross extends Plugin {
             // initialize repeater
             inGameBroadcastRepeater = new InGameBroadcastRepeater(proxyServer);
             redisManager = new RedisManager(config.getRedis(), inGameBroadcastRepeater);
-            activityProvider = new ActivityProvider("activity.json");
+
+            File file = new File(activityPersistenceFileName);
+            if (!file.exists()) {
+                // file does not exist
+                logger.info("Activity persistence file " + activityPersistenceFileName + "does not exist. Reset activity statistics.");
+                activityProvider = new ActivityProvider(activityPersistenceFileName, false);
+            } else {
+                activityProvider = new ActivityProvider(activityPersistenceFileName);
+            }
+
             interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider);
             instructionDispatcher = new InstructionDispatcher(interpreter);
             redisManager.setInstructionDispatcher(instructionDispatcher);
             inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
 
             // register events
-            getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor));
+            getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor, activityProvider));
 
             // start redis thread
             redisManager.start();

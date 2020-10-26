@@ -4,6 +4,8 @@ import com.keuin.bungeecross.message.InGameMessage;
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.PlayerUser;
+import com.keuin.bungeecross.mininstruction.executor.history.InGamePlayer;
+import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -13,7 +15,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
-import net.md_5.bungee.api.event.TargetedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
@@ -28,16 +29,18 @@ public class Events implements Listener {
     private final InGameChatProcessor inGameChatProcessor;
     private final Plugin plugin;
     private final Logger logger = Logger.getLogger(Events.class.getName());
+    private final ActivityProvider activityProvider;
 
     private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
 
-    public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor) {
+    public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor, ActivityProvider activityProvider) {
         this.plugin = plugin;
         this.inGameChatProcessor = inGameChatProcessor;
+        this.activityProvider = activityProvider;
     }
 
-    @EventHandler
-    public void onTargeted(TargetedEvent event) {
+//    @EventHandler
+//    public void onTargeted(TargetedEvent event) {
 //        if (event.getSender() instanceof Server && event.getReceiver() instanceof ProxiedPlayer) {
 //            Server server = (Server) event.getSender();
 //            ProxiedPlayer player = (ProxiedPlayer) event.getReceiver();
@@ -45,7 +48,7 @@ public class Events implements Listener {
 //            logger.info(event.toString());
 //        }
 //        logger.info("PluginMessage: " + new String(event.getData(), StandardCharsets.UTF_8));
-    }
+//    }
 
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
@@ -72,6 +75,9 @@ public class Events implements Listener {
             logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
             return;
         }
+
+        // log activity
+        activityProvider.playerLoggedIn(new InGamePlayer(player.getUniqueId(), player.getName()));
 
         // build message
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");

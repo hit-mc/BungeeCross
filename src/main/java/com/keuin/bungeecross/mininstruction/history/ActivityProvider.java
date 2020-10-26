@@ -10,11 +10,10 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 /**
  * Recording, and providing players' activities.
@@ -26,13 +25,21 @@ public class ActivityProvider {
 
 
     public ActivityProvider(String jsonFile) throws IOException {
-        try (Reader reader = new BufferedReader(new FileReader(jsonFile))) {
-            Gson gson = new Gson();
-            Type gsonType = new TypeToken<TreeMap<Long, UUID>>(){}.getType();
-            // String gsonString = gson.toJson(data, gsonType);
-            history = gson.fromJson(reader, gsonType);
-            this.jsonFileName = jsonFile;
+        this(jsonFile, true);
+    }
+
+    public ActivityProvider(String jsonFile, boolean loadFromFile) throws IOException {
+        if (loadFromFile) {
+            try (Reader reader = new BufferedReader(new FileReader(jsonFile))) {
+                Gson gson = new Gson();
+                Type gsonType = new TypeToken<TreeMap<Long, UUID>>(){}.getType();
+                // String gsonString = gson.toJson(data, gsonType);
+                history = gson.fromJson(reader, gsonType);
+            }
+        } else {
+            history = new TreeMap<>();
         }
+        this.jsonFileName = jsonFile;
     }
 
 
@@ -48,12 +55,21 @@ public class ActivityProvider {
         return new HashSet<>(activePlayersMap.values());
     }
 
+    public synchronized LocalDateTime getRecentActiveTime(InGamePlayer player) {
+        for (Long ts : history.descendingKeySet()) {
+            if (history.get(ts).equals(player))
+                return LocalDateTime.ofEpochSecond(ts,0, OffsetDateTime.now().getOffset());
+        }
+        return null; // TODO: fix this null
+    }
+
     /**
-     * Record the activity of a certain player.
-     * @param playerUniqueId the player's UUID.
+     * Record the logging in event of a player.
+     * @param player the player's UUID.
      */
-    public synchronized void recordActivity(InGamePlayer playerUniqueId) {
-        history.put(System.currentTimeMillis(), playerUniqueId);
+    public synchronized void playerLoggedIn(InGamePlayer player) {
+        long ts = (new Date()).toInstant().getEpochSecond();
+        history.put(ts, player);
     }
 
     /**
@@ -64,7 +80,7 @@ public class ActivityProvider {
         Type gsonType = new TypeToken<TreeMap<Long, UUID>>(){}.getType();
         String jsonString = gson.toJson(history, gsonType);
         try(BufferedOutputStream outputStream = new BufferedOutputStream(
-                Files.newOutputStream(Paths.get(jsonFileName),CREATE_NEW, APPEND)
+                Files.newOutputStream(Paths.get(jsonFileName))
         )) {
             outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
         }
