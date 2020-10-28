@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.keuin.bungeecross.mininstruction.executor.history.InGamePlayer;
+import com.sun.javafx.binding.Logging;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * Recording, and providing players' activities.
@@ -22,6 +24,8 @@ public class ActivityProvider {
 
     private final TreeMap<Long, InGamePlayer> history; // lastActiveTimestamp -> player. All access to this ADT must be serialized.
     private final String jsonFileName;
+    private final Thread savingThread = new HistorySavingThread();
+    private final Logger logger = Logger.getLogger(ActivityProvider.class.getName());
 
 
     public ActivityProvider(String jsonFile) throws IOException {
@@ -76,13 +80,31 @@ public class ActivityProvider {
      * Save modification to disk.
      */
     public synchronized void save() throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Type gsonType = new TypeToken<TreeMap<Long, UUID>>(){}.getType();
-        String jsonString = gson.toJson(history, gsonType);
-        try(BufferedOutputStream outputStream = new BufferedOutputStream(
-                Files.newOutputStream(Paths.get(jsonFileName))
-        )) {
-            outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
+
+    }
+
+    private class HistorySavingThread extends Thread {
+        @Override
+        public void run() {
+            while (true) {
+
+                try {
+                    this.wait();
+                } catch (InterruptedException ignored) {
+                }
+
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                Type gsonType = new TypeToken<TreeMap<Long, UUID>>(){}.getType();
+                String jsonString = gson.toJson(history, gsonType);
+                try(BufferedOutputStream outputStream = new BufferedOutputStream(
+                        Files.newOutputStream(Paths.get(jsonFileName))
+                )) {
+                    outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
+                } catch (IOException e) {
+                    logger.severe(String.format("Failed to save activity history: %s", e));
+                }
+
+            }
         }
     }
 
