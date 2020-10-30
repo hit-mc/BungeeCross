@@ -1,5 +1,7 @@
 package com.keuin.bungeecross.mininstruction.executor.history;
 
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -7,6 +9,12 @@ public final class InGamePlayer {
 
     private final UUID UniqueId;
     private final String name;
+
+    public static InGamePlayer fromProxiedPlayer(ProxiedPlayer proxiedPlayer) {
+        if (proxiedPlayer == null)
+            throw new IllegalArgumentException("Proxied player cannot be null");
+        return new InGamePlayer(proxiedPlayer.getUniqueId(), proxiedPlayer.getName());
+    }
 
     public InGamePlayer(UUID uniqueId, String name) {
         UniqueId = uniqueId;

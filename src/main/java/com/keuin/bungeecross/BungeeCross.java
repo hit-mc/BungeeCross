@@ -118,7 +118,8 @@ public class BungeeCross extends Plugin {
 
     @Override
     public void onDisable() {
-        super.onDisable();
+        logger.info("Saving activity history...");
+        activityProvider.close();
 
         logger.info("Stopping RedisManager...");
         if (redisManager != null)
@@ -131,6 +132,8 @@ public class BungeeCross extends Plugin {
         logger.info("Stopping InstructionDispatcher");
         if (instructionDispatcher != null)
             instructionDispatcher.close();
+
+        super.onDisable();
     }
 
     /**

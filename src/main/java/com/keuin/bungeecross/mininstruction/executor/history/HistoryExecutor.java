@@ -7,6 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -59,9 +60,12 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
             builder.append(new ComponentBuilder(player.getName()).color(ChatColor.WHITE).create());
             if (proxy.getPlayer(player.getUniqueId()) != null) {
                 // online
-                builder.append(new ComponentBuilder("[ONLINE]").color(ChatColor.GREEN).create());
+                String playerServer = proxy.getPlayer(player.getUniqueId()).getServer().getInfo().getName();
+                builder.append(new ComponentBuilder(String.format(" [ONLINE@%s]", playerServer)).color(ChatColor.GREEN).create());
             } else {
-                builder.append(new ComponentBuilder("[]").color(ChatColor.BLUE).create());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd HH:mm");
+                String activeTime = activityProvider.getRecentActiveTime(player).format(formatter);
+                builder.append(new ComponentBuilder(String.format(" [Last seen at %s]", activeTime)).color(ChatColor.BLUE).create());
             }
             echo(echoRepeater, builder.create());
         }

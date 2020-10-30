@@ -12,9 +12,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
@@ -51,6 +49,21 @@ public class Events implements Listener {
 //    }
 
     @EventHandler
+    public void onServerDisconnect(ServerDisconnectEvent event) {
+        try {
+            activityProvider.logPlayerActivity(InGamePlayer.fromProxiedPlayer(event.getPlayer()));
+        } catch (Exception e) {
+            logger.warning("Failed to log player logout activity: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+
+    }
+
+    @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         ProxiedPlayer player = event.getPlayer();
         ServerInfo server = event.getTarget();
@@ -77,7 +90,7 @@ public class Events implements Listener {
         }
 
         // log activity
-        activityProvider.playerLoggedIn(new InGamePlayer(player.getUniqueId(), player.getName()));
+        activityProvider.logPlayerActivity(InGamePlayer.fromProxiedPlayer(player));
 
         // build message
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");

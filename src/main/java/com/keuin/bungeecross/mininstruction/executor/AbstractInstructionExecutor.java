@@ -36,6 +36,7 @@ public abstract class AbstractInstructionExecutor {
      * @return the usage string.
      */
     public final String getUsage() {
+        // TODO: Add highlight and click shortcut.
         StringBuilder paramBuilder = new StringBuilder();
         boolean isEmpty = true;
         for (String s : params) {
