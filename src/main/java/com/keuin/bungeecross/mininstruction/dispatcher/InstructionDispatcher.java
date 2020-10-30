@@ -42,9 +42,8 @@ public class InstructionDispatcher {
         public void run() {
             try {
                 while (running.get()) {
-                    Thread.sleep(100); // a simple mitigation
-
                     ScheduledExecution inst = instructionQueue.take();
+                    Thread.sleep(100); // a simple mitigation
                     interpreter.execute(inst.getCommand(), inst.getEchoRepeater());
 
                     // repeat

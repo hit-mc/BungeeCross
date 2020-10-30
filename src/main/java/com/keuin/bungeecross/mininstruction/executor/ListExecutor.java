@@ -5,6 +5,7 @@ import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -62,18 +63,14 @@ public final class ListExecutor extends AbstractInstructionExecutor {
 
         // build server text
         TextComponent componentServer = new TextComponent("["+player.getServer().getInfo().getName()+"]");
-        componentServer.setHoverEvent(
-                new HoverEvent(
-                        HoverEvent.Action.SHOW_TEXT,
-                        hoverTextBuilder.create()
-                )
-        );
+        componentServer.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hoverTextBuilder.create())));
         componentServer.setClickEvent(
                 new ClickEvent(
                         ClickEvent.Action.SUGGEST_COMMAND,
                         String.format("/server %s", playerServer.getName())
                 )
         );
+
         componentServer.setColor(serverTextColor);
         componentServer.setUnderlined(true);
 
@@ -85,6 +82,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
 
         // build pretty text
         prettyBuilder.append(componentPlayer);
+        prettyBuilder.append(new TextComponent(" "));
         prettyBuilder.append(componentServer);
         return prettyBuilder.create();
     }
