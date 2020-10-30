@@ -6,9 +6,6 @@ import com.keuin.bungeecross.util.MessageUtil;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-import java.util.Arrays;
-import java.util.logging.Logger;
-
 public class EchoMessage implements Message {
 
     private final String echo;
@@ -46,7 +43,7 @@ public class EchoMessage implements Message {
     public BaseComponent[] getRichTextMessage() {
         BaseComponent[] copy = new BaseComponent[baseComponents.length];
         System.arraycopy(baseComponents, 0, copy, 0, copy.length);
-        Logger.getLogger("getRichTextMessage").info(Arrays.toString(copy));
+//        Logger.getLogger("getRichTextMessage").info(Arrays.toString(copy));
         return copy;
     }
 
