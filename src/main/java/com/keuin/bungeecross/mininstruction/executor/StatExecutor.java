@@ -1,6 +1,5 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.redis.RedisManager;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.ChatColor;
@@ -34,7 +33,7 @@ public final class StatExecutor extends AbstractInstructionExecutor {
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.RED).create()
             );
-            echoRepeater.repeat(new EchoMessage(getCommand(), builder.create()));
+            echo(echoRepeater, builder.create());
 
             builder = new ComponentBuilder();
 
@@ -42,9 +41,9 @@ public final class StatExecutor extends AbstractInstructionExecutor {
             builder.append(redisManager.isReceiverAlive() ?
                     new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
                     new ComponentBuilder("Stopped").color(ChatColor.RED).create());
-            echoRepeater.repeat(new EchoMessage(getCommand(), builder.create()));
+            echo(echoRepeater, builder.create());
         } else {
-            echoRepeater.repeat(new EchoMessage(getCommand(), new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create()));
+            echo(echoRepeater, new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create());
         }
     }
 

@@ -1,6 +1,5 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -33,20 +32,19 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         ProxyServer proxy = ProxyServer.getInstance();
         int onlinePlayers = proxy.getOnlineCount();
 
-        // TODO: Simplify all repeat like this (using protected method echo())
-        echoRepeater.repeat(new EchoMessage(getCommand(), new ComponentBuilder(String.format(
+        echo(echoRepeater, new ComponentBuilder(String.format(
                 "There %s %d %s online%s",
                 onlinePlayers <= 1 ? "is" : "are",
                 onlinePlayers,
                 onlinePlayers <= 1 ? "player" : "players",
                 onlinePlayers == 0 ? "." : ":"
-        )).color(ChatColor.WHITE).create()));
+        )).color(ChatColor.WHITE).create());
 
         // players
         List<BaseComponent> players = new ArrayList<>();
         proxy.getPlayers().forEach(player -> players.addAll(Arrays.asList(getPlayerPrettyComponent(player))));
         if (!players.isEmpty())
-            echoRepeater.repeat(new EchoMessage(getCommand(), players.toArray(new BaseComponent[0])));
+            echo(echoRepeater, players.toArray(new BaseComponent[0]));
     }
 
     private BaseComponent[] getPlayerPrettyComponent(ProxiedPlayer player) {
