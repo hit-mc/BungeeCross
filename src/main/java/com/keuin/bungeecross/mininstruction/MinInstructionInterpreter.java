@@ -80,7 +80,14 @@ public class MinInstructionInterpreter {
             echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("All loaded instructions:").color(ChatColor.WHITE).create()));
             for (AbstractInstructionExecutor inst : instructions.values()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
-                echoRepeater.repeat(new EchoMessage(inst.getCommand(), String.format("+ %s", inst.getUsage())));
+//                echoRepeater.repeat(new EchoMessage(command, String.format("+ %s", inst.getUsage())));
+                echoRepeater.repeat(new EchoMessage(command,
+                        (new ComponentBuilder())
+                                .append(new ComponentBuilder(inst.getCommand() + ": ").color(ChatColor.YELLOW).create())
+                                .append(new ComponentBuilder("").color(ChatColor.WHITE).create())
+                                .append(inst.getUsage())
+                                .create()
+                ));
             }
         } else {
             AbstractInstructionExecutor executor = instructions.get(command);

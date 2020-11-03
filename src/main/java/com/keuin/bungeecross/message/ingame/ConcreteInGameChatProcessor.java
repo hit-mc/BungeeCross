@@ -43,6 +43,7 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
         this.instructionDispatcher = instructionDispatcher;
         if(instructionDispatcher == null)
             throw new IllegalArgumentException("instructionDispatcher must not be null.");
+        dispatcher.start();
     }
 
     private synchronized void process(InGameMessage message) {
@@ -80,13 +81,6 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
     public void issue(InGameMessage message) {
         // add to queue
         dispatcher.issue(message);
-
-        // check the thread state. If the thread has not been started, then start it.
-        synchronized (this) {
-            if(!dispatcher.isAlive()) {
-                dispatcher.start();
-            }
-        }
     }
 
     @Override

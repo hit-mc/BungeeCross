@@ -3,6 +3,7 @@ package com.keuin.bungeecross.mininstruction.executor;
 import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public abstract class AbstractInstructionExecutor {
 
@@ -35,7 +36,7 @@ public abstract class AbstractInstructionExecutor {
      * This string should be put into the manual.
      * @return the usage string.
      */
-    public final String getUsage() {
+    public final BaseComponent[] getUsage() {
         // TODO: Add highlight and click shortcut.
         StringBuilder paramBuilder = new StringBuilder();
         boolean isEmpty = true;
@@ -45,7 +46,7 @@ public abstract class AbstractInstructionExecutor {
         }
         if (!isEmpty)
             paramBuilder.deleteCharAt(paramBuilder.length() - 1); // remove the ending ' '
-        return String.format("%s %s: %s", getCommand(), paramBuilder.toString(), description);
+        return new BaseComponent[]{new TextComponent(String.format("%s %s: %s", getCommand(), paramBuilder.toString(), description))};
     }
 
     protected final void echo(MessageRepeater echoRepeater, String echo) {

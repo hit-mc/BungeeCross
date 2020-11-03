@@ -6,7 +6,7 @@
 
     <groupId>com.keuin</groupId>
     <artifactId>bungeecross</artifactId>
-    <version>1.2.4-preview+20201030</version>
+    <version>1.2.4-preview+20201103</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
