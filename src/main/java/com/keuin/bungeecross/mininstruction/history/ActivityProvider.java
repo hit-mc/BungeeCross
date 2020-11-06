@@ -83,7 +83,8 @@ public class ActivityProvider {
      * @return a set containing all active players. You are not allowed to modify it.
      */
     public Set<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
-        long minActiveTs = unit.toMillis(timeRange);
+        long ts = (new Date()).toInstant().getEpochSecond();
+        long minActiveTs = unit.toSeconds(timeRange) + ts; // the minimal timestamp to show
         synchronized (history) {
             Map<Long, InGamePlayer> activePlayersMap =  history.tailMap(minActiveTs);
             return new HashSet<>(activePlayersMap.values());
