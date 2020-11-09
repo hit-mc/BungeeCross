@@ -95,7 +95,7 @@ public class ActivityProvider {
 //            List<InGamePlayer> sortedActivePlayers = new ArrayList<>();
 //            sortedActivePlayersEntries.forEach(e -> sortedActivePlayers.add(e.getValue()));
 //            return Collections.unmodifiableCollection(sortedActivePlayers);
-            return Collections.unmodifiableCollection(history.tailMap(minActiveTs).values());
+            return new HashSet<>(history.tailMap(minActiveTs).values());
         }
     }
 
