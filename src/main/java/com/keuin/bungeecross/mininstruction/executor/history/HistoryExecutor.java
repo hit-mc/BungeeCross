@@ -3,12 +3,13 @@ package com.keuin.bungeecross.mininstruction.executor.history;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
+import com.keuin.bungeecross.util.PrettyComponents;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public class HistoryExecutor extends AbstractInstructionExecutor {
@@ -48,7 +49,7 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
             return;
         }
         // TODO: Introduce time range as the 1st parameter.
-        Set<InGamePlayer> activePlayers = activityProvider.getActivePlayers(1, TimeUnit.DAYS);
+        Collection<InGamePlayer> activePlayers = activityProvider.getActivePlayers(1, TimeUnit.DAYS);
         if (activePlayers.isEmpty()) {
             echo(echoRepeater, new ComponentBuilder("There is no active player in the last 24h.").color(ChatColor.RED).create());
             return;
@@ -61,7 +62,7 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
             if (proxy.getPlayer(player.getUniqueId()) != null) {
                 // online
                 String playerServer = proxy.getPlayer(player.getUniqueId()).getServer().getInfo().getName();
-                builder.append(new ComponentBuilder(String.format(" [ONLINE@%s]", playerServer)).color(ChatColor.GREEN).create());
+                builder.append(PrettyComponents.createNavigableServerButton(playerServer, " [ONLINE@%s]"));
             } else {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd HH:mm");
                 String activeTime = activityProvider.getRecentActiveTime(player).format(formatter);

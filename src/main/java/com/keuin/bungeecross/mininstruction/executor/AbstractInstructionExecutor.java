@@ -2,7 +2,9 @@ package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public abstract class AbstractInstructionExecutor {
@@ -38,15 +40,32 @@ public abstract class AbstractInstructionExecutor {
      */
     public final BaseComponent[] getUsage() {
         // TODO: Add highlight and click shortcut.
-        StringBuilder paramBuilder = new StringBuilder();
+
+        // create params
+        ComponentBuilder paramBuilder = new ComponentBuilder();
         boolean isEmpty = true;
         for (String s : params) {
-            paramBuilder.append(String.format("<%s> ", s));
+            TextComponent component = new TextComponent(String.format("<%s>", s));
+            component.setColor(ChatColor.GREEN);
+            paramBuilder.append(component);
+            paramBuilder.append(new TextComponent(" "));
             isEmpty = false;
         }
-        if (!isEmpty)
-            paramBuilder.deleteCharAt(paramBuilder.length() - 1); // remove the ending ' '
-        return new BaseComponent[]{new TextComponent(String.format("%s %s: %s", getCommand(), paramBuilder.toString(), description))};
+
+        ComponentBuilder builder = new ComponentBuilder();
+        // command name
+        builder.append(new ComponentBuilder(getCommand()).color(ChatColor.YELLOW).create());
+        builder.append(new TextComponent(" "));
+
+        // params
+        if (!isEmpty) {
+            paramBuilder.removeComponent(paramBuilder.getCursor());
+            builder.append(paramBuilder.create());
+        }
+
+        // description
+        builder.append(new ComponentBuilder(": " + description).color(ChatColor.WHITE).create());
+        return builder.create();
     }
 
     protected final void echo(MessageRepeater echoRepeater, String echo) {

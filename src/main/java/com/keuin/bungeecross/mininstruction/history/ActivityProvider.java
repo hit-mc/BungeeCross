@@ -72,7 +72,7 @@ public class ActivityProvider {
      * @param ts activity time stamp. If the time stamp is newer than the existing one, it will be updated.
      */
     private void updateLookUpTable(InGamePlayer player, Long ts) {
-        if (!reverseLookUpTable.containsKey(player) || reverseLookUpTable.get(player) < ts)
+        if (reverseLookUpTable.getOrDefault(player, 0L) < ts)
             reverseLookUpTable.put(player, ts);
     }
 
@@ -82,12 +82,20 @@ public class ActivityProvider {
      * @param unit the time unit.
      * @return a set containing all active players. You are not allowed to modify it.
      */
-    public Set<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
-        long ts = (new Date()).toInstant().getEpochSecond();
-        long minActiveTs = unit.toSeconds(timeRange) + ts; // the minimal timestamp to show
+    public Collection<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
+        long ts = (new Date()).toInstant().getEpochSecond(); // current time stamp
+        long minActiveTs = ts - unit.toSeconds(timeRange); // the minimal timestamp to show
         synchronized (history) {
-            Map<Long, InGamePlayer> activePlayersMap =  history.tailMap(minActiveTs);
-            return new HashSet<>(activePlayersMap.values());
+//            // sort by time
+//            List<Map.Entry<Long, InGamePlayer>> sortedActivePlayersEntries = new ArrayList<>(
+//                    history.tailMap(minActiveTs).entrySet()
+//            );
+//            sortedActivePlayersEntries.sort(Map.Entry.comparingByKey());
+//            // extract players
+//            List<InGamePlayer> sortedActivePlayers = new ArrayList<>();
+//            sortedActivePlayersEntries.forEach(e -> sortedActivePlayers.add(e.getValue()));
+//            return Collections.unmodifiableCollection(sortedActivePlayers);
+            return Collections.unmodifiableCollection(history.tailMap(minActiveTs).values());
         }
     }
 

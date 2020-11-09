@@ -47,7 +47,8 @@ public class RedisManager implements MessageRepeater {
     private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
 
-    private final int joinWaitMillis = 100;
+    private final int joinWaitMillis = 150;
+    private final int sendCoolDownMillis = 500;
     private final int maxJoinedMessageCount = 10;
 
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
@@ -108,6 +109,7 @@ public class RedisManager implements MessageRepeater {
                 jedis.auth(redisConfig.getPassword());
                 try {
                     while (enabled.get()) {
+                        Thread.sleep(sendCoolDownMillis); // cool down, prevent spamming
                         Message firstMessage = sendQueue.take();
 
                         if (maxJoinedMessageCount > 1 && firstMessage.isJoinable()) {

@@ -1,11 +1,12 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.util.PrettyComponents;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
@@ -50,27 +51,8 @@ public final class ListExecutor extends AbstractInstructionExecutor {
     private BaseComponent[] getPlayerPrettyComponent(ProxiedPlayer player) {
         ComponentBuilder prettyBuilder = new ComponentBuilder();
 
-        // basic info
-        ServerInfo playerServer = player.getServer().getInfo();
-        ChatColor serverTextColor = ChatColor.GREEN;
-
-        // build hover text
-        ComponentBuilder hoverTextBuilder = new ComponentBuilder();
-        hoverTextBuilder.append("Go to server ");
-        hoverTextBuilder.append((new ComponentBuilder("[" + playerServer.getName() + "]")).color(serverTextColor).create());
-
         // build server text
-        TextComponent componentServer = new TextComponent("["+player.getServer().getInfo().getName()+"]");
-        componentServer.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hoverTextBuilder.create())));
-        componentServer.setClickEvent(
-                new ClickEvent(
-                        ClickEvent.Action.SUGGEST_COMMAND,
-                        String.format("/server %s", playerServer.getName())
-                )
-        );
-
-        componentServer.setColor(serverTextColor);
-        componentServer.setUnderlined(true);
+        BaseComponent componentServer = PrettyComponents.createNavigableServerButton(player.getServer().getInfo().getName());
 
         // build player text
         TextComponent componentPlayer = new TextComponent(" " + player.getName());
