@@ -47,9 +47,11 @@ public class RedisManager implements MessageRepeater {
     private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
 
-    private final int joinWaitMillis = 150;
+    private final int joinWaitMillis = 125;
     private final int sendCoolDownMillis = 500;
     private final int maxJoinedMessageCount = 10;
+
+    private Message pendingOutboundMessage = null; // should only be used in method sendToRedis
 
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
@@ -103,79 +105,123 @@ public class RedisManager implements MessageRepeater {
      * Receive from Minecraft.
      */
     private class SenderThread extends Thread {
+
+        private final AtomicBoolean running = new AtomicBoolean(true);
+        private int failureCooldownMillis = 0; // failure cool down
+
         @Override
         public void run() {
-            try(Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
-                jedis.auth(redisConfig.getPassword());
-                try {
-                    while (enabled.get()) {
-                        Thread.sleep(sendCoolDownMillis); // cool down, prevent spamming
-                        Message firstMessage = sendQueue.take();
+            try {
+                while (enabled.get()) { // while running
+                    if (failureCooldownMillis > 0)
+                        Thread.sleep(failureCooldownMillis);
 
-                        if (maxJoinedMessageCount > 1 && firstMessage.isJoinable()) {
-
-                            List<Message> joinList = new ArrayList<>(); // messages should be joined before sent (always contains the first message).
-                            joinList.add(firstMessage);
-
-                            Message tailMessage = null; // the last message that should be sent separately (if has).
-
-                            // get next messages with max count maxJoinedMessageCount.
-                            for (int i=0; i<maxJoinedMessageCount-1; ++i) {
-                                Message nextMessage = sendQueue.poll(joinWaitMillis, TimeUnit.MILLISECONDS);
-                                if (nextMessage == null) {
-                                    // no more messages
-                                    // just send the joinList as a single message.
-                                    break;
-                                } else if (!nextMessage.isJoinable() || !nextMessage.getSender().equals(firstMessage.getSender())) {
-
-                                    // the next message is not joinable.
-                                    // they have to be sent separately.
-                                    // 1. join the joinList and send them as a single message.
-                                    // 2. send the nextMessage as a single standalone message.
-                                    tailMessage = nextMessage;
-                                    break;
-                                } else {
-                                    joinList.add(nextMessage); // this message should be joined
-                                }
+                    try (Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
+                        jedis.auth(redisConfig.getPassword());
+                        while (enabled.get()) {
+                            // process the queue
+                            handleSendQueue(jedis); // may be interrupted
+                            if (failureCooldownMillis > 0) {
+                                failureCooldownMillis = 0; // success. Reset cool down time interval.
+                                logger.info("Connection is recovered. Sender cool down time is set to 0.");
                             }
 
-                            // send the (1st) joined message.
-                            sendToRedis(jedis, MessageUtil.joinMessage(joinList));
-
-                            // send the (2nd) separated message nextMessage.
-                            if (tailMessage != null)
-                                sendToRedis(jedis, tailMessage);
-
-                        } else {
-                            // The first message is not joinable and should be sent separately.
-                            sendToRedis(jedis, firstMessage);
+                            // send cool down, prevent spamming
+                            Thread.sleep(sendCoolDownMillis);
                         }
+                        logger.info("Sender thread is stopped.");
+                    } catch (JedisConnectionException e) {
+                        failureCooldownMillis += 1000;
+                        logger.severe(String.format("Failed to connect Redis server: %s. Sender retry cool down time is set to %dms.", e, failureCooldownMillis));
                     }
-                } catch (InterruptedException ignored){
-                    logger.info("Sender thread was interrupted. Quitting.");
                 }
-                logger.info("Sender thread is stopped.");
-            } catch (JedisConnectionException e) {
-                logger.severe("Failed to connect Redis server: " + e + " Sender thread will quit.");
+            } catch (InterruptedException exception) {
+                logger.info("Sender thread was interrupted. Quitting.");
             }
         }
 
-        private void sendToRedis(Jedis jedis, Message message) {
+        /**
+         * Send a message to the Redis server. This message is not guaranteed to be sent to the remote,
+         * as network exceptions may happen.
+         *
+         * @param jedis   the Redis server.
+         * @param message the Message object.
+         */
+        private void sendToRedis(Jedis jedis, Message message) throws JedisConnectionException {
             int retryCounter = MAX_RETRY_TIMES;
             // send outbound message
             while (retryCounter > 0) {
                 try {
+                    pendingOutboundMessage = message;
                     jedis.lpush(pushQueueName, message.pack());
+                    pendingOutboundMessage = null;
                 } catch (JedisException e) {
                     logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
                     --retryCounter;
+                    if (retryCounter == 0) {
+                        logger.severe("Max retry times reached. Failed to send to the Redis server.");
+                        throw e;
+                    }
                     continue;
                 }
                 return;
             }
-            // max retry times reached
-            if (retryCounter == 0) {
-                logger.severe("Max retry times reached. Failed to send to the Redis server.");
+        }
+
+        /**
+         * Send the pending outbound message to the Redis server.
+         *
+         * @param jedis the Redis server.
+         */
+        private void sendToRedis(Jedis jedis) throws JedisConnectionException {
+            if (pendingOutboundMessage != null) {
+                logger.info("Sending pending message " + pendingOutboundMessage.toString());
+                sendToRedis(jedis, pendingOutboundMessage);
+            }
+            // otherwise, never mind.
+        }
+
+        private void handleSendQueue(Jedis jedis) throws InterruptedException, JedisConnectionException {
+            sendToRedis(jedis); // process the pending message firstly.
+
+            Message firstMessage = sendQueue.take();
+            if (maxJoinedMessageCount > 1 && firstMessage.isJoinable()) {
+
+                List<Message> joinList = new ArrayList<>(); // messages should be joined before sent (always contains the first message).
+                joinList.add(firstMessage);
+
+                Message tailMessage = null; // the last message that should be sent separately (if has).
+
+                // get next messages with max count maxJoinedMessageCount.
+                for (int i = 0; i < maxJoinedMessageCount - 1; ++i) {
+                    Message nextMessage = sendQueue.poll(joinWaitMillis, TimeUnit.MILLISECONDS);
+                    if (nextMessage == null) {
+                        // no more messages
+                        // just send the joinList as a single message.
+                        break;
+                    } else if (!nextMessage.isJoinable() || !nextMessage.getSender().equals(firstMessage.getSender())) {
+
+                        // the next message is not joinable.
+                        // they have to be sent separately.
+                        // 1. join the joinList and send them as a single message.
+                        // 2. send the nextMessage as a single standalone message.
+                        tailMessage = nextMessage;
+                        break;
+                    } else {
+                        joinList.add(nextMessage); // this message should be joined
+                    }
+                }
+
+                // send the (1st) joined message.
+                sendToRedis(jedis, MessageUtil.joinMessage(joinList));
+
+                // send the (2nd) separated message nextMessage.
+                if (tailMessage != null)
+                    sendToRedis(jedis, tailMessage);
+
+            } else {
+                // The first message is not joinable and should be sent separately.
+                sendToRedis(jedis, firstMessage);
             }
         }
     }
@@ -185,66 +231,86 @@ public class RedisManager implements MessageRepeater {
      * Send to Minecraft.
      */
     private class ReceiverThread extends Thread {
+
+        private int cooldownMillis = 0;
+
         @Override
         public void run() {
-            try(Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
-                jedis.auth(redisConfig.getPassword());
+            try {
                 while (enabled.get()) {
-                    // receive from Redis
-                    List<String> list = null;
-                    int retryCounter = MAX_RETRY_TIMES;
-                    while (retryCounter > 0) {
-                        try {
-                            list = jedis.brpop(POP_TIMEOUT, popQueueName);
-                        } catch (JedisException e) {
-                            logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
-                            --retryCounter;
-                            continue;
-                        }
-                        break;
-                    }
-                    // max retry times reached
-                    if (retryCounter == 0) {
-                        logger.severe("Max retry times reached. Receiver thread will quit.");
-                        return;
-                    }
+                    if (cooldownMillis > 0) // cool down after encountered a failure
+                        Thread.sleep(cooldownMillis);
 
-                    if (list != null) {
-                        for (String rawSting : list) {
-                            Message inboundMessage = Message.fromRedisRawString(rawSting);
-                            if (inboundMessage != null) {
-                                boolean isCommand = inboundMessage.getMessage().startsWith(redisCommandPrefix);
-                                // send to Minecraft
-                                if (!isCommand) {
-                                    logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
-                                    inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
+                    try (Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
+                        jedis.auth(redisConfig.getPassword());
+
+                        while (enabled.get()) {
+                            // receive from Redis
+                            List<String> list = null;
+                            int retryCounter = MAX_RETRY_TIMES;
+                            while (retryCounter > 0) {
+                                try {
+                                    list = jedis.brpop(POP_TIMEOUT, popQueueName);
+                                } catch (JedisException e) {
+                                    logger.warning(String.format("Failed to pop message: %s. Retrying... (remaining times: %d)", e, retryCounter));
+                                    --retryCounter;
+                                    continue;
                                 }
+                                if (cooldownMillis > 0) {
+                                    cooldownMillis = 0; // success. Reset cool down time interval.
+                                    logger.info("Connection is recovered. Receiver cool down time is set to 0.");
+                                }
+                                break;
+                            }
+                            // max retry times reached. Increment the cool down time interval.
+                            if (retryCounter == 0) {
+                                cooldownMillis += 1000;
+                                logger.severe(String.format("Max retry times reached. Cool down time interval increased to %dms.", cooldownMillis));
+                                break; // break to reconnect to the Redis
+                            }
 
-                                // Execute instruction
-                                if (isCommand && instructionDispatcher != null) {
-                                    String cmd = inboundMessage.getMessage();
-                                    if (redisCommandPrefix.length() == cmd.length())
-                                        cmd = "";
-                                    else
-                                        cmd = cmd.substring(redisCommandPrefix.length());
-                                    // dispatch the command
-                                    instructionDispatcher.dispatchExecution(cmd, RedisManager.this);
+                            if (list != null) {
+                                for (String rawSting : list) {
+                                    Message inboundMessage = Message.fromRedisRawString(rawSting);
+                                    if (inboundMessage != null) {
+                                        boolean isCommand = inboundMessage.getMessage().startsWith(redisCommandPrefix);
+                                        // send to Minecraft
+                                        if (!isCommand) {
+                                            logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
+                                            inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
+                                        }
+
+                                        // Execute instruction
+                                        if (isCommand && instructionDispatcher != null) {
+                                            String cmd = inboundMessage.getMessage();
+                                            if (redisCommandPrefix.length() == cmd.length())
+                                                cmd = "";
+                                            else
+                                                cmd = cmd.substring(redisCommandPrefix.length());
+                                            // dispatch the command
+                                            instructionDispatcher.dispatchExecution(cmd, RedisManager.this);
+                                        }
+                                    } else {
+                                        logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));
+                                    }
                                 }
                             } else {
-                                logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));
+                                Thread.sleep(1000);
                             }
                         }
-                    } else {
-                        Thread.sleep(1000);
+
+                    } catch (JedisConnectionException e) {
+                        cooldownMillis += 1000;
+                        logger.severe(String.format("Failed to connect Redis server: %s. Cool down time interval is set to %dms.", e, cooldownMillis));
                     }
+                    // while enabled
                 }
             } catch (InterruptedException ignored) {
                 logger.info("Receiver thread was interrupted. Quitting.");
-            } catch (JedisConnectionException e) {
-                logger.severe("Failed to connect Redis server: " + e + " Receiver thread will quit.");
             }
+
             logger.info("Receiver thread is stopped.");
-        }
+        } // void run()
     }
 
 }

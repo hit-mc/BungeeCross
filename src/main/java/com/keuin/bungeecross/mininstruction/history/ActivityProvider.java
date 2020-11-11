@@ -83,19 +83,11 @@ public class ActivityProvider {
      * @return a set containing all active players. You are not allowed to modify it.
      */
     public Collection<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
-        long ts = (new Date()).toInstant().getEpochSecond(); // current time stamp
-        long minActiveTs = ts - unit.toSeconds(timeRange); // the minimal timestamp to show
+        long ts = (new Date()).toInstant().getEpochSecond();
+        long minActiveTs = unit.toSeconds(timeRange) + ts; // the minimal timestamp to show
         synchronized (history) {
-//            // sort by time
-//            List<Map.Entry<Long, InGamePlayer>> sortedActivePlayersEntries = new ArrayList<>(
-//                    history.tailMap(minActiveTs).entrySet()
-//            );
-//            sortedActivePlayersEntries.sort(Map.Entry.comparingByKey());
-//            // extract players
-//            List<InGamePlayer> sortedActivePlayers = new ArrayList<>();
-//            sortedActivePlayersEntries.forEach(e -> sortedActivePlayers.add(e.getValue()));
-//            return Collections.unmodifiableCollection(sortedActivePlayers);
-            return new HashSet<>(history.tailMap(minActiveTs).values());
+            Map<Long, InGamePlayer> activePlayersMap = history.tailMap(minActiveTs);
+            return new HashSet<>(activePlayersMap.values());
         }
     }
 
