@@ -165,7 +165,17 @@ public class BungeeCross extends Plugin {
     private void generateDefaultConfig() {
         // generate default config programmatically
         BungeeCrossConfig defaultConfig = new BungeeCrossConfig(
-                new RedisConfig("",6379,"","","")
+                new RedisConfig(
+                        "",
+                        6379,
+                        "",
+                        "",
+                        "",
+                        "!",
+                        10,
+                        1,
+                        500,
+                        false)
         );
         String jsonString = (new GsonBuilder().setPrettyPrinting().create()).toJson(defaultConfig);
 
