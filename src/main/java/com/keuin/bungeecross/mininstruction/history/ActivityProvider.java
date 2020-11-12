@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class ActivityProvider {
 
-    private AtomicBoolean modified = new AtomicBoolean(false);
+    private final AtomicBoolean modified = new AtomicBoolean(false);
     private final TreeMap<Long, InGamePlayer> history; // lastActiveTimestamp -> player. All access to this ADT must be serialized.
     private final Map<InGamePlayer, Long> reverseLookUpTable = new HashMap<>(); // reversed look-up-table, providing a player -> last-seen-time mapping. This is non-persistent.
     private final String jsonFileName;
@@ -83,8 +83,8 @@ public class ActivityProvider {
      * @return a set containing all active players. You are not allowed to modify it.
      */
     public Collection<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
-        long ts = (new Date()).toInstant().getEpochSecond();
-        long minActiveTs = unit.toSeconds(timeRange) + ts; // the minimal timestamp to show
+        long currentSeconds = (new Date()).toInstant().getEpochSecond();
+        long minActiveTs = currentSeconds - unit.toSeconds(timeRange); // the minimal timestamp to show
         synchronized (history) {
             Map<Long, InGamePlayer> activePlayersMap = history.tailMap(minActiveTs);
             return new HashSet<>(activePlayersMap.values());
