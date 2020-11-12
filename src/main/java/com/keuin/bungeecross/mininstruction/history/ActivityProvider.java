@@ -30,14 +30,20 @@ public class ActivityProvider {
     private final Logger logger = Logger.getLogger(ActivityProvider.class.getName());
     private final int AUTO_SAVE_INTERVAL = 3;
     private int autoSaveCounter = AUTO_SAVE_INTERVAL;
+    private final boolean autoSave;
 
     private final Object saveNotifier = new Object();
 
     public ActivityProvider(String jsonFile) throws IOException {
-        this(jsonFile, true);
+        this(jsonFile, true, true);
     }
 
     public ActivityProvider(String jsonFile, boolean loadFromFile) throws IOException {
+        this(jsonFile, loadFromFile, true);
+    }
+
+    public ActivityProvider(String jsonFile, boolean loadFromFile, boolean autoSave) throws IOException {
+        this.autoSave = autoSave;
         if (loadFromFile) {
             try (Reader reader = new BufferedReader(new FileReader(jsonFile))) {
                 Gson gson = new Gson();
@@ -50,7 +56,8 @@ public class ActivityProvider {
         }
         this.jsonFileName = jsonFile;
         initializeLookUpTable();
-        savingThread.start();
+        if (autoSave)
+            savingThread.start();
     }
 
     /**
@@ -64,6 +71,14 @@ public class ActivityProvider {
                     reverseLookUpTable.put(player, ts);
             });
         }
+    }
+
+    /**
+     * Get the current java epoch seconds.
+     * @return the seconds.
+     */
+    protected long getCurrentSeconds() {
+        return (new Date()).toInstant().getEpochSecond();
     }
 
     /**
@@ -83,8 +98,8 @@ public class ActivityProvider {
      * @return a set containing all active players. You are not allowed to modify it.
      */
     public Collection<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
-        long currentSeconds = (new Date()).toInstant().getEpochSecond();
-        long minActiveTs = currentSeconds - unit.toSeconds(timeRange); // the minimal timestamp to show
+        // TODO: Add unit test for this
+        long minActiveTs = getCurrentSeconds() - unit.toSeconds(timeRange); // the minimal timestamp to show
         synchronized (history) {
             Map<Long, InGamePlayer> activePlayersMap = history.tailMap(minActiveTs);
             return new HashSet<>(activePlayersMap.values());
@@ -106,7 +121,7 @@ public class ActivityProvider {
      * @param player the player's UUID.
      */
     public void logPlayerActivity(InGamePlayer player) {
-        long ts = (new Date()).toInstant().getEpochSecond();
+        long ts = getCurrentSeconds();
         synchronized (history) {
             history.put(ts, player);
         }
@@ -133,6 +148,23 @@ public class ActivityProvider {
         save();
     }
 
+    private void saveToFile() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>(){}.getType();
+        String jsonString;
+        synchronized (history) {
+            jsonString = gson.toJson(history, gsonType);
+        }
+        try(BufferedOutputStream outputStream = new BufferedOutputStream(
+                Files.newOutputStream(Paths.get(jsonFileName))
+        )) {
+            outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
+            logger.info("Activity saved to file " + jsonFileName);
+        } catch (IOException e) {
+            logger.severe(String.format("Failed to save activity history: %s", e));
+        }
+    }
+
     /**
      * This thread saves the history asynchronously.
      */
@@ -142,33 +174,16 @@ public class ActivityProvider {
 
         @Override
         public void run() {
-            while (running.get()) {
-
-                try {
+            try {
+                while (running.get()) {
                     synchronized (saveNotifier) {
                         saveNotifier.wait();
                     }
-                } catch (InterruptedException ignored) {
+                    if (modified.getAndSet(false))
+                        saveToFile();
                 }
-
-                if (!modified.getAndSet(false))
-                    continue;
-
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>(){}.getType();
-                String jsonString;
-                synchronized (history) {
-                    jsonString = gson.toJson(history, gsonType);
-                }
-                try(BufferedOutputStream outputStream = new BufferedOutputStream(
-                        Files.newOutputStream(Paths.get(jsonFileName))
-                )) {
-                    outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
-                    logger.info("Activity saved to file " + jsonFileName);
-                } catch (IOException e) {
-                    logger.severe(String.format("Failed to save activity history: %s", e));
-                }
-
+            } catch (InterruptedException ignored) {
+                logger.info("History saving thread is interrupted.");
             }
             logger.info("History saving thread is stopping.");
         }

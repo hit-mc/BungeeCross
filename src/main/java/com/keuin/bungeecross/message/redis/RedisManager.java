@@ -60,6 +60,7 @@ public class RedisManager implements MessageRepeater {
                 instructionDispatcher,
                 this
         );
+        // TODO: Finish refactoring
         this.senderThread = new RedisSenderThread(
                 enabled,
                 redisConfig.getHost(),
