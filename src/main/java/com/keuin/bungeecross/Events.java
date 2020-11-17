@@ -66,6 +66,8 @@ public class Events implements Listener {
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         ProxiedPlayer player = event.getPlayer();
+        if (player == null)
+            return;
         ServerInfo server = event.getTarget();
         joiningServers.put(player.getUniqueId(), server);
     }
@@ -75,6 +77,8 @@ public class Events implements Listener {
 
         // after a player joined
         ProxiedPlayer player = event.getPlayer();
+        if (player == null)
+            return;
         ProxyServer proxy = plugin.getProxy();
         ServerInfo server = joiningServers.get(player.getUniqueId());
 
@@ -102,7 +106,7 @@ public class Events implements Listener {
             // for all other servers
             if (!serverInfo.getName().equals(server.getName()))
                 for (ProxiedPlayer dest : serverInfo.getPlayers())
-                    if (!dest.getUniqueId().equals(player.getUniqueId()))
+                    if (dest != null && !dest.getUniqueId().equals(player.getUniqueId()))
                         dest.sendMessage(joinedMessage); // repeat the join message
         }
 
@@ -111,13 +115,15 @@ public class Events implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent event) {
-        if(!(event.getSender() instanceof ProxiedPlayer)) {
+        if (!(event.getSender() instanceof ProxiedPlayer)) {
             logger.severe(String.format("Sender is not a ProxiedPlayer instance: %s", event.getSender().toString()));
             return;
         }
 
         String message = event.getMessage();
         ProxiedPlayer sender = (ProxiedPlayer) event.getSender();
+        if (sender == null)
+            return;
         MessageUser messageUser = new PlayerUser(sender.getName(), sender.getUniqueId(), sender.getServer().getInfo().getName());
 
         if (message.startsWith("/"))

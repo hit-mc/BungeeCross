@@ -8,6 +8,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageDispatcher {
@@ -28,7 +29,7 @@ public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageD
         for (ServerInfo targetServer : servers) {
             boolean repeat = true; // whether we should repeat message to this server
             for (ProxiedPlayer player : targetServer.getPlayers()) {
-                if(senderUUID.equals(player.getUniqueId())) {
+                if (player != null && senderUUID.equals(player.getUniqueId())) {
                     repeat = false;
                     break;
                 }

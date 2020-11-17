@@ -12,6 +12,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public final class ListExecutor extends AbstractInstructionExecutor {
 
@@ -42,10 +43,12 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         )).color(ChatColor.WHITE).create());
 
         // players
-        List<BaseComponent> players = new ArrayList<>();
-        proxy.getPlayers().forEach(player -> players.addAll(Arrays.asList(getPlayerPrettyComponent(player))));
-        if (!players.isEmpty())
-            echo(echoRepeater, players.toArray(new BaseComponent[0]));
+        List<BaseComponent> echoComponents = new ArrayList<>();
+        proxy.getPlayers().forEach(p -> Optional.ofNullable(p).ifPresent(
+                player -> echoComponents.addAll(Arrays.asList(getPlayerPrettyComponent(player)))
+        ));
+        if (!echoComponents.isEmpty())
+            echo(echoRepeater, echoComponents.toArray(new BaseComponent[0]));
     }
 
     private BaseComponent[] getPlayerPrettyComponent(ProxiedPlayer player) {
