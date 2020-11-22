@@ -1,6 +1,6 @@
 # BungeeCross: A powerful & reliable BungeeCord/Waterfall multi-server intercommunicating solution
 
-What's BungeeCross? **It integrates chatting & messaging among all your servers.**
+What's BungeeCross? **It integrates chatting & messaging among all your bungee sub-servers.**
 
 ## Features
 
