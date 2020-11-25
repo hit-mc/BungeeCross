@@ -21,6 +21,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -122,16 +123,13 @@ public class BungeeCross extends Plugin {
         activityProvider.close();
 
         logger.info("Stopping RedisManager...");
-        if (redisManager != null)
-            redisManager.stop();
+        Optional.ofNullable(redisManager).ifPresent(RedisManager::stop);
 
         logger.info("Stopping InGameChatProcessor...");
-        if (inGameChatProcessor != null)
-            inGameChatProcessor.close();
+        Optional.ofNullable(inGameChatProcessor).ifPresent(InGameChatProcessor::close);
 
         logger.info("Stopping InstructionDispatcher");
-        if (instructionDispatcher != null)
-            instructionDispatcher.close();
+        Optional.ofNullable(instructionDispatcher).ifPresent(InstructionDispatcher::close);
 
         super.onDisable();
     }

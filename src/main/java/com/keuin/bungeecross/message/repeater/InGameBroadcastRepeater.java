@@ -56,17 +56,12 @@ public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageD
 
     @Override
     public void repeatInboundMessage(Message message) {
-        servers.forEach((server) -> broadcastInServer(message, server));
+        servers.forEach(server -> broadcastInServer(message, server));
     }
 
     private void broadcastInServer(Message message, ServerInfo server) {
-        BaseComponent[] sentMessage = message.toChatInGameRepeatFormat();
-
-        for (ProxiedPlayer player : server.getPlayers()) {
-            if(player != null) {
-                player.sendMessage(sentMessage);
-            }
-        }
+        BaseComponent[] msg = message.toChatInGameRepeatFormat();
+        server.getPlayers().forEach(p -> Optional.ofNullable(p).ifPresent(player -> player.sendMessage(msg)));
     }
 
 }
