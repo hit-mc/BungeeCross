@@ -8,6 +8,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,4 +65,21 @@ public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageD
         server.getPlayers().forEach(p -> Optional.ofNullable(p).ifPresent(player -> player.sendMessage(msg)));
     }
 
+    @Override
+    public String toString() {
+        return String.format("InGameBroadcast(servers=%s)", this.servers.toString());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InGameBroadcastRepeater that = (InGameBroadcastRepeater) o;
+        return servers.equals(that.servers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(servers);
+    }
 }

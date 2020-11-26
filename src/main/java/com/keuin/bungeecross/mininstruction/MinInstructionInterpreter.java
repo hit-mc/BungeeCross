@@ -18,7 +18,6 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MinInstructionInterpreter {
@@ -47,15 +46,12 @@ public class MinInstructionInterpreter {
      * Non-registered instructions cannot be executed.
      */
     private void registerInstructions() {
-        List<AbstractInstructionExecutor> inst = Arrays.asList(
+        Arrays.asList(
                 ListExecutor.getInstance(),
                 ReloadExecutor.getInstance(plugin),
                 StatExecutor.getInstance(redisManager),
                 HistoryExecutor.getInstance(activityProvider, proxyServer)
-        );
-        for (AbstractInstructionExecutor executor : inst) {
-            instructions.put(executor.getCommand(), executor);
-        }
+        ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }
 
     /**

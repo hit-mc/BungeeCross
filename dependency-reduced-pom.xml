@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keuin</groupId>
   <artifactId>bungeecross</artifactId>
-  <version>1.3.2-preview+20201111</version>
+  <version>1.3.5+20201126</version>
   <build>
     <resources>
       <resource>

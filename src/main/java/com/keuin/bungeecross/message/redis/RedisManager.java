@@ -2,6 +2,7 @@ package com.keuin.bungeecross.message.redis;
 
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.RedisUserRepeater;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.util.MessageUtil;
 import redis.clients.jedis.Jedis;
@@ -288,7 +289,13 @@ public class RedisManager implements MessageRepeater {
                                             else
                                                 cmd = cmd.substring(redisCommandPrefix.length());
                                             // dispatch the command
-                                            instructionDispatcher.dispatchExecution(cmd, RedisManager.this);
+                                            instructionDispatcher.dispatchExecution(
+                                                    cmd,
+                                                    new RedisUserRepeater(
+                                                            RedisManager.this,
+                                                            inboundMessage.getSender()
+                                                    )
+                                            );
                                         }
                                     } else {
                                         logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));

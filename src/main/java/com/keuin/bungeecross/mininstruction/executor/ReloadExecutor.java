@@ -1,6 +1,8 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.logging.Logger;
@@ -36,6 +38,13 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
             plugin.onEnable();
 
             logger.info("Soft reload finished.");
+
+            try {
+                echo(echoRepeater, new ComponentBuilder(
+                        String.format("Soft reload finished. (triggered by %s)", echoRepeater.toString())
+                ).color(ChatColor.GREEN).create());
+            } catch (Exception ignored) { // Prevent possible weird problems
+            }
         });
     }
 }

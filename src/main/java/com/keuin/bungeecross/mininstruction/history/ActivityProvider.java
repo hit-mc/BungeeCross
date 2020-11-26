@@ -39,12 +39,17 @@ public class ActivityProvider {
 
     public ActivityProvider(String jsonFile, boolean loadFromFile) throws IOException {
         if (loadFromFile) {
+            TreeMap<Long, InGamePlayer> tmp;
             try (Reader reader = new BufferedReader(new FileReader(jsonFile))) {
                 Gson gson = new Gson();
-                Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>(){}.getType();
+                Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>() {
+                }.getType();
                 // String gsonString = gson.toJson(data, gsonType);
-                history = gson.fromJson(reader, gsonType);
+                tmp = gson.fromJson(reader, gsonType);
+                if (tmp == null)
+                    tmp = new TreeMap<>();
             }
+            history = tmp;
         } else {
             history = new TreeMap<>();
         }

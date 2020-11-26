@@ -4,6 +4,8 @@ import com.keuin.bungeecross.message.Message;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class InGameCommandEchoRepeater implements MessageRepeater {
@@ -58,10 +60,37 @@ public class InGameCommandEchoRepeater implements MessageRepeater {
             assert proxyServer != null;
             player = proxyServer.getPlayer(playerId);
         }
-        player.sendMessage(message.getRichTextMessage());
+        Optional.ofNullable(player).ifPresent(p -> p.sendMessage(message.getRichTextMessage()));
     }
 
-//    @Override
+    @Override
+    public String toString() {
+        if (this.playerId != null)
+            return String.format("Player(name=%s)", this.playerId);
+        else if (this.playerUUID != null)
+            return String.format("Player(uuid=%s)", this.playerUUID);
+        else if (this.proxiedPlayer != null)
+            return String.format("Player(name=%s, uuid=%s)", this.proxiedPlayer.getName(), this.proxiedPlayer.getUniqueId());
+        return "null";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InGameCommandEchoRepeater that = (InGameCommandEchoRepeater) o;
+        return Objects.equals(playerId, that.playerId) &&
+                Objects.equals(playerUUID, that.playerUUID) &&
+                Objects.equals(proxiedPlayer, that.proxiedPlayer) &&
+                Objects.equals(proxyServer, that.proxyServer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerId, playerUUID, proxiedPlayer, proxyServer);
+    }
+
+    //    @Override
 //    public boolean setBuffer(boolean enabled) {
 //        return false;
 //    }
