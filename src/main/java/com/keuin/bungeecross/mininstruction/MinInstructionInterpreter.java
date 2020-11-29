@@ -22,8 +22,8 @@ import java.util.Map;
 
 public class MinInstructionInterpreter {
 
-    private final int MAX_COMMAND_LINE_LENGTH = 20;
-    private final String defaultName = "MinInst";
+    private static final int MAX_COMMAND_LINE_LENGTH = 20;
+    private static final String defaultName = "MinInst";
 
 
     private final RedisManager redisManager;

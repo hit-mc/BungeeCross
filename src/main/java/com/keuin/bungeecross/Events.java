@@ -19,6 +19,7 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -106,7 +107,7 @@ public class Events implements Listener {
             // for all other servers
             if (!serverInfo.getName().equals(server.getName()))
                 for (ProxiedPlayer dest : serverInfo.getPlayers())
-                    if (dest != null && !dest.getUniqueId().equals(player.getUniqueId()))
+                    if (dest != null && !Objects.equals(dest.getUniqueId(), player.getUniqueId()))
                         dest.sendMessage(joinedMessage); // repeat the join message
         }
 

@@ -40,7 +40,7 @@ public class ActivityProvider {
     public ActivityProvider(String jsonFile, boolean loadFromFile) throws IOException {
         if (loadFromFile) {
             TreeMap<Long, InGamePlayer> tmp;
-            try (Reader reader = new BufferedReader(new FileReader(jsonFile))) {
+            try (Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8))) {
                 Gson gson = new Gson();
                 Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>() {
                 }.getType();

@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class ConsoleUser implements MessageUser {
 
-    private final String LOCATION = "SERVER";
+    private static final String LOCATION = "SERVER";
     private final String instruction;
 
     ConsoleUser(String instruction) {

@@ -9,7 +9,7 @@ public class RedisUser implements MessageUser {
 
     private final String userName;
     private final String uniqueId;
-    private final String location = "QQ";
+    private static final String location = "QQ";
 
     public RedisUser(String userName) {
         this(userName, userName);

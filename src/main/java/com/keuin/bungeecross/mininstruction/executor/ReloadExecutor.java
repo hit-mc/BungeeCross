@@ -43,7 +43,9 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
                 echo(echoRepeater, new ComponentBuilder(
                         String.format("Soft reload finished. (triggered by %s)", echoRepeater.toString())
                 ).color(ChatColor.GREEN).create());
-            } catch (Exception ignored) { // Prevent possible weird problems
+            } catch (Exception e) { // Prevent possible weird problems
+                logger.warning("Unimportant exception was ignored: " + e);
+                e.printStackTrace();
             }
         });
     }
