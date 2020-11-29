@@ -119,6 +119,10 @@ public class BungeeCross extends Plugin {
 
     @Override
     public void onDisable() {
+        // Unregister event listeners
+        logger.info("Unregistering events...");
+        getProxy().getPluginManager().unregisterListeners(this);
+
         logger.info("Saving activity history...");
         activityProvider.close();
 
@@ -128,9 +132,10 @@ public class BungeeCross extends Plugin {
         logger.info("Stopping InGameChatProcessor...");
         Optional.ofNullable(inGameChatProcessor).ifPresent(InGameChatProcessor::close);
 
-        logger.info("Stopping InstructionDispatcher");
+        logger.info("Stopping InstructionDispatcher...");
         Optional.ofNullable(instructionDispatcher).ifPresent(InstructionDispatcher::close);
 
+        logger.info("Calling super disable routine...");
         super.onDisable();
     }
 

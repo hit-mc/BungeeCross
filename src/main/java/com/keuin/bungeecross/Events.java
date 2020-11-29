@@ -99,7 +99,7 @@ public class Events implements Listener {
         // build message
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");
 //        joinedMessage.addWith(player.getName());
-//        logger.info(String.format("Server: %s, player: %s, proxy: %s.", server, player, proxy));
+//        logger.info(String.format("Player %s joined server %s.", player, server));
         BaseComponent[] joinedMessage = (new ComponentBuilder(String.format("%s joined server [%s].", player.getName(), server.getName()))).italic(true).color(ChatColor.YELLOW).create();
 
         for (ServerInfo serverInfo : proxy.getServers().values()) {
