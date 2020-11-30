@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * CharacterFilter Tester.
  *
- * @author <Authors name>
+ * @author Keuin
  * @version 1.0
  * @since <pre>11月 9, 2020</pre>
  */

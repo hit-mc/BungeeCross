@@ -26,7 +26,32 @@ public interface MessageUser {
 
     /**
      * Get where the user is, such as the server name, or the Redis peer name (QQ).
+     *
      * @return the location name.
      */
     String getLocation();
+
+    static MessageUser build(String name, String id, String location) {
+        return new MessageUser() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public UUID getUUID() {
+                return null;
+            }
+
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public String getLocation() {
+                return location;
+            }
+        };
+    }
 }

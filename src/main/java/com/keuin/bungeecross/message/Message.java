@@ -37,6 +37,7 @@ public interface Message {
 
     /**
      * Pack message into Redis format.
+     *
      * @return packed string.
      */
     default String pack() {
@@ -44,8 +45,38 @@ public interface Message {
         return String.format("%s%s%s", getSender().getName(), SPLIT, getMessage());
     }
 
+    static Message build(String message, String sender) {
+        return new Message() {
+            @Override
+            public String getMessage() {
+                return message;
+            }
+
+            @Override
+            public BaseComponent[] getRichTextMessage() {
+                return new ComponentBuilder(message).create();
+            }
+
+            @Override
+            public MessageUser getSender() {
+                return MessageUser.build(sender, sender, sender);
+            }
+
+            @Override
+            public boolean isJoinable() {
+                return false;
+            }
+
+            @Override
+            public String toString() {
+                return String.format("[%s] %s", sender, message);
+            }
+        };
+    }
+
     /**
      * Construct a Message object by raw string from Redis.
+     *
      * @param rawString the raw string.
      * @return a Message object. If the raw string is invalid, return null.
      */

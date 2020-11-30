@@ -11,6 +11,8 @@ import com.keuin.bungeecross.message.repeater.InGameBroadcastRepeater;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
+import com.keuin.bungeecross.notification.DeployNotification;
+import com.keuin.bungeecross.notification.Notification;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -31,8 +33,8 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class BungeeCross extends Plugin {
 
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
-    public static String VERSION;
-    public static String BUILD_TIME;
+    private static String VERSION = "";
+    private static String BUILD_TIME = "";
 
     private BungeeCrossConfig config;
 
@@ -48,6 +50,14 @@ public class BungeeCross extends Plugin {
     private static final String inGameCommandPrefix = "!BC";
     private static final String configurationFileName = "bungeecross.json";
     private static final String activityPersistenceFileName = "activity.json";
+
+    public static String getVersion() {
+        return VERSION;
+    }
+
+    public static String getBuildTime() {
+        return BUILD_TIME;
+    }
 
     {
         try {
@@ -112,6 +122,10 @@ public class BungeeCross extends Plugin {
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
 
+            // Notify if deployed by CI/CD
+            Notification notification = DeployNotification.INSTANCE;
+            notification.notifyIfNeeded(redisManager::repeat)
+                    .notifyIfNeeded(msg -> logger.info(msg::toString));
         } catch (IOException e) {
             logger.severe("Failed to initialize: " + e);
         }

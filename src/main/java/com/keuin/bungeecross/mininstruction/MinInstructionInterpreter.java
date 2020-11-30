@@ -91,10 +91,10 @@ public class MinInstructionInterpreter {
         if (command.isEmpty()) {
             // blank command
             echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(
-                    String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.VERSION)
+                    String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.getVersion())
             ).color(ChatColor.DARK_GREEN).create()));
             echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(
-                    String.format("Build time: %s", BungeeCross.BUILD_TIME)
+                    String.format("Build time: %s", BungeeCross.getBuildTime())
             ).color(ChatColor.DARK_GREEN).create()));
             echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("Use 'help' to show usages.").create()));
 
