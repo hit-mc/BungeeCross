@@ -53,8 +53,11 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
         if(message.getMessage().toLowerCase().startsWith(inGameCommandPrefix.toLowerCase())) {
             logger.info("Process as a command");
             String cmd = message.getMessage();
-            // trim interval blank space
-            cmd = cmd.substring(inGameCommandPrefix.length() + ((cmd.length() > inGameCommandPrefix.length()) ? 1 : 0));
+            if (cmd.length() > inGameCommandPrefix.length()) {
+                cmd = cmd.substring(inGameCommandPrefix.length());
+            } else {
+                cmd = "";
+            }
 
             // delegate to the dispatcher
             instructionDispatcher.dispatchExecution(cmd, new InGameCommandEchoRepeater(message.getProxiedPlayer()));

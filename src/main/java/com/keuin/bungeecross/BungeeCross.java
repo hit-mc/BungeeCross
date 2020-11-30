@@ -9,6 +9,7 @@ import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.message.redis.RedisManager;
 import com.keuin.bungeecross.message.repeater.InGameBroadcastRepeater;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
+import com.keuin.bungeecross.mininstruction.dispatcher.ConcreteInstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.notification.DeployNotification;
@@ -109,7 +110,7 @@ public class BungeeCross extends Plugin {
             }
 
             interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider, proxyServer);
-            instructionDispatcher = new InstructionDispatcher(interpreter);
+            instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
             redisManager.setInstructionDispatcher(instructionDispatcher);
             inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
 
