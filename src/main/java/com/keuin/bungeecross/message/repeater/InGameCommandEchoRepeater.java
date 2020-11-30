@@ -89,18 +89,5 @@ public class InGameCommandEchoRepeater implements MessageRepeater {
     public int hashCode() {
         return Objects.hash(playerId, playerUUID, proxiedPlayer, proxyServer);
     }
-
-    //    @Override
-//    public boolean setBuffer(boolean enabled) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isBufferEnabled() {
-//        return false;
-//    }
-//
-//    @Override
-//    public void flush() {
-//    }
+    
 }
