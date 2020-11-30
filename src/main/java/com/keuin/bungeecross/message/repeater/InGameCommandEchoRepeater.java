@@ -89,5 +89,4 @@ public class InGameCommandEchoRepeater implements MessageRepeater {
     public int hashCode() {
         return Objects.hash(playerId, playerUUID, proxiedPlayer, proxyServer);
     }
-    
 }
