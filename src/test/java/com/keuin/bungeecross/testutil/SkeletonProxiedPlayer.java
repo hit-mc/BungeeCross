@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.message.ingame;
+package com.keuin.bungeecross.testutil;
 
 import net.md_5.bungee.api.*;
 import net.md_5.bungee.api.chat.BaseComponent;

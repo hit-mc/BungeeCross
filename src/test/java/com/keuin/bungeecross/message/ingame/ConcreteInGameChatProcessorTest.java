@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.message.ingame;
 
 import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.testutil.*;
 import junit.framework.TestCase;
 
 import java.util.UUID;

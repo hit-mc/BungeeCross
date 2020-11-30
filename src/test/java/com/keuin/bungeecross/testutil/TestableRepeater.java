@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.message.ingame;
+package com.keuin.bungeecross.testutil;
 
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
