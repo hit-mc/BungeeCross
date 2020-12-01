@@ -52,7 +52,8 @@ public class MinInstructionInterpreter {
                 ListExecutor.getInstance().withContext(context),
                 ReloadExecutor.getInstance(plugin).withContext(context),
                 StatExecutor.getInstance(redisManager).withContext(context),
-                HistoryExecutor.getInstance(activityProvider, proxyServer).withContext(context)
+                HistoryExecutor.getInstance(activityProvider, proxyServer).withContext(context),
+
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }
 
