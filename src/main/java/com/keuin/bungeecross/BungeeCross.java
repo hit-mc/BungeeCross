@@ -124,8 +124,8 @@ public class BungeeCross extends Plugin {
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
 
             // Notify if deployed by CI/CD
-            Notification notification = DeployNotification.INSTANCE;
-            notification.notifyIfNeeded(redisManager::repeat)
+            Notification deployNotification = DeployNotification.INSTANCE;
+            deployNotification.notifyIfNeeded(redisManager::repeat)
                     .notifyIfNeeded(msg -> logger.info(msg::toString));
         } catch (IOException e) {
             logger.severe("Failed to initialize: " + e);
