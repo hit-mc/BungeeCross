@@ -83,7 +83,7 @@
             </goals>
             <configuration>
               <name>build.time</name>
-              <pattern>yyyyMMdd.HHmm</pattern>
+              <pattern>yyyyMMdd</pattern>
               <locale>zh_CN</locale>
               <timeZone>GMT+8</timeZone>
             </configuration>
@@ -120,7 +120,7 @@
     </dependency>
   </dependencies>
   <properties>
-    <build.unknown>UNKNOWN</build.unknown>
+    <build.unknown>SNAPSHOT</build.unknown>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <build.manifest.section>Build Details</build.manifest.section>

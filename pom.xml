@@ -14,7 +14,7 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 
         <build.manifest.section>Build Details</build.manifest.section>
-        <build.unknown>UNKNOWN</build.unknown>
+        <build.unknown>SNAPSHOT</build.unknown>
         <build.number>${build.unknown}</build.number>
         <build.revision>${build.unknown}</build.revision>
         <!--        <timestamp>${maven.build.timestamp}</timestamp>-->
@@ -104,7 +104,7 @@
                         </goals>
                         <configuration>
                             <name>build.time</name>
-                            <pattern>yyyyMMdd.HHmm</pattern>
+                            <pattern>yyyyMMdd</pattern>
                             <locale>zh_CN</locale>
                             <timeZone>GMT+8</timeZone>
                         </configuration>
