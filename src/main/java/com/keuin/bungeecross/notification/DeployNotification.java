@@ -12,6 +12,7 @@ import java.util.logging.Logger;
  */
 public class DeployNotification implements Notification {
 
+    public static final String FLAG_FILE_NAME = "ci_deployed";
     private final Logger logger = Logger.getLogger(DeployNotification.class.getName());
     private final boolean shouldNotify;
 
@@ -20,7 +21,7 @@ public class DeployNotification implements Notification {
     private DeployNotification() {
         boolean notify = false;
         try {
-            File flagFile = new File("ci_deployed");
+            File flagFile = new File(FLAG_FILE_NAME);
             logger.info(String.format("Working dir: %s", System.getProperty("user.dir")));
             if (flagFile.exists()) {
                 logger.info("CI flag exists.");
