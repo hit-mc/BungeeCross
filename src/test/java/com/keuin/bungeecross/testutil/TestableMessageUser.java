@@ -2,6 +2,7 @@ package com.keuin.bungeecross.testutil;
 
 import com.keuin.bungeecross.message.user.MessageUser;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class TestableMessageUser implements MessageUser {
@@ -20,6 +21,22 @@ public class TestableMessageUser implements MessageUser {
 
     public static TestableMessageUser create(String name, UUID uuid, String id, String location) {
         return new TestableMessageUser(name, uuid, id, location);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestableMessageUser that = (TestableMessageUser) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(uuid, that.uuid) &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(location, that.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, uuid, id, location);
     }
 
     @Override
