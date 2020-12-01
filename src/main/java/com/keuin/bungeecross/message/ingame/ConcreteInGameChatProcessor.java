@@ -54,7 +54,8 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
             logger.info("Process as a command");
             String cmd = message.getMessage();
             if (cmd.length() > inGameCommandPrefix.length()) {
-                cmd = cmd.substring(inGameCommandPrefix.length());
+                int offset = (inGameCommandPrefix.length() == 1) ? 0 : 1; // support both `!<cmd>` and `!bc <cmd>`
+                cmd = cmd.substring(inGameCommandPrefix.length() + offset);
             } else {
                 cmd = "";
             }

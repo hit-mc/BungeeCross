@@ -15,7 +15,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
     private String repeatMessagePrefix = "98^iuho786I^FG7667";
     private String inGameCommandPrefix = "8^89y7&*7GF5$%57d";
 
-    private final int sleepMillis = 1000;
+    private final int sleepMillis = 500;
 
     private ConcreteInGameChatProcessor processor;
 
@@ -58,7 +58,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
         UUID uuid = UUID.randomUUID();
         String commandString = "command";
         TestableInGameMessage message1 = TestableInGameMessage.create(
-                inGameCommandPrefix + commandString,
+                inGameCommandPrefix + " " + commandString,// !bc <cmd>
                 TestableMessageUser.create("user", uuid, "id", "location"),
                 SkeletonProxiedPlayer.create()
         );
