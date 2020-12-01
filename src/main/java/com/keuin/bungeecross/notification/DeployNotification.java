@@ -22,15 +22,15 @@ public class DeployNotification implements Notification {
         boolean notify = false;
         try {
             File flagFile = new File(FLAG_FILE_NAME);
-            logger.info(String.format("Working dir: %s", System.getProperty("user.dir")));
+            logger.fine(String.format("Working dir: %s", System.getProperty("user.dir")));
             if (flagFile.exists()) {
-                logger.info("CI flag exists.");
+                logger.fine("CI flag exists.");
                 notify = true;
                 if (!flagFile.delete()) {
                     logger.severe("Failed to delete CI flag file.");
                 }
             } else {
-                logger.info("CI flag does not exist.");
+                logger.fine("CI flag does not exist.");
             }
         } catch (SecurityException exception) {
             logger.severe(String.format("Failed to delete CI flag file: %s", exception));
