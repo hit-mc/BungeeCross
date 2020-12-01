@@ -6,6 +6,7 @@ import com.keuin.bungeecross.message.user.RepeatableUser;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class InGameCommandEchoRepeater implements RepeatableUser {
@@ -44,6 +45,19 @@ public class InGameCommandEchoRepeater implements RepeatableUser {
     @Override
     public String toString() {
         return String.format("Player(name=%s, uuid=%s)", this.proxiedPlayer.getName(), this.proxiedPlayer.getUniqueId());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InGameCommandEchoRepeater that = (InGameCommandEchoRepeater) o;
+        return playerUser.equals(that.playerUser);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerUser);
     }
 
     @Override

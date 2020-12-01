@@ -27,7 +27,7 @@ public class WikiExecutor extends AbstractInstructionExecutor {
     @Override
     public void doExecute(UserContext context, MessageRepeater echoRepeater) {
         String key = "wiki_counter";
-        int cnt = (int) Optional.ofNullable(context.get(key)).orElse(1);
+        int cnt = (int) Optional.ofNullable(context.get(key)).orElse(0);
         cnt++;
         context.set(key, cnt);
         echo(echoRepeater, String.format("never mind. (%d)", cnt));
