@@ -5,10 +5,7 @@ import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.redis.RedisManager;
 import com.keuin.bungeecross.message.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
-import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
-import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
-import com.keuin.bungeecross.mininstruction.executor.ReloadExecutor;
-import com.keuin.bungeecross.mininstruction.executor.StatExecutor;
+import com.keuin.bungeecross.mininstruction.executor.*;
 import com.keuin.bungeecross.mininstruction.executor.history.HistoryExecutor;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.util.CharacterFilter;
@@ -53,7 +50,7 @@ public class MinInstructionInterpreter {
                 ReloadExecutor.getInstance(plugin).withContext(context),
                 StatExecutor.getInstance(redisManager).withContext(context),
                 HistoryExecutor.getInstance(activityProvider, proxyServer).withContext(context),
-
+                WikiExecutor.getInstance().withContext(context)
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }
 
