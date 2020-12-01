@@ -21,6 +21,7 @@ public class DeployNotification implements Notification {
         boolean notify = false;
         try {
             File flagFile = new File("ci_deployed");
+            logger.info(String.format("Working dir: %s", System.getProperty("user.dir")));
             if (flagFile.exists()) {
                 logger.info("CI flag exists.");
                 notify = true;
