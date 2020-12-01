@@ -69,7 +69,7 @@ public class SkeletonProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public Server getServer() {
-        return null;
+        return new SkeletonServer();
     }
 
     @Override

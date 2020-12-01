@@ -1,5 +1,7 @@
 package com.keuin.bungeecross.message.user;
 
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,6 +17,14 @@ public class PlayerUser implements MessageUser {
         this.playerName = playerName;
         this.uuid = uuid;
         this.location = location;
+    }
+
+    public static PlayerUser fromProxiedPlayer(ProxiedPlayer proxiedPlayer) {
+        return new PlayerUser(
+                proxiedPlayer.getName(),
+                proxiedPlayer.getUniqueId(),
+                proxiedPlayer.getServer().getInfo().getName()
+        );
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.dispatcher;
 
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,7 +24,7 @@ public class ConcreteInstructionDispatcher implements InstructionDispatcher {
     }
 
     @Override
-    public void dispatchExecution(String command, MessageRepeater echoRepeater) {
+    public void dispatchExecution(String command, RepeatableUser echoRepeater) {
         instructionQueue.add(new ScheduledExecution(command, echoRepeater));
         if (!dispatcherThread.isAlive()) {
             running.set(true);
@@ -46,7 +46,7 @@ public class ConcreteInstructionDispatcher implements InstructionDispatcher {
                 while (running.get()) {
                     ScheduledExecution inst = instructionQueue.take();
                     Thread.sleep(100); // a simple mitigation
-                    interpreter.execute(inst.getCommand(), inst.getEchoRepeater());
+                    interpreter.execute(inst.getCommand(), inst.getExecutionSender());
 
                     // repeat
 //                    inst.getEchoRepeater().repeat(new EchoMessage(inst.getCommand(),echoComponents));
@@ -60,9 +60,9 @@ public class ConcreteInstructionDispatcher implements InstructionDispatcher {
 
     private static class ScheduledExecution {
         private final String command;
-        private final MessageRepeater echoRepeater;
+        private final RepeatableUser echoRepeater;
 
-        private ScheduledExecution(String command, MessageRepeater echoRepeater) {
+        private ScheduledExecution(String command, RepeatableUser echoRepeater) {
             this.command = command;
             this.echoRepeater = echoRepeater;
         }
@@ -71,7 +71,7 @@ public class ConcreteInstructionDispatcher implements InstructionDispatcher {
             return command;
         }
 
-        private MessageRepeater getEchoRepeater() {
+        private RepeatableUser getExecutionSender() {
             return echoRepeater;
         }
     }

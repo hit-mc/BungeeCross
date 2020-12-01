@@ -1,92 +1,68 @@
 package com.keuin.bungeecross.message.repeater;
 
 import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.message.user.PlayerUser;
+import com.keuin.bungeecross.message.user.RepeatableUser;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-public class InGameCommandEchoRepeater implements MessageRepeater {
+public class InGameCommandEchoRepeater implements RepeatableUser {
 
-    private final String playerId;
-    private final UUID playerUUID;
     private final ProxiedPlayer proxiedPlayer;
-    private final ProxyServer proxyServer;
+    private final PlayerUser playerUser;
 
     public InGameCommandEchoRepeater(String playerId, ProxyServer proxyServer) {
-        this.playerId = playerId;
-        this.proxyServer = proxyServer;
-        this.playerUUID = null;
-        this.proxiedPlayer = null;
         if (playerId == null)
             throw new IllegalArgumentException("playerId must not be null.");
-        if (proxyServer == null)
-            throw new IllegalArgumentException("proxyServer must not be null.");
+        this.proxiedPlayer = proxyServer.getPlayer(playerId);
+        if (proxiedPlayer == null)
+            throw new IllegalArgumentException("Player does not exist.");
+        this.playerUser = PlayerUser.fromProxiedPlayer(proxiedPlayer);
     }
 
     public InGameCommandEchoRepeater(UUID playerUUID, ProxyServer proxyServer) {
-        this.playerUUID = playerUUID;
-        this.proxyServer = proxyServer;
-        this.playerId = null;
-        this.proxiedPlayer = null;
         if (playerUUID == null)
             throw new IllegalArgumentException("playerUUID must not be null.");
-        if (proxyServer == null)
-            throw new IllegalArgumentException("proxyServer must not be null.");
+        this.proxiedPlayer = proxyServer.getPlayer(playerUUID);
+        this.playerUser = PlayerUser.fromProxiedPlayer(proxiedPlayer);
     }
 
     public InGameCommandEchoRepeater(ProxiedPlayer proxiedPlayer) {
         this.proxiedPlayer = proxiedPlayer;
-        this.proxyServer = null;
-        this.playerId = null;
-        this.playerUUID = null;
         if (proxiedPlayer == null)
             throw new IllegalArgumentException("proxiedPlayer must not be null.");
+        this.playerUser = PlayerUser.fromProxiedPlayer(proxiedPlayer);
     }
 
     @Override
     public void repeat(Message message) {
-        ProxiedPlayer player;
-        if (proxiedPlayer != null) {
-            player = proxiedPlayer;
-        } else if (playerUUID != null) {
-            // get player by id
-            assert proxyServer != null;
-            player = proxyServer.getPlayer(playerUUID);
-        } else {
-            assert playerId != null;
-            assert proxyServer != null;
-            player = proxyServer.getPlayer(playerId);
-        }
-        Optional.ofNullable(player).ifPresent(p -> p.sendMessage(message.getRichTextMessage()));
+        proxiedPlayer.sendMessage(message.getRichTextMessage());
     }
 
     @Override
     public String toString() {
-        if (this.playerId != null)
-            return String.format("Player(name=%s)", this.playerId);
-        else if (this.playerUUID != null)
-            return String.format("Player(uuid=%s)", this.playerUUID);
-        else if (this.proxiedPlayer != null)
-            return String.format("Player(name=%s, uuid=%s)", this.proxiedPlayer.getName(), this.proxiedPlayer.getUniqueId());
-        return "null";
+        return String.format("Player(name=%s, uuid=%s)", this.proxiedPlayer.getName(), this.proxiedPlayer.getUniqueId());
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        InGameCommandEchoRepeater that = (InGameCommandEchoRepeater) o;
-        return Objects.equals(playerId, that.playerId) &&
-                Objects.equals(playerUUID, that.playerUUID) &&
-                Objects.equals(proxiedPlayer, that.proxiedPlayer) &&
-                Objects.equals(proxyServer, that.proxyServer);
+    public String getName() {
+        return playerUser.getName();
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(playerId, playerUUID, proxiedPlayer, proxyServer);
+    public UUID getUUID() {
+        return playerUser.getUUID();
+    }
+
+    @Override
+    public String getId() {
+        return playerUser.getId();
+    }
+
+    @Override
+    public String getLocation() {
+        return playerUser.getLocation();
     }
 }

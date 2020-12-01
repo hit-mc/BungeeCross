@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.testutil;
 
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public class TestableInstructionDispatcher implements InstructionDispatcher {
     private final List<String> commandList = new ArrayList<>();
 
     @Override
-    public void dispatchExecution(String command, MessageRepeater echoRepeater) {
+    public void dispatchExecution(String command, RepeatableUser echoRepeater) {
         commandList.add(command);
     }
 

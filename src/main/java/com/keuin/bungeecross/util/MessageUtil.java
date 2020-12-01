@@ -20,7 +20,7 @@ public class MessageUtil {
         return builder.toString();
     }
 
-    public static Message joinMessage(Collection<Message> messages) {
+    public static Message joinMessages(Collection<Message> messages) {
         if (messages.isEmpty())
             return null;
         Message firstMessage = messages.toArray(new Message[0])[0];

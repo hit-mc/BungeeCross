@@ -125,7 +125,7 @@ public class Events implements Listener {
         ProxiedPlayer sender = (ProxiedPlayer) event.getSender();
         if (sender == null)
             return;
-        MessageUser messageUser = new PlayerUser(sender.getName(), sender.getUniqueId(), sender.getServer().getInfo().getName());
+        MessageUser messageUser = PlayerUser.fromProxiedPlayer(sender);
 
         if (message.startsWith("/"))
             return; // Do not repeat commands

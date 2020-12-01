@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -27,7 +28,7 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public void execute(MessageRepeater echoRepeater) {
+    public void doExecute(UserContext context, MessageRepeater echoRepeater) {
         plugin.getProxy().getScheduler().runAsync(plugin, () -> {
             logger.info("Reloading BungeeCross....");
 

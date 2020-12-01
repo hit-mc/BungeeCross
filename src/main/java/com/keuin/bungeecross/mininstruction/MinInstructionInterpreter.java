@@ -3,7 +3,8 @@ package com.keuin.bungeecross.mininstruction;
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.redis.RedisManager;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.user.RepeatableUser;
+import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
 import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
 import com.keuin.bungeecross.mininstruction.executor.ReloadExecutor;
@@ -32,6 +33,7 @@ public class MinInstructionInterpreter {
     private final ProxyServer proxyServer;
 
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
+    private final InterpreterContext context = new InterpreterContext(); // providing persistent context across executions
 
     public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer) {
         this.redisManager = redisManager;
@@ -47,20 +49,20 @@ public class MinInstructionInterpreter {
      */
     private void registerInstructions() {
         Arrays.asList(
-                ListExecutor.getInstance(),
-                ReloadExecutor.getInstance(plugin),
-                StatExecutor.getInstance(redisManager),
-                HistoryExecutor.getInstance(activityProvider, proxyServer)
+                ListExecutor.getInstance().withContext(context),
+                ReloadExecutor.getInstance(plugin).withContext(context),
+                StatExecutor.getInstance(redisManager).withContext(context),
+                HistoryExecutor.getInstance(activityProvider, proxyServer).withContext(context)
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }
 
     /**
      * Execute a command.
      *
-     * @param command      the command string.
-     * @param echoRepeater where to print the echo.
+     * @param command        the command string.
+     * @param repeatableUser where to print the echo.
      */
-    public synchronized void execute(String command, MessageRepeater echoRepeater) {
+    public synchronized void execute(String command, RepeatableUser repeatableUser) {
 //        ComponentBuilder echoBuilder = new ComponentBuilder();
 
         // default line
@@ -69,7 +71,7 @@ public class MinInstructionInterpreter {
         // security check
 
         if (command.length() > MAX_COMMAND_LINE_LENGTH) {
-            echoRepeater.repeat(
+            repeatableUser.repeat(
                     new EchoMessage(defaultName, new ComponentBuilder("Command is too long.")
                             .color(ChatColor.RED)
                             .create())
@@ -78,7 +80,7 @@ public class MinInstructionInterpreter {
         }
 
         if (CharacterFilter.containsInvalidCharacter(command)) {
-            echoRepeater.repeat(
+            repeatableUser.repeat(
                     new EchoMessage(defaultName,
                             new ComponentBuilder("Command contains invalid character.")
                                     .color(ChatColor.RED)
@@ -90,21 +92,21 @@ public class MinInstructionInterpreter {
         // execute
         if (command.isEmpty()) {
             // blank command
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(
+            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
                     String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.getVersion())
             ).color(ChatColor.DARK_GREEN).create()));
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder(
+            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
                     String.format("Build time: %s", BungeeCross.getBuildTime())
             ).color(ChatColor.DARK_GREEN).create()));
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("Use 'help' to show usages.").create()));
+            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder("Use 'help' to show usages.").create()));
 
         } else if (command.equals("help")) { // here goes the inline instructions
             // help command
-            echoRepeater.repeat(new EchoMessage(command, new ComponentBuilder("All loaded instructions:").color(ChatColor.WHITE).create()));
+            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder("All loaded instructions:").color(ChatColor.WHITE).create()));
             for (AbstractInstructionExecutor inst : instructions.values()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
-//                echoRepeater.repeat(new EchoMessage(command, String.format("+ %s", inst.getUsage())));
-                echoRepeater.repeat(new EchoMessage(command,
+//                repeatableUser.repeat(new EchoMessage(command, String.format("+ %s", inst.getUsage())));
+                repeatableUser.repeat(new EchoMessage(command,
                         (new ComponentBuilder())
 //                                .append(new ComponentBuilder(inst.getCommand() + ": ").color(ChatColor.YELLOW).create())
 //                                .append(new ComponentBuilder("").color(ChatColor.WHITE).create())
@@ -115,9 +117,9 @@ public class MinInstructionInterpreter {
         } else {
             AbstractInstructionExecutor executor = instructions.get(command);
             if (executor != null) {
-                executor.execute(echoRepeater);
+                executor.execute(repeatableUser);
             } else {
-                echoRepeater.repeat(new EchoMessage(defaultName, new ComponentBuilder(String.format("Invalid command %s.", command)).color(ChatColor.RED).create()));
+                repeatableUser.repeat(new EchoMessage(defaultName, new ComponentBuilder(String.format("Invalid command %s.", command)).color(ChatColor.RED).create()));
             }
         }
     }

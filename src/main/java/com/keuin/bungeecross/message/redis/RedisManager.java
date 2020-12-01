@@ -3,6 +3,7 @@ package com.keuin.bungeecross.message.redis;
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.message.repeater.RedisUserRepeater;
+import com.keuin.bungeecross.message.user.SimpleRepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.util.MessageUtil;
 import redis.clients.jedis.Jedis;
@@ -214,7 +215,7 @@ public class RedisManager implements MessageRepeater {
                 }
 
                 // send the (1st) joined message.
-                sendToRedis(jedis, MessageUtil.joinMessage(joinList));
+                sendToRedis(jedis, MessageUtil.joinMessages(joinList));
 
                 // send the (2nd) separated message nextMessage.
                 if (tailMessage != null)
@@ -291,9 +292,12 @@ public class RedisManager implements MessageRepeater {
                                             // dispatch the command
                                             instructionDispatcher.dispatchExecution(
                                                     cmd,
-                                                    new RedisUserRepeater(
-                                                            RedisManager.this,
-                                                            inboundMessage.getSender()
+                                                    new SimpleRepeatableUser(
+                                                            inboundMessage.getSender(),
+                                                            new RedisUserRepeater(
+                                                                    RedisManager.this,
+                                                                    inboundMessage.getSender()
+                                                            )
                                                     )
                                             );
                                         }

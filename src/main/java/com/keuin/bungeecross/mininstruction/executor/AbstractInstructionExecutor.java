@@ -2,6 +2,9 @@ package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.EchoMessage;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.user.RepeatableUser;
+import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
+import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -12,6 +15,7 @@ public abstract class AbstractInstructionExecutor {
     private final String description;
     private final String[] params;
     private final String instruction;
+    private InterpreterContext context = new InterpreterContext();
 
     protected AbstractInstructionExecutor(String instruction, String description, String[] params) {
         this.instruction = instruction;
@@ -21,12 +25,21 @@ public abstract class AbstractInstructionExecutor {
 
     /**
      * Execute the command.
+     * While executing, the output would be repeat to the command sender.
+     */
+    public final void execute(RepeatableUser commandSender) {
+        doExecute(context.getUserContext(commandSender), commandSender);
+    }
+
+    /**
+     * Execute the command.
      * While executing, the output should be put in the echoRepeater.
      */
-    public abstract void execute(MessageRepeater echoRepeater);
+    protected abstract void doExecute(UserContext context, MessageRepeater echoRepeater);
 
     /**
      * Get the command string.
+     *
      * @return the command string.
      */
     public final String getCommand() {
@@ -34,8 +47,20 @@ public abstract class AbstractInstructionExecutor {
     }
 
     /**
+     * Set executor's context, return this executor.
+     *
+     * @param interpreterContext the new context.
+     * @return the executor instance.
+     */
+    public AbstractInstructionExecutor withContext(InterpreterContext interpreterContext) {
+        context = interpreterContext;
+        return this;
+    }
+
+    /**
      * Get the usage description, which includes the instruction description and parameters.
      * This string should be put into the manual.
+     *
      * @return the usage string.
      */
     public final BaseComponent[] getUsage() {
