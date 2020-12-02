@@ -43,9 +43,8 @@ public class DeployNotification implements Notification {
         if (shouldNotify) {
             receiver.accept(Message.build(
                     String.format(
-                            "BungeeCross has been updated by CI/CD service.\nVersion: %s, build time: %s.",
-                            BungeeCross.getVersion(),
-                            BungeeCross.getBuildTime()
+                            "BungeeCross has been updated by the CI/CD service.\nVersion: %s.",
+                            BungeeCross.getVersion()
                     ),
                     "BungeeCross"
             ));
