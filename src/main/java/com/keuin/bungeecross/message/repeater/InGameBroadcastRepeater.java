@@ -17,6 +17,8 @@ public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageD
     private final Collection<ServerInfo> servers;
 
     public InGameBroadcastRepeater(ProxyServer proxyServer) {
+        if (proxyServer == null)
+            throw new IllegalArgumentException("proxy server must not be null");
         servers = proxyServer.getServers().values();
     }
 

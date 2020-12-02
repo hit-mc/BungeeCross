@@ -23,6 +23,10 @@ public class TestableMessageUser implements MessageUser {
         return new TestableMessageUser(name, uuid, id, location);
     }
 
+    public static TestableMessageUser createSkeleton() {
+        return new TestableMessageUser("name", UUID.randomUUID(), "id", "location");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -9,11 +9,29 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-public class SkeletonServerInfo implements ServerInfo {
+public class TestableServerInfo implements ServerInfo {
+
+    private final Set<ProxiedPlayer> playerSet = new HashSet<>();
+    private String name = "skeleton_server";
+
+    public TestableServerInfo(String name) {
+        this.name = name;
+    }
+
+    public TestableServerInfo() {
+    }
+
+    public final void addPlayer(ProxiedPlayer player) {
+        playerSet.add(player);
+    }
+
     @Override
     public String getName() {
-        return "skeleton_server";
+        return name;
     }
 
     @Override
@@ -28,7 +46,7 @@ public class SkeletonServerInfo implements ServerInfo {
 
     @Override
     public Collection<ProxiedPlayer> getPlayers() {
-        return null;
+        return Collections.unmodifiableCollection(playerSet);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
         TestableInGameMessage message1 = TestableInGameMessage.create(
                 "Hello, world!",
                 TestableMessageUser.create("user", uuid, "id", "location"),
-                SkeletonProxiedPlayer.create()
+                TestableProxiedPlayer.createSkeleton()
         );
         processor.issue(message1);
         sleep();
@@ -60,7 +60,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
         TestableInGameMessage message1 = TestableInGameMessage.create(
                 inGameCommandPrefix + " " + commandString,// !bc <cmd>
                 TestableMessageUser.create("user", uuid, "id", "location"),
-                SkeletonProxiedPlayer.create()
+                TestableProxiedPlayer.createSkeleton()
         );
         processor.issue(message1);
         sleep();
@@ -78,7 +78,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
         TestableInGameMessage message1 = TestableInGameMessage.create(
                 inGameCommandPrefix + commandString,
                 TestableMessageUser.create("user", uuid, "id", "location"),
-                SkeletonProxiedPlayer.create()
+                TestableProxiedPlayer.createSkeleton()
         );
         processor.issue(message1);
         sleep();
@@ -93,7 +93,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
         TestableInGameMessage message1 = TestableInGameMessage.create(
                 repeatMessagePrefix + messageString,
                 TestableMessageUser.create("user", uuid, "id", "location"),
-                SkeletonProxiedPlayer.create()
+                TestableProxiedPlayer.createSkeleton()
         );
         processor.issue(message1);
         sleep();
@@ -116,7 +116,7 @@ public class ConcreteInGameChatProcessorTest extends TestCase {
         TestableInGameMessage message1 = TestableInGameMessage.create(
                 repeatMessagePrefix + messageString,
                 TestableMessageUser.create("user", uuid, "id", "location"),
-                SkeletonProxiedPlayer.create()
+                TestableProxiedPlayer.createSkeleton()
         );
         processor.issue(message1);
         sleep();

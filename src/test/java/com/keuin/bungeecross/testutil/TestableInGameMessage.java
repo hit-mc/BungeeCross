@@ -6,7 +6,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class TestableInGameMessage extends InGameMessage {
     public TestableInGameMessage(String message, MessageUser sender, ProxiedPlayer proxiedPlayer) {
-        super(message, sender, proxiedPlayer);
+        super(message, proxiedPlayer);
     }
 
     public static TestableInGameMessage create(String message, MessageUser sender, ProxiedPlayer proxiedPlayer) {

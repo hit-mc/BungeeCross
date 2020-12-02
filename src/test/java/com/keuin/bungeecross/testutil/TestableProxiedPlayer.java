@@ -16,30 +16,47 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-public class SkeletonProxiedPlayer implements ProxiedPlayer {
+public class TestableProxiedPlayer implements ProxiedPlayer {
 
-    public static SkeletonProxiedPlayer create() {
-        return new SkeletonProxiedPlayer();
+    private final String name;
+    private final UUID uuid;
+    private final Server server;
+    private int messageCount = 0;
+    private String displayName;
+
+    public TestableProxiedPlayer(String name, UUID uuid, Server server) {
+        this.name = name;
+        this.uuid = uuid;
+        this.displayName = name;
+        this.server = server;
+    }
+
+    public static TestableProxiedPlayer createSkeleton() {
+        return new TestableProxiedPlayer("name", UUID.randomUUID(), TestableServer.createSkeleton());
+    }
+
+    public int getMessageCount() {
+        return messageCount;
     }
 
     @Override
     public String getDisplayName() {
-        return null;
+        return name;
     }
 
     @Override
     public void setDisplayName(String s) {
-
+        this.displayName = s;
     }
 
     @Override
     public void sendMessage(ChatMessageType chatMessageType, BaseComponent... baseComponents) {
-
+        ++messageCount;
     }
 
     @Override
     public void sendMessage(ChatMessageType chatMessageType, BaseComponent baseComponent) {
-
+        ++messageCount;
     }
 
     @Override
@@ -69,7 +86,7 @@ public class SkeletonProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public Server getServer() {
-        return new SkeletonServer();
+        return server;
     }
 
     @Override
@@ -94,7 +111,7 @@ public class SkeletonProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public ServerInfo getReconnectServer() {
-        return null;
+        return server.getInfo();
     }
 
     @Override
@@ -104,12 +121,12 @@ public class SkeletonProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public String getUUID() {
-        return null;
+        return uuid.toString();
     }
 
     @Override
     public UUID getUniqueId() {
-        return null;
+        return uuid;
     }
 
     @Override
@@ -179,27 +196,27 @@ public class SkeletonProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
     public void sendMessage(String s) {
-
+        ++messageCount;
     }
 
     @Override
     public void sendMessages(String... strings) {
-
+        ++messageCount;
     }
 
     @Override
     public void sendMessage(BaseComponent... baseComponents) {
-
+        ++messageCount;
     }
 
     @Override
     public void sendMessage(BaseComponent baseComponent) {
-
+        ++messageCount;
     }
 
     @Override

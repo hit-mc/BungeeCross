@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.message;
 
 import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.message.user.PlayerUser;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,11 +15,11 @@ public class InGameMessage implements Message {
     private final MessageUser sender;
     private final ProxiedPlayer proxiedPlayer;
 
-    public InGameMessage(String message, MessageUser sender, ProxiedPlayer proxiedPlayer) {
+    public InGameMessage(String message, ProxiedPlayer proxiedPlayer) {
         this.message = message;
-        this.sender = sender;
+        this.sender = PlayerUser.fromProxiedPlayer(proxiedPlayer);
         this.proxiedPlayer = proxiedPlayer;
-        if(message == null || sender == null)
+        if (message == null)
             throw new IllegalArgumentException("message and sender must not be null.");
     }
 

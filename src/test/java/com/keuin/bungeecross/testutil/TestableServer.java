@@ -7,10 +7,29 @@ import net.md_5.bungee.api.connection.Server;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-public class SkeletonServer implements Server {
+public class TestableServer implements Server {
+
+    private final TestableServerInfo serverInfo;
+
+    public TestableServer() {
+        serverInfo = new TestableServerInfo();
+    }
+
+    public TestableServer(String name) {
+        serverInfo = new TestableServerInfo(name);
+    }
+
+    public static TestableServer createSkeleton() {
+        return new TestableServer();
+    }
+
+    public TestableServerInfo getTestableServerInfo() {
+        return serverInfo;
+    }
+
     @Override
     public ServerInfo getInfo() {
-        return new SkeletonServerInfo();
+        return serverInfo;
     }
 
     @Override

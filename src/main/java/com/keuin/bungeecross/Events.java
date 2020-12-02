@@ -131,7 +131,7 @@ public class Events implements Listener {
             return; // Do not repeat commands
 
         logger.info(String.format("Chat message: %s, sender: %s", message, messageUser));
-        inGameChatProcessor.issue(new InGameMessage(message, messageUser, sender));
+        inGameChatProcessor.issue(new InGameMessage(message, sender));
 
 //        String rel = String.format("Broadcast! user=%s, msg=%s.", sender, message);
 //        BungeeCross.logger.info(rel);

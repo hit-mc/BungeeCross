@@ -75,7 +75,6 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
             logger.info("Repeat to Redis.");
             outboundRepeater.repeat(new InGameMessage(
                     message.getMessage().substring(repeatMessagePrefix.length()), // remove the heading repeat prefix
-                    message.getSender(),
                     message.getProxiedPlayer()
             ));
         }
