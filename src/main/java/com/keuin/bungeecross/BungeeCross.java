@@ -67,7 +67,7 @@ public class BungeeCross extends Plugin {
             properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
 //            VERSION = properties.getProperty("version");
 //            System.out.println(properties.getProperty("artifactId"));
-            VERSION = properties.getProperty("version") + "-" + properties.getProperty("build.number");
+            VERSION = properties.getProperty("version");
             BUILD_TIME = properties.getProperty("build.date");
         } catch (IOException e) {
             logger.warning("Failed to get version string: " + e);
@@ -193,7 +193,8 @@ public class BungeeCross extends Plugin {
                         10,
                         1,
                         500,
-                        false)
+                        false
+                )
         );
         String jsonString = (new GsonBuilder().setPrettyPrinting().create()).toJson(defaultConfig);
 

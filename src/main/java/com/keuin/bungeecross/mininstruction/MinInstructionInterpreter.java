@@ -96,11 +96,15 @@ public class MinInstructionInterpreter {
             repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
                     String.format("Build time: %s", BungeeCross.getBuildTime())
             ).color(ChatColor.DARK_GREEN).create()));
-            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder("Use 'help' to show usages.").create()));
+            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
+                    "Use 'help' to show usages."
+            ).create()));
 
         } else if (command.equals("help")) { // here goes the inline instructions
             // help command
-            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder("All loaded instructions:").color(ChatColor.WHITE).create()));
+            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
+                    "All loaded instructions:"
+            ).color(ChatColor.WHITE).create()));
             for (AbstractInstructionExecutor inst : instructions.values()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
 //                repeatableUser.repeat(new EchoMessage(command, String.format("+ %s", inst.getUsage())));
@@ -117,7 +121,9 @@ public class MinInstructionInterpreter {
             if (executor != null) {
                 executor.execute(repeatableUser);
             } else {
-                repeatableUser.repeat(new EchoMessage(defaultName, new ComponentBuilder(String.format("Invalid command %s.", command)).color(ChatColor.RED).create()));
+                repeatableUser.repeat(new EchoMessage(defaultName, new ComponentBuilder(
+                        String.format("Invalid command %s.", command)
+                ).color(ChatColor.RED).create()));
             }
         }
     }
