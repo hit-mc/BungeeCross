@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keuin</groupId>
   <artifactId>bungeecross</artifactId>
-  <version>1.4.0-pre+${build.time}-${build.number}</version>
+  <version>1.4.0-pre+${build.time}.build-${build.number}</version>
   <build>
     <resources>
       <resource>
@@ -119,13 +119,13 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <properties>
-    <build.unknown>SNAPSHOT</build.unknown>
-    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <build.manifest.section>Build Details</build.manifest.section>
-    <build.revision>${build.unknown}</build.revision>
-    <build.number>${build.unknown}</build.number>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
+    <properties>
+        <build.revision>${build.unknown}</build.revision>
+        <build.number>${build.unknown}</build.number>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <build.unknown>SNAPSHOT</build.unknown>
+        <build.manifest.section>Build Details</build.manifest.section>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    </properties>
 </project>

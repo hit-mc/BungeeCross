@@ -12,6 +12,7 @@ import redis.clients.jedis.exceptions.JedisException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -38,22 +39,18 @@ public class RedisManager implements MessageRepeater {
     private final SenderThread senderThread = new SenderThread();
     private final ReceiverThread receiverThread = new ReceiverThread();
 
-    private final int waitIntervalMillis = 100;
-    private final int waitRounds = 5;
-
     private InstructionDispatcher instructionDispatcher;
 
     private final InBoundMessageDispatcher inBoundMessageDispatcher;
 
     private final int POP_TIMEOUT = 1;
-    private final int MAX_RETRY_TIMES = 10;
     private final String redisCommandPrefix = "!";
 
     private final int joinWaitMillis = 125;
     private final int sendCoolDownMillis = 500;
     private final int maxJoinedMessageCount = 10;
 
-    private Message pendingOutboundMessage = null; // should only be used in method sendToRedis
+//    private Message pendingOutboundMessage = null; // should only be used in method sendToRedis
 
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
@@ -76,10 +73,10 @@ public class RedisManager implements MessageRepeater {
 
     public synchronized void stop() {
         enabled.set(false);
-        if(senderThread.isAlive()) {
+        if (senderThread.isAlive()) {
             senderThread.interrupt();
         }
-        if(receiverThread.isAlive()) {
+        if (receiverThread.isAlive()) {
             receiverThread.interrupt();
         }
     }
@@ -108,34 +105,38 @@ public class RedisManager implements MessageRepeater {
      */
     private class SenderThread extends Thread {
 
-        private final AtomicBoolean running = new AtomicBoolean(true);
-        private int failureCooldownMillis = 0; // failure cool down
+        private Jedis jedis = null;
+
+        /**
+         * Try to release old jedis instance and reconnect.
+         * May failed silently.
+         */
+        private void resetJedis() {
+            try {
+                Optional.ofNullable(jedis).ifPresent(Jedis::close);
+                jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false);
+                jedis.auth(redisConfig.getPassword());
+            } catch (JedisException e) {
+                logger.severe(String.format("Failed to connect/disconnect: %s", e));
+            }
+        }
 
         @Override
         public void run() {
             try {
                 while (enabled.get()) { // while running
-                    if (failureCooldownMillis > 0)
-                        Thread.sleep(failureCooldownMillis);
 
-                    try (Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
-                        jedis.auth(redisConfig.getPassword());
-                        while (enabled.get()) {
-                            // process the queue
-                            handleSendQueue(jedis); // may be interrupted
-                            if (failureCooldownMillis > 0) {
-                                failureCooldownMillis = 0; // success. Reset cool down time interval.
-                                logger.info("Connection is recovered. Sender cool down time is set to 0.");
-                            }
+                    resetJedis();
+                    while (enabled.get()) {
+                        // process the queue
+                        handleSendQueue(); // may be interrupted
 
-                            // send cool down, prevent spamming
-                            Thread.sleep(sendCoolDownMillis);
-                        }
-                        logger.info("Sender thread is stopped.");
-                    } catch (JedisConnectionException e) {
-                        failureCooldownMillis += 1000;
-                        logger.severe(String.format("Failed to connect Redis server: %s. Sender retry cool down time is set to %dms.", e, failureCooldownMillis));
+                        // send cool down, prevent spamming
+                        Thread.sleep(sendCoolDownMillis);
+
+//                        logger.info("Sender thread is stopped.");
                     }
+
                 }
             } catch (InterruptedException exception) {
                 logger.info("Sender thread was interrupted. Quitting.");
@@ -143,48 +144,45 @@ public class RedisManager implements MessageRepeater {
         }
 
         /**
-         * Send a message to the Redis server. This message is not guaranteed to be sent to the remote,
-         * as network exceptions may happen.
+         * Send a message to the Redis server. The message is guaranteed to be sent to the remote.
+         * (otherwise `enabled` is set to false or interrupted)
          *
-         * @param jedis   the Redis server.
-         * @param message the Message object.
+         * @param message the message to be sent.
          */
-        private void sendToRedis(Jedis jedis, Message message) throws JedisConnectionException {
-            int retryCounter = MAX_RETRY_TIMES;
+        private void sendToRedis(Message message) throws InterruptedException {
+            int failureCoolDownMillis = 0; // failure cool down
             // send outbound message
-            while (retryCounter > 0) {
+            while (enabled.get()) {
                 try {
-                    pendingOutboundMessage = message;
+//                        pendingOutboundMessage = message;
                     jedis.lpush(pushQueueName, message.pack());
-                    pendingOutboundMessage = null;
+//                        pendingOutboundMessage = null;
+                    logger.info("Message was sent to Redis server successfully.");
+                    return;
                 } catch (JedisException e) {
-                    logger.warning(String.format("Failed to push message: %s. Retrying... (remaining times: %d)", e, retryCounter));
-                    --retryCounter;
-                    if (retryCounter == 0) {
-                        logger.severe("Max retry times reached. Failed to send to the Redis server.");
-                        throw e;
-                    }
-                    continue;
+                    logger.warning(String.format("Failed to push message: %s.", e));
                 }
-                return;
+                failureCoolDownMillis += 1000;
+                logger.info(String.format("Sender is reconnecting to Redis server... (wait for %dms)", failureCoolDownMillis));
+                Thread.sleep(failureCoolDownMillis);
+                // failed. reset Jedis
+                resetJedis();
             }
         }
 
-        /**
-         * Send the pending outbound message to the Redis server.
-         *
-         * @param jedis the Redis server.
-         */
-        private void sendToRedis(Jedis jedis) throws JedisConnectionException {
-            if (pendingOutboundMessage != null) {
-                logger.info("Sending pending message " + pendingOutboundMessage.toString());
-                sendToRedis(jedis, pendingOutboundMessage);
-            }
-            // otherwise, never mind.
-        }
+//        /**
+//         * Send the pending outbound message to the Redis server.
+//         */
+//        private void processPendingMessage() throws InterruptedException {
+//            if (pendingOutboundMessage != null) {
+//                logger.info("Sending pending message " + pendingOutboundMessage.toString());
+//                sendToRedis(pendingOutboundMessage);
+//            }
+//            // otherwise, never mind.
+//        }
 
-        private void handleSendQueue(Jedis jedis) throws InterruptedException, JedisConnectionException {
-            sendToRedis(jedis); // process the pending message firstly.
+        private void handleSendQueue() throws InterruptedException {
+//            processPendingMessage(); // process the pending message firstly.
 
             Message firstMessage = sendQueue.take();
             if (maxJoinedMessageCount > 1 && firstMessage.isJoinable()) {
@@ -203,7 +201,7 @@ public class RedisManager implements MessageRepeater {
                         break;
                     } else if (!nextMessage.isJoinable() || !nextMessage.getSender().equals(firstMessage.getSender())) {
 
-                        // the next message is not joinable.
+                        // the next message is not join-able.
                         // they have to be sent separately.
                         // 1. join the joinList and send them as a single message.
                         // 2. send the nextMessage as a single standalone message.
@@ -215,15 +213,15 @@ public class RedisManager implements MessageRepeater {
                 }
 
                 // send the (1st) joined message.
-                sendToRedis(jedis, MessageUtil.joinMessages(joinList));
+                sendToRedis(MessageUtil.joinMessages(joinList));
 
                 // send the (2nd) separated message nextMessage.
                 if (tailMessage != null)
-                    sendToRedis(jedis, tailMessage);
+                    sendToRedis(tailMessage);
 
             } else {
                 // The first message is not joinable and should be sent separately.
-                sendToRedis(jedis, firstMessage);
+                sendToRedis(firstMessage);
             }
         }
     }
@@ -242,36 +240,19 @@ public class RedisManager implements MessageRepeater {
                 while (enabled.get()) {
                     if (cooldownMillis > 0) // cool down after encountered a failure
                         Thread.sleep(cooldownMillis);
-
                     try (Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
                         jedis.auth(redisConfig.getPassword());
 
-                        while (enabled.get()) {
-                            // receive from Redis
-                            List<String> list = null;
-                            int retryCounter = MAX_RETRY_TIMES;
-                            while (retryCounter > 0) {
-                                try {
-                                    list = jedis.brpop(POP_TIMEOUT, popQueueName);
-                                } catch (JedisException e) {
-                                    logger.warning(String.format("Failed to pop message: %s. Retrying... (remaining times: %d)", e, retryCounter));
-                                    --retryCounter;
+                        // receive from Redis
+                        List<String> list;
+                        try {
+                            while (enabled.get()) {
+                                list = jedis.brpop(POP_TIMEOUT, popQueueName);
+                                if (list == null) {
+                                    Thread.sleep(1000);
                                     continue;
                                 }
-                                if (cooldownMillis > 0) {
-                                    cooldownMillis = 0; // success. Reset cool down time interval.
-                                    logger.info("Connection is recovered. Receiver cool down time is set to 0.");
-                                }
-                                break;
-                            }
-                            // max retry times reached. Increment the cool down time interval.
-                            if (retryCounter == 0) {
-                                cooldownMillis += 1000;
-                                logger.severe(String.format("Max retry times reached. Cool down time interval increased to %dms.", cooldownMillis));
-                                break; // break to reconnect to the Redis
-                            }
 
-                            if (list != null) {
                                 for (String rawSting : list) {
                                     Message inboundMessage = Message.fromRedisRawString(rawSting);
                                     if (inboundMessage != null) {
@@ -305,22 +286,26 @@ public class RedisManager implements MessageRepeater {
                                         logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));
                                     }
                                 }
-                            } else {
-                                Thread.sleep(1000);
+
+                                if (cooldownMillis > 0) {
+                                    cooldownMillis = 0; // success. Reset cool down time interval.
+                                    logger.info("Connection recovered. Set receiver cool down to 0.");
+                                }
                             }
+                        } catch (JedisException e) {
+                            cooldownMillis += 1000;
+                            logger.warning(String.format("Failed to pop message: %s. Retrying... (wait for %dms)", e, cooldownMillis));
                         }
 
                     } catch (JedisConnectionException e) {
                         cooldownMillis += 1000;
-                        logger.severe(String.format("Failed to connect Redis server: %s. Cool down time interval is set to %dms.", e, cooldownMillis));
+                        logger.severe(String.format("Failed to connect Redis server: %s. Set cool down time interval to %dms.", e, cooldownMillis));
                     }
-                    // while enabled
-                }
+                } // while enabled
             } catch (InterruptedException ignored) {
                 logger.info("Receiver thread was interrupted. Quitting.");
             }
-
-            logger.info("Receiver thread is stopped.");
+            logger.info("Receiver thread stopped.");
         } // void run()
     }
 
