@@ -109,23 +109,23 @@
       <groupId>net.md-5</groupId>
       <artifactId>bungeecord-api</artifactId>
       <version>1.16-R0.2</version>
-      <type>javadoc</type>
-      <scope>provided</scope>
+        <type>javadoc</type>
+        <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.8.2</version>
+          <scope>test</scope>
+      </dependency>
   </dependencies>
     <properties>
+        <build.unknown>SNAPSHOT</build.unknown>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.manifest.section>Build Details</build.manifest.section>
         <build.revision>${build.unknown}</build.revision>
         <build.number>${build.unknown}</build.number>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <build.unknown>SNAPSHOT</build.unknown>
-        <build.manifest.section>Build Details</build.manifest.section>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     </properties>
 </project>

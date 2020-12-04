@@ -22,25 +22,26 @@ import java.util.logging.Logger;
 public class RedisReceiverWorker extends Thread {
 
     private final Logger logger = Logger.getLogger(RedisReceiverWorker.class.getName());
-    private final AtomicBoolean enabled = new AtomicBoolean(true);
 
-    private final RedisManager redisManager;
-    private final InBoundMessageDispatcher inBoundMessageDispatcher;
-    private final InstructionDispatcher instructionDispatcher;
+    private int cooldownMillis = 0;
+    private final AtomicBoolean enabled;
     private final RedisConfig redisConfig;
-    private final String redisCommandPrefix;
+    private final InBoundMessageDispatcher inBoundMessageDispatcher;
+    private final RedisManager redisManager;
+
     private final String popQueueName;
     private final int POP_TIMEOUT = 1;
-    private final int MAX_RETRY_TIMES = 10;
-    private int cooldownMillis = 0;
+    private final String redisCommandPrefix = "!";
+    private final InstructionDispatcher instructionDispatcher;
 
-    public RedisReceiverWorker(RedisManager redisManager, InBoundMessageDispatcher inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher, RedisConfig redisConfig, String redisCommandPrefix) {
-        this.redisManager = redisManager;
+
+    public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, InBoundMessageDispatcher inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher, RedisManager redisManager) {
+        this.enabled = enableFlag;
+        this.redisConfig = config;
         this.inBoundMessageDispatcher = inBoundMessageDispatcher;
+        this.popQueueName = config.getPopQueueName();
         this.instructionDispatcher = instructionDispatcher;
-        this.redisConfig = redisConfig;
-        this.redisCommandPrefix = redisCommandPrefix;
-        this.popQueueName = redisConfig.getPopQueueName();
+        this.redisManager = redisManager;
     }
 
     @Override
@@ -49,38 +50,19 @@ public class RedisReceiverWorker extends Thread {
             while (enabled.get()) {
                 if (cooldownMillis > 0) // cool down after encountered a failure
                     Thread.sleep(cooldownMillis);
-                if (cooldownMillis < 0)
-                    cooldownMillis = 1;
-
                 try (Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
                     jedis.auth(redisConfig.getPassword());
 
-                    while (enabled.get()) {
-                        // receive from Redis
-                        List<String> list = null;
-                        int retryCounter = MAX_RETRY_TIMES;
-                        while (retryCounter > 0) {
-                            try {
-                                list = jedis.brpop(POP_TIMEOUT, popQueueName);
-                            } catch (JedisException e) {
-                                logger.warning(String.format("Failed to pop message: %s. Retrying... (remaining times: %d)", e, retryCounter));
-                                --retryCounter;
+                    // receive from Redis
+                    List<String> list;
+                    try {
+                        while (enabled.get()) {
+                            list = jedis.brpop(POP_TIMEOUT, popQueueName);
+                            if (list == null) {
+                                Thread.sleep(1000);
                                 continue;
                             }
-                            if (cooldownMillis > 0) {
-                                cooldownMillis = 0; // success. Reset cool down time interval.
-                                logger.info("Connection recovered. Receiver cool down time is set to 0.");
-                            }
-                            break;
-                        }
-                        // max retry times reached. Increment the cool down time interval.
-                        if (retryCounter == 0) {
-                            cooldownMillis += 1000;
-                            logger.severe(String.format("Max retry times reached. Cool down time interval increased to %dms.", cooldownMillis));
-                            break; // break to reconnect to the Redis
-                        }
 
-                        if (list != null) {
                             for (String rawSting : list) {
                                 Message inboundMessage = Message.fromRedisRawString(rawSting);
                                 if (inboundMessage != null) {
@@ -114,21 +96,25 @@ public class RedisReceiverWorker extends Thread {
                                     logger.warning(String.format("Malformed inbound message: %s. Ignored.", rawSting));
                                 }
                             }
-                        } else {
-                            Thread.sleep(1000);
+
+                            if (cooldownMillis > 0) {
+                                cooldownMillis = 0; // success. Reset cool down time interval.
+                                logger.info("Connection recovered. Set receiver cool down to 0.");
+                            }
                         }
+                    } catch (JedisException e) {
+                        cooldownMillis += 1000;
+                        logger.warning(String.format("Failed to pop message: %s. Retrying... (wait for %dms)", e, cooldownMillis));
                     }
 
                 } catch (JedisConnectionException e) {
                     cooldownMillis += 1000;
-                    logger.severe(String.format("Failed to connect Redis server: %s. Cool down time interval is set to %dms.", e, cooldownMillis));
+                    logger.severe(String.format("Failed to connect Redis server: %s. Set cool down time interval to %dms.", e, cooldownMillis));
                 }
-                // while enabled
-            }
+            } // while enabled
         } catch (InterruptedException ignored) {
             logger.info("Receiver thread was interrupted. Quitting.");
         }
-
-        logger.info("Receiver thread is stopped.");
+        logger.info("Receiver thread stopped.");
     } // void run()
 }
