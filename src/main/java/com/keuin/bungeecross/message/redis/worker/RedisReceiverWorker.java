@@ -32,16 +32,19 @@ public class RedisReceiverWorker extends Thread {
     private final String popQueueName;
     private final int POP_TIMEOUT = 1;
     private final String redisCommandPrefix = "!";
-    private final InstructionDispatcher instructionDispatcher;
+    private InstructionDispatcher instructionDispatcher;
 
 
-    public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, InBoundMessageDispatcher inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher, RedisManager redisManager) {
+    public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, InBoundMessageDispatcher inBoundMessageDispatcher, RedisManager redisManager) {
         this.enabled = enableFlag;
         this.redisConfig = config;
         this.inBoundMessageDispatcher = inBoundMessageDispatcher;
         this.popQueueName = config.getPopQueueName();
-        this.instructionDispatcher = instructionDispatcher;
         this.redisManager = redisManager;
+    }
+
+    public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
+        this.instructionDispatcher = instructionDispatcher;
     }
 
     @Override

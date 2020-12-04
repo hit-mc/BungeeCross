@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-public class InGameBroadcastRepeaterTest {
+public class CrossServerChatRepeaterTest {
 
     @Before
     public void setUp() throws Exception {
@@ -23,7 +23,7 @@ public class InGameBroadcastRepeaterTest {
 
     @Test
     public void repeatToEmptyServerList() {
-        InGameBroadcastRepeater repeater = new InGameBroadcastRepeater(TestableProxyServer.createSkeleton());
+        CrossServerChatRepeater repeater = new CrossServerChatRepeater(TestableProxyServer.createSkeleton());
         repeater.repeat(TestableInGameMessage.create(
                 "message",
                 TestableMessageUser.createSkeleton(),
@@ -42,7 +42,7 @@ public class InGameBroadcastRepeaterTest {
         };
         Arrays.stream(servers).forEach(server -> proxy.addServerInfo(server.getInfo()));
 
-        InGameBroadcastRepeater repeater = new InGameBroadcastRepeater(proxy);
+        CrossServerChatRepeater repeater = new CrossServerChatRepeater(proxy);
         repeater.repeat(TestableInGameMessage.create(
                 "message",
                 TestableMessageUser.createSkeleton(),
@@ -80,7 +80,7 @@ public class InGameBroadcastRepeaterTest {
             proxy.addServerInfo(server.getInfo());
         }
 
-        InGameBroadcastRepeater repeater = new InGameBroadcastRepeater(proxy);
+        CrossServerChatRepeater repeater = new CrossServerChatRepeater(proxy);
 
         for (TestableProxiedPlayer player : players) {
             assertEquals(0, player.getMessageCount());

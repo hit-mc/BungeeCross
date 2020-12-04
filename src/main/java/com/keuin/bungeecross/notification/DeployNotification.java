@@ -2,6 +2,7 @@ package com.keuin.bungeecross.notification;
 
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.Message;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
 import java.util.function.Consumer;
@@ -38,6 +39,7 @@ public class DeployNotification implements Notification {
         shouldNotify = notify;
     }
 
+    @SuppressFBWarnings("VA_FORMAT_STRING_USES_NEWLINE")
     @Override
     public Notification notifyIfNeeded(Consumer<Message> receiver) {
         if (shouldNotify) {

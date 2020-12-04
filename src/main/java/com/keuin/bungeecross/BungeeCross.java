@@ -7,13 +7,15 @@ import com.keuin.bungeecross.message.ingame.ConcreteInGameChatProcessor;
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.message.redis.RedisManager;
-import com.keuin.bungeecross.message.repeater.InGameBroadcastRepeater;
+import com.keuin.bungeecross.message.repeater.CrossServerChatRepeater;
+import com.keuin.bungeecross.message.repeater.InGameRedisRelayRepeater;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import com.keuin.bungeecross.mininstruction.dispatcher.ConcreteInstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.notification.DeployNotification;
 import com.keuin.bungeecross.notification.Notification;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -31,6 +33,7 @@ import java.util.logging.Logger;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+@SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
 public class BungeeCross extends Plugin {
 
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
@@ -40,7 +43,8 @@ public class BungeeCross extends Plugin {
     private BungeeCrossConfig config;
 
     private ProxyServer proxyServer;
-    private InGameBroadcastRepeater inGameBroadcastRepeater;
+    private CrossServerChatRepeater crossServerChatRepeater;
+    private InGameRedisRelayRepeater inGameRedisRelayRepeater;
     private RedisManager redisManager;
     private InGameChatProcessor inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
@@ -97,8 +101,10 @@ public class BungeeCross extends Plugin {
             // load redis config
 
             // initialize repeater
-            inGameBroadcastRepeater = new InGameBroadcastRepeater(proxyServer);
-            redisManager = new RedisManager(config.getRedis(), inGameBroadcastRepeater);
+            crossServerChatRepeater = new CrossServerChatRepeater(proxyServer);
+            inGameRedisRelayRepeater = new InGameRedisRelayRepeater(proxyServer);
+
+            redisManager = new RedisManager(config.getRedis(), inGameRedisRelayRepeater);
 
             File file = new File(activityPersistenceFileName);
             if (!file.exists()) {
@@ -112,7 +118,7 @@ public class BungeeCross extends Plugin {
             interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider, proxyServer);
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
             redisManager.setInstructionDispatcher(instructionDispatcher);
-            inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, inGameBroadcastRepeater, redisManager, instructionDispatcher);
+            inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater, redisManager, instructionDispatcher);
 
             // register events
             getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor, activityProvider));

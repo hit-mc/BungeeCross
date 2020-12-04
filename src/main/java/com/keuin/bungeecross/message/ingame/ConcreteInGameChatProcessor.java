@@ -25,23 +25,24 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
     /**
      * Construct a in-game chat message processor,
      * which handles message transforming between servers and mc-redis.
+     *
      * @param repeatMessagePrefix the prefix marks that the message should be sent to Redis.
      */
-    public ConcreteInGameChatProcessor(String repeatMessagePrefix, String inGameCommandPrefix, MessageRepeater inGameRepeater, MessageRepeater outboundRepeater, InstructionDispatcher instructionDispatcher) {
+    public ConcreteInGameChatProcessor(String repeatMessagePrefix, String inGameCommandPrefix, MessageRepeater crossServerChatRepeater, MessageRepeater outboundRepeater, InstructionDispatcher instructionDispatcher) {
         this.repeatMessagePrefix = repeatMessagePrefix;
-        if(repeatMessagePrefix == null)
+        if (repeatMessagePrefix == null)
             throw new IllegalArgumentException("repeatMessagePrefix must not be null.");
         this.inGameCommandPrefix = inGameCommandPrefix;
-        if(inGameCommandPrefix == null)
+        if (inGameCommandPrefix == null)
             throw new IllegalArgumentException("inGameCommandPrefix must not be null.");
-        this.inGameRepeater = inGameRepeater;
-        if(inGameRepeater == null)
-            throw new IllegalArgumentException("inGameRepeater must not be null.");
+        this.inGameRepeater = crossServerChatRepeater;
+        if (crossServerChatRepeater == null)
+            throw new IllegalArgumentException("crossServerChatRepeater must not be null.");
         this.outboundRepeater = outboundRepeater; // Connect to Redis server here.
-        if(outboundRepeater == null)
+        if (outboundRepeater == null)
             throw new IllegalArgumentException("redisManager must not be null.");
         this.instructionDispatcher = instructionDispatcher;
-        if(instructionDispatcher == null)
+        if (instructionDispatcher == null)
             throw new IllegalArgumentException("instructionDispatcher must not be null.");
         dispatcher.start();
     }

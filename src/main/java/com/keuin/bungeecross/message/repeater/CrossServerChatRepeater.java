@@ -1,7 +1,6 @@
 package com.keuin.bungeecross.message.repeater;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -12,11 +11,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageDispatcher {
+public class CrossServerChatRepeater implements MessageRepeater {
 
     private final Collection<ServerInfo> servers;
 
-    public InGameBroadcastRepeater(ProxyServer proxyServer) {
+    public CrossServerChatRepeater(ProxyServer proxyServer) {
         if (proxyServer == null)
             throw new IllegalArgumentException("proxy server must not be null");
         servers = proxyServer.getServers().values();
@@ -28,38 +27,17 @@ public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageD
      */
     @Override
     public void repeat(Message message) {
-        UUID senderUUID = message.getSender().getUUID();
-        for (ServerInfo targetServer : servers) {
+        servers.stream().filter(server -> {
             boolean repeat = true; // whether we should repeat message to this server
-            for (ProxiedPlayer player : targetServer.getPlayers()) {
+            UUID senderUUID = message.getSender().getUUID();
+            for (ProxiedPlayer player : server.getPlayers()) {
                 if (player != null && senderUUID.equals(player.getUniqueId())) {
                     repeat = false;
                     break;
                 }
             }
-            if(repeat) {
-                broadcastInServer(message, targetServer);
-            }
-        }
-    }
-
-//    @Override
-//    public boolean setBuffer(boolean enabled) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isBufferEnabled() {
-//        return false;
-//    }
-//
-//    @Override
-//    public void flush() {
-//    }
-
-    @Override
-    public void repeatInboundMessage(Message message) {
-        servers.forEach(server -> broadcastInServer(message, server));
+            return repeat;
+        }).forEach(server -> broadcastInServer(message, server));
     }
 
     private void broadcastInServer(Message message, ServerInfo server) {
@@ -76,7 +54,7 @@ public class InGameBroadcastRepeater implements MessageRepeater, InBoundMessageD
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InGameBroadcastRepeater that = (InGameBroadcastRepeater) o;
+        CrossServerChatRepeater that = (CrossServerChatRepeater) o;
         return servers.equals(that.servers);
     }
 

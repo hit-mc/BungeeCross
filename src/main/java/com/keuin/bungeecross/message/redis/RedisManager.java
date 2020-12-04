@@ -22,8 +22,6 @@ public class RedisManager implements MessageRepeater {
     private final RedisSenderWorker senderWorker;
     private final RedisReceiverWorker receiverWorker;
 
-    private InstructionDispatcher instructionDispatcher;
-
     public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
 
@@ -32,7 +30,6 @@ public class RedisManager implements MessageRepeater {
                 enabled,
                 redisConfig,
                 inBoundMessageDispatcher,
-                instructionDispatcher,
                 this
         );
     }
@@ -77,7 +74,7 @@ public class RedisManager implements MessageRepeater {
     }
 
     public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
-        this.instructionDispatcher = instructionDispatcher;
+        this.receiverWorker.setInstructionDispatcher(instructionDispatcher);
     }
 
 }
