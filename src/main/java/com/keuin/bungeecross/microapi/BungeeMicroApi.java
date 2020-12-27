@@ -60,9 +60,7 @@ public class BungeeMicroApi {
                             ));
                             redisRepeater.repeat(Message.build(mm.message, mm.sender));
                             exchange.sendResponseHeaders(200, responseSuccess.getBytes().length);
-                            OutputStream os = exchange.getResponseBody();
-                            os.write(responseSuccess.getBytes());
-                            os.flush();
+                            exchange.getResponseBody().write(responseSuccess.getBytes());
                         } else {
                             exchange.sendResponseHeaders(400, -1);
                         }
@@ -72,6 +70,7 @@ public class BungeeMicroApi {
                 } catch (JsonSyntaxException e) {
                     exchange.sendResponseHeaders(400, -1);
                 }
+                exchange.getResponseBody().flush();
                 exchange.close();
             }
         });

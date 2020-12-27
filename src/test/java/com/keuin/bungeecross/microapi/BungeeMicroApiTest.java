@@ -65,6 +65,46 @@ public class BungeeMicroApiTest {
         }
     }
 
+    @Test
+    public void testInvalidMessage1() {
+        try {
+            String sender = "sender";
+            String message = "message";
+            RequestBody body = RequestBody.create(String.format(
+                    "{\"sender\":\"%s\" \"message\" \"%s\"}",
+                    sender,
+                    message
+            ), JSON);
+            Request request = new Request.Builder()
+                    .url("http://localhost:7000/message")
+                    .post(body)
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                assertEquals(400, response.code());
+            }
+        } catch (IOException e) {
+            fail(e.toString());
+        }
+    }
+
+    @Test
+    public void testInvalidMessage2() {
+        try {
+            String sender = "sender";
+            String message = "message";
+            RequestBody body = RequestBody.create("{}", JSON);
+            Request request = new Request.Builder()
+                    .url("http://localhost:7000/message")
+                    .post(body)
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                assertEquals(400, response.code());
+            }
+        } catch (IOException e) {
+            fail(e.toString());
+        }
+    }
+
     private String get(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
