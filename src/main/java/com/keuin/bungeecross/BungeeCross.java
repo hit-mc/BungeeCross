@@ -9,6 +9,7 @@ import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.message.redis.RedisManager;
 import com.keuin.bungeecross.message.repeater.CrossServerChatRepeater;
 import com.keuin.bungeecross.message.repeater.InGameRedisRelayRepeater;
+import com.keuin.bungeecross.microapi.BungeeMicroApi;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import com.keuin.bungeecross.mininstruction.dispatcher.ConcreteInstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
@@ -50,6 +51,7 @@ public class BungeeCross extends Plugin {
     private MinInstructionInterpreter interpreter;
     private ActivityProvider activityProvider;
     private InstructionDispatcher instructionDispatcher;
+    private BungeeMicroApi microApi;
 
     private static final String repeatMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
@@ -126,6 +128,16 @@ public class BungeeCross extends Plugin {
             // start redis thread
             redisManager.start();
 
+            // start micro api server
+            if (config.getMicroApiPort() <= 0) {
+                logger.info(String.format(
+                        "Illegal MicroApi port: %d. MicroApi will be disabled.",
+                        config.getMicroApiPort()
+                ));
+            } else {
+                microApi = new BungeeMicroApi(config.getMicroApiPort(), redisManager);
+            }
+
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
 
@@ -140,6 +152,9 @@ public class BungeeCross extends Plugin {
 
     @Override
     public void onDisable() {
+        logger.info("Stopping MicroApi server...");
+        Optional.ofNullable(microApi).ifPresent(BungeeMicroApi::stop);
+
         // Unregister event listeners
         logger.info("Unregistering events...");
         getProxy().getPluginManager().unregisterListeners(this);
@@ -200,7 +215,8 @@ public class BungeeCross extends Plugin {
                         1,
                         500,
                         false
-                )
+                ),
+                7000
         );
         String jsonString = (new GsonBuilder().setPrettyPrinting().create()).toJson(defaultConfig);
 

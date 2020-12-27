@@ -46,32 +46,7 @@ public interface Message {
     }
 
     static Message build(String message, String sender) {
-        return new Message() {
-            @Override
-            public String getMessage() {
-                return message;
-            }
-
-            @Override
-            public BaseComponent[] getRichTextMessage() {
-                return new ComponentBuilder(message).create();
-            }
-
-            @Override
-            public MessageUser getSender() {
-                return MessageUser.build(sender, sender, sender);
-            }
-
-            @Override
-            public boolean isJoinable() {
-                return false;
-            }
-
-            @Override
-            public String toString() {
-                return String.format("[%s] %s", sender, message);
-            }
-        };
+        return new ConcreteMessage(sender, message);
     }
 
     /**
