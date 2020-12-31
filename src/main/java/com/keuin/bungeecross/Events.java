@@ -112,7 +112,7 @@ public class Events implements Listener {
         playerStateChangeNotification.notifyPlayerJoinServer(player, server);
 
         joiningServers.remove(event.getPlayer().getUniqueId());
-        serverPlayerLastJoined.put(event.getPlayer().getUniqueId(), event.getPlayer().getServer().getInfo());
+        serverPlayerLastJoined.put(event.getPlayer().getUniqueId(), server);
     }
 
     @EventHandler
