@@ -22,16 +22,16 @@ public class BungeeMicroApiTest {
     public static final MediaType JSON
             = MediaType.get("application/json; charset=utf-8");
 
+    @After
+    public void tearDown() throws Exception {
+        microApi.stop();
+    }
+
     public BungeeMicroApiTest() throws IOException {
     }
 
     @Before
     public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        microApi.stop();
     }
 
     @Test
