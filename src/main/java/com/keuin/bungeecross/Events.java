@@ -109,7 +109,16 @@ public class Events implements Listener {
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");
 //        joinedMessage.addWith(player.getName());
 //        logger.info(String.format("Player %s joined server %s.", player, server));
-        playerStateChangeNotification.notifyPlayerJoinServer(player, server);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException ignored) {
+                }
+                playerStateChangeNotification.notifyPlayerJoinServer(player, server);
+            }
+        }).start();
 
         joiningServers.remove(event.getPlayer().getUniqueId());
         serverPlayerLastJoined.put(event.getPlayer().getUniqueId(), server);
