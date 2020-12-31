@@ -6,10 +6,7 @@ import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.PlayerUser;
 import com.keuin.bungeecross.mininstruction.executor.history.InGamePlayer;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.*;
@@ -19,7 +16,6 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -29,13 +25,16 @@ public class Events implements Listener {
     private final Plugin plugin;
     private final Logger logger = Logger.getLogger(Events.class.getName());
     private final ActivityProvider activityProvider;
+    private final PlayerStateChangeNotification playerStateChangeNotification;
 
     private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
+    private final Map<UUID, ServerInfo> serverPlayerLastJoined = new HashMap<>(); // the server players last connected to
 
     public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor, ActivityProvider activityProvider) {
         this.plugin = plugin;
         this.inGameChatProcessor = inGameChatProcessor;
         this.activityProvider = activityProvider;
+        this.playerStateChangeNotification = new PlayerStateChangeNotification(plugin.getProxy());
     }
 
 //    @EventHandler
@@ -61,7 +60,16 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-
+        try {
+            ProxiedPlayer player = event.getPlayer();
+            ServerInfo server = (player != null) ? serverPlayerLastJoined.get(player.getUniqueId()) : null;
+            if (server != null)
+                playerStateChangeNotification.notifyPlayerDisconnectServer(player, server);
+            else
+                logger.warning("Cannot get player's server while broadcasting disconnect messages.");
+        } catch (Exception e) {
+            logger.warning(String.format("An exception caught while handling player disconnect event: %s.", e));
+        }
     }
 
     @EventHandler
@@ -101,17 +109,10 @@ public class Events implements Listener {
 //        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");
 //        joinedMessage.addWith(player.getName());
 //        logger.info(String.format("Player %s joined server %s.", player, server));
-        BaseComponent[] joinedMessage = (new ComponentBuilder(String.format("%s joined server [%s].", player.getName(), server.getName()))).italic(true).color(ChatColor.YELLOW).create();
-
-        for (ServerInfo serverInfo : proxy.getServers().values()) {
-            // for all other servers
-            if (!serverInfo.getName().equals(server.getName()))
-                for (ProxiedPlayer dest : serverInfo.getPlayers())
-                    if (dest != null && !Objects.equals(dest.getUniqueId(), player.getUniqueId()))
-                        dest.sendMessage(joinedMessage); // repeat the join message
-        }
+        playerStateChangeNotification.notifyPlayerJoinServer(player, server);
 
         joiningServers.remove(event.getPlayer().getUniqueId());
+        serverPlayerLastJoined.put(event.getPlayer().getUniqueId(), event.getPlayer().getServer().getInfo());
     }
 
     @EventHandler
