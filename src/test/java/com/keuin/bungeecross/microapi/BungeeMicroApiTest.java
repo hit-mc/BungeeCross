@@ -11,13 +11,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
 public class BungeeMicroApiTest {
 
     private final TestableRepeater testableRepeater = new TestableRepeater();
-    private final BungeeMicroApi microApi = new BungeeMicroApi(7000, testableRepeater);
+    private final int port = (new Random()).nextInt(30000) + 30000;
+    private final BungeeMicroApi microApi = new BungeeMicroApi(port, testableRepeater);
     OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON
             = MediaType.get("application/json; charset=utf-8");
@@ -37,7 +39,7 @@ public class BungeeMicroApiTest {
     @Test
     public void testRoot() {
         try {
-            String response = get("http://localhost:7000");
+            String response = get(String.format("http://localhost:%d", port));
             System.out.println(response);
             assertEquals(response, "{\"version\": \"" + BungeeCross.getVersion() + "\"}");
         } catch (IOException e) {
@@ -50,7 +52,7 @@ public class BungeeMicroApiTest {
         try {
             String sender = "sender";
             String message = "message";
-            String response = post("http://localhost:7000/message", String.format(
+            String response = post(String.format("http://localhost:%d/message", port), String.format(
                     "{\"sender\":\"%s\", \"message\": \"%s\"}",
                     sender,
                     message
@@ -76,7 +78,7 @@ public class BungeeMicroApiTest {
                     message
             ), JSON);
             Request request = new Request.Builder()
-                    .url("http://localhost:7000/message")
+                    .url(String.format("http://localhost:%d/message", port))
                     .post(body)
                     .build();
             try (Response response = client.newCall(request).execute()) {
@@ -94,7 +96,7 @@ public class BungeeMicroApiTest {
             String message = "message";
             RequestBody body = RequestBody.create("{}", JSON);
             Request request = new Request.Builder()
-                    .url("http://localhost:7000/message")
+                    .url(String.format("http://localhost:%d/message", port))
                     .post(body)
                     .build();
             try (Response response = client.newCall(request).execute()) {
