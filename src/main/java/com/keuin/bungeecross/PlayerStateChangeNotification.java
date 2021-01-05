@@ -27,7 +27,7 @@ public class PlayerStateChangeNotification {
     }
 
     private BaseComponent[] getPlayerJoinOrDisconnectServerMessage(ProxiedPlayer player, ServerInfo server, PlayerServerAction action) {
-        return (new ComponentBuilder(String.format("%s %s server [%s].", player.getName(), action, server.getName())))
+        return (new ComponentBuilder(action.getNotificationString(player.getName(), server.getName())))
                 .italic(true).color(ChatColor.YELLOW).create();
     }
 
@@ -52,14 +52,28 @@ public class PlayerStateChangeNotification {
     }
 
     private enum PlayerServerAction {
-        JOIN("joined"),
-        DISCONNECT("disconnected");
+        JOIN("joined") {
+            @Override
+            public String getNotificationString(String playerName, String serverName) {
+                Objects.requireNonNull(playerName);
+                Objects.requireNonNull(serverName);
+                return playerName + " joined server [" + serverName + "]";
+            }
+        },
+        DISCONNECT("disconnected") {
+            @Override
+            public String getNotificationString(String playerName, String serverName) {
+                return playerName + " disconnected from server [" + serverName + "]";
+            }
+        };
 
         private final String string;
 
         PlayerServerAction(String string) {
             this.string = string;
         }
+
+        public abstract String getNotificationString(String playerName, String serverName);
 
         @Override
         public String toString() {
