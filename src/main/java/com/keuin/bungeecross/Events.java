@@ -8,6 +8,7 @@ import com.keuin.bungeecross.mininstruction.executor.history.InGamePlayer;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
@@ -126,15 +127,14 @@ public class Events implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent event) {
-        if (!(event.getSender() instanceof ProxiedPlayer)) {
+        Connection senderConn = event.getSender();
+        if (!(senderConn instanceof ProxiedPlayer)) {
             logger.severe(String.format("Sender is not a ProxiedPlayer instance: %s", event.getSender().toString()));
             return;
         }
 
+        ProxiedPlayer sender = (ProxiedPlayer) senderConn;
         String message = event.getMessage();
-        ProxiedPlayer sender = (ProxiedPlayer) event.getSender();
-        if (sender == null)
-            return;
         MessageUser messageUser = PlayerUser.fromProxiedPlayer(sender);
 
         if (message.startsWith("/"))
