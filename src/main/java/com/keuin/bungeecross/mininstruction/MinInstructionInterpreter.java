@@ -77,7 +77,15 @@ public class MinInstructionInterpreter {
             return;
         }
 
-        if (CharacterFilter.containsInvalidCharacter(command)) {
+        String[] slices = command.split(" "); // slices[1, 2, ..., n-1] are parameters
+        String[] params = new String[0];
+        if (slices.length > 1) {
+            params = new String[slices.length - 1];
+            System.arraycopy(slices, 1, params, 0, slices.length - 1);
+        }
+        final String instruction = slices.length > 0 ? slices[0] : "";
+
+        if (CharacterFilter.containsInvalidCharacter(instruction)) {
             repeatableUser.repeat(
                     new EchoMessage(defaultName,
                             new ComponentBuilder("Command contains invalid character.")
@@ -88,27 +96,27 @@ public class MinInstructionInterpreter {
         }
 
         // execute
-        if (command.isEmpty()) {
+        if (instruction.isEmpty()) {
             // blank command
-            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
+            repeatableUser.repeat(new EchoMessage(instruction, new ComponentBuilder(
                     String.format("MinInstruction Interpreter (BungeeCross %s)", BungeeCross.getVersion())
             ).color(ChatColor.DARK_GREEN).create()));
-            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
+            repeatableUser.repeat(new EchoMessage(instruction, new ComponentBuilder(
                     String.format("Build time: %s", BungeeCross.getBuildTime())
             ).color(ChatColor.DARK_GREEN).create()));
-            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
+            repeatableUser.repeat(new EchoMessage(instruction, new ComponentBuilder(
                     "Use 'help' to show usages."
             ).create()));
 
-        } else if (command.equals("help")) { // here goes the inline instructions
+        } else if (instruction.equals("help")) { // here goes the inline instructions
             // help command
-            repeatableUser.repeat(new EchoMessage(command, new ComponentBuilder(
+            repeatableUser.repeat(new EchoMessage(instruction, new ComponentBuilder(
                     "All loaded instructions:"
             ).color(ChatColor.WHITE).create()));
             for (AbstractInstructionExecutor inst : instructions.values()) {
                 // "\n" cannot be replaced with "%n", for Minecraft prints CR as a visible symbol.
 //                repeatableUser.repeat(new EchoMessage(command, String.format("+ %s", inst.getUsage())));
-                repeatableUser.repeat(new EchoMessage(command,
+                repeatableUser.repeat(new EchoMessage(instruction,
                         (new ComponentBuilder())
 //                                .append(new ComponentBuilder(inst.getCommand() + ": ").color(ChatColor.YELLOW).create())
 //                                .append(new ComponentBuilder("").color(ChatColor.WHITE).create())
@@ -117,12 +125,12 @@ public class MinInstructionInterpreter {
                 ));
             }
         } else {
-            AbstractInstructionExecutor executor = instructions.get(command);
+            AbstractInstructionExecutor executor = instructions.get(instruction);
             if (executor != null) {
-                executor.execute(repeatableUser);
+                executor.execute(repeatableUser, params);
             } else {
                 repeatableUser.repeat(new EchoMessage(defaultName, new ComponentBuilder(
-                        String.format("Invalid command %s.", command)
+                        String.format("Invalid command %s.", instruction)
                 ).color(ChatColor.RED).create()));
             }
         }

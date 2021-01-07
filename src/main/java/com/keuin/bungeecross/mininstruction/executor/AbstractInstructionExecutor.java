@@ -10,6 +10,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import java.util.Optional;
+
 public abstract class AbstractInstructionExecutor {
 
     private final String description;
@@ -27,15 +29,16 @@ public abstract class AbstractInstructionExecutor {
      * Execute the command.
      * While executing, the output would be repeat to the command sender.
      */
-    public final void execute(RepeatableUser commandSender) {
-        doExecute(context.getUserContext(commandSender), commandSender);
+    public final void execute(RepeatableUser commandSender, String[] params) {
+        Optional.ofNullable(doExecute(context.getUserContext(commandSender), commandSender, params))
+                .filter(r -> !r.isSuccess()).ifPresent(r -> echo(commandSender, r.getBaseComponents()));
     }
 
     /**
      * Execute the command.
      * While executing, the output should be put in the echoRepeater.
      */
-    protected abstract void doExecute(UserContext context, MessageRepeater echoRepeater);
+    protected abstract ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params);
 
     /**
      * Get the command string.
@@ -103,5 +106,26 @@ public abstract class AbstractInstructionExecutor {
 
     protected final void echo(MessageRepeater echoRepeater, BaseComponent baseComponent) {
         echoRepeater.repeat(new EchoMessage(getCommand(), baseComponent));
+    }
+
+    protected enum ExecutionResult {
+        SUCCESS("Command has been executed successfully.", ChatColor.GREEN, true),
+        ILLEGAL_PARAM("Illegal parameter.",  ChatColor.RED, false),
+        FAILED("Failed to execute.", ChatColor.RED, false);
+
+        private final BaseComponent[] baseComponents;
+        private final boolean isSuccess;
+        ExecutionResult(String message, ChatColor color, boolean isSuccess) {
+            baseComponents = (new ComponentBuilder(message)).color(color).create();
+            this.isSuccess = isSuccess;
+        }
+
+        public BaseComponent[] getBaseComponents() {
+            return baseComponents;
+        }
+
+        public boolean isSuccess() {
+            return isSuccess;
+        }
     }
 }

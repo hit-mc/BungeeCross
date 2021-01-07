@@ -31,7 +31,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public void doExecute(UserContext context, MessageRepeater echoRepeater) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
         ProxyServer proxy = ProxyServer.getInstance();
         int onlinePlayers = proxy.getOnlineCount();
 
@@ -50,6 +50,8 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         ));
         if (!echoComponents.isEmpty())
             echo(echoRepeater, echoComponents.toArray(new BaseComponent[0]));
+
+        return ExecutionResult.SUCCESS;
     }
 
     private BaseComponent[] getPlayerPrettyComponent(ProxiedPlayer player) {

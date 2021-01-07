@@ -25,12 +25,13 @@ public class WikiExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public void doExecute(UserContext context, MessageRepeater echoRepeater) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
         String key = "wiki_counter";
         //TODO: implement wiki search (via proxy)
         int cnt = (int) Optional.ofNullable(context.get(key)).orElse(0);
         cnt++;
         context.set(key, cnt);
         echo(echoRepeater, String.format("never mind. (%d)", cnt));
+        return ExecutionResult.SUCCESS;
     }
 }

@@ -25,7 +25,7 @@ public final class StatExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public void doExecute(UserContext context, MessageRepeater echoRepeater) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
         if (redisManager != null) {
             ComponentBuilder builder = new ComponentBuilder();
 //            builder.append("Stat:\n");
@@ -46,6 +46,7 @@ public final class StatExecutor extends AbstractInstructionExecutor {
         } else {
             echo(echoRepeater, new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create());
         }
+        return ExecutionResult.SUCCESS;
     }
 
 }

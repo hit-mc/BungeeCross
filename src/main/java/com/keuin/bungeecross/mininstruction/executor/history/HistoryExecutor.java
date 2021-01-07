@@ -37,23 +37,23 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
 
 
     @Override
-    public void doExecute(UserContext context, MessageRepeater echoRepeater) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
         // TODO
         if (activityProvider == null) {
             echo(echoRepeater, new ComponentBuilder(
                     "Activity provider is not available. Cannot show history right now."
             ).color(ChatColor.RED).create());
-            return;
+            return ExecutionResult.FAILED;
         }
         if (proxy == null) {
             echo(echoRepeater, "Proxy server is not available. Cannot show history right now.");
-            return;
+            return ExecutionResult.FAILED;
         }
         // TODO: Introduce time range as the 1st parameter.
         Collection<InGamePlayer> activePlayers = activityProvider.getActivePlayers(1, TimeUnit.DAYS);
         if (activePlayers.isEmpty()) {
             echo(echoRepeater, new ComponentBuilder("There is no active player in the last 24h.").color(ChatColor.RED).create());
-            return;
+            return ExecutionResult.FAILED;
         }
 
         echo(echoRepeater, "Active players:");
@@ -71,6 +71,8 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
             }
             echo(echoRepeater, builder.create());
         }
+
+        return ExecutionResult.SUCCESS;
     }
 
 }

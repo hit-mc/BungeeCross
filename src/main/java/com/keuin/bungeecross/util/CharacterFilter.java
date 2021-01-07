@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  */
 public class CharacterFilter {
 
-    private static final Pattern pattern = Pattern.compile("[^0-9a-zA-Z ()\\[\\]{}_+\\-*/^,.\\u2E80-\\u9FFF]");
+    private static final Pattern pattern = Pattern.compile("[^0-9a-zA-Z()\\[\\]{}_+\\-*/^,.\\u2E80-\\u9FFF]");
 
     /**
      * Check if the given command contains at least one invalid character.

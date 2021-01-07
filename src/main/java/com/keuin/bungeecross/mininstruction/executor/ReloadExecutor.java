@@ -28,7 +28,7 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public void doExecute(UserContext context, MessageRepeater echoRepeater) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
         plugin.getProxy().getScheduler().runAsync(plugin, () -> {
             logger.info("Reloading BungeeCross....");
 
@@ -49,5 +49,6 @@ public final class ReloadExecutor extends AbstractInstructionExecutor {
                 e.printStackTrace();
             }
         });
+        return ExecutionResult.SUCCESS;
     }
 }
