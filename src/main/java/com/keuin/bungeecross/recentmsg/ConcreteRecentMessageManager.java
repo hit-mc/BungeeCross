@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class ConcreteRecentMessageManager implements RecentMessageManager {
 
     private final Logger logger = Logger.getLogger(ConcreteRecentMessageManager.class.getName());
-    private final long keptSecondsThreshold;
+    private final long keptSecondsThreshold; // how long the messages should be kept in the manager.
     private final Deque<HistoryMessage> messages = new LinkedList<>();
     private long checkId = 0;
 
@@ -35,8 +35,13 @@ public class ConcreteRecentMessageManager implements RecentMessageManager {
     @Override
     public synchronized void recordMessage(Message message) {
         logger.info("Record message " + message.getMessage());
-        messages.addLast(new HistoryMessage(message, LocalDateTime.now()));
+        // a slightly but may incorrect optimization: we assume that
+        // the threshold is large enough, so we can optimize-then-add
+        // rather than add-then-optimize, which always iterate one time less,
+        // but me miss the newly added message when optimizing
+        // (when the threshold is very small, and we ignore that)
         optimizeQueue();
+        messages.addLast(new HistoryMessage(message, LocalDateTime.now()));
     }
 
     /**
@@ -50,7 +55,7 @@ public class ConcreteRecentMessageManager implements RecentMessageManager {
      * Thead unsafe!
      */
     private void optimizeQueue(boolean forceCheck) {
-        if (++checkId == 20 || forceCheck) {
+        if (++checkId == 40 || forceCheck) {
             checkId = 0; // reduce check count by using an internal counter.
             while (true) {
                 HistoryMessage oldestMessage = messages.peekFirst();

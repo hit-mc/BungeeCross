@@ -43,7 +43,7 @@ public class HistoryMessage implements Message {
     public BaseComponent[] getRichTextMessage() {
         BaseComponent[] originalComponents = originalMessage.toChatInGameRepeatFormat();
         BaseComponent[] newComponents = new ComponentBuilder("(" + DateUtil.getOffsetString(sentTime) + ") ")
-                .color(ChatColor.DARK_GREEN).create();
+                .color(ChatColor.DARK_GREEN).italic(true).create();
         BaseComponent[] arr = new BaseComponent[originalComponents.length + newComponents.length];
         System.arraycopy(newComponents, 0, arr, 0, newComponents.length);
         int off = newComponents.length;

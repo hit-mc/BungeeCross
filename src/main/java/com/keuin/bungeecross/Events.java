@@ -18,6 +18,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class Events implements Listener {
@@ -28,7 +29,7 @@ public class Events implements Listener {
     private final ActivityProvider activityProvider;
     private final PlayerStateChangeNotification playerStateChangeNotification;
     private final RecentMessageManager recentMessageManager;
-    private final Set<UUID> connectedPlayers = Collections.synchronizedSet(new HashSet<>()); // all players connected to the proxy
+    private final Set<UUID> connectedPlayers = Collections.newSetFromMap(new ConcurrentHashMap<>()); // all players connected to the proxy
 
     private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
     private final Map<UUID, ServerInfo> serverPlayerLastJoined = new HashMap<>(); // the server players last connected to
@@ -121,7 +122,7 @@ public class Events implements Listener {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(250);
+                    Thread.sleep(250); // to make the message sequence correct: a stupid work-around.
                 } catch (InterruptedException ignored) {
                 }
                 playerStateChangeNotification.notifyPlayerJoinServer(player, server);
@@ -137,14 +138,13 @@ public class Events implements Listener {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
             }
-            if (!connectedPlayers.contains(player.getUniqueId())) {
+            if (connectedPlayers.add(player.getUniqueId())) {
                 logger.info("Player " + player.getName() + " logged in." +
                         " Add him to local login list and send him recent messages.");
-                connectedPlayers.add(player.getUniqueId());
                 Collection<HistoryMessage> messages = recentMessageManager.getRecentMessages();
                 logger.info("Got " + messages.size() + " recent messages. Send them to the player.");
                 for (HistoryMessage message : messages) {
-                    logger.info("Repeat previous message " + message.getMessage());
+//                    logger.info("Repeat previous message " + message.getMessage());
                     player.sendMessage(message.getRichTextMessage());
                 }
             }
