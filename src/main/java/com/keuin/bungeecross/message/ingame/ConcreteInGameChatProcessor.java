@@ -4,7 +4,12 @@ import com.keuin.bungeecross.message.InGameMessage;
 import com.keuin.bungeecross.message.repeater.InGameCommandEchoRepeater;
 import com.keuin.bungeecross.message.repeater.MessageRepeater;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
+import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -21,6 +26,7 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
 
     private final InstructionDispatcher instructionDispatcher;
     private final ChatProcessorDispatcher dispatcher = new ChatProcessorDispatcher();
+    private final Set<HistoryMessageLogger> messageLoggers = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /**
      * Construct a in-game chat message processor,
@@ -66,6 +72,11 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
             return;
         }
 
+        // here all messages are chats, not commands
+
+        // send to history message loggers
+        messageLoggers.forEach(logger -> logger.recordMessage(message));
+
         // repeat to other servers
         logger.info("Repeat to other servers.");
         inGameRepeater.repeat(message);
@@ -91,6 +102,13 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
     public void close() {
         if (dispatcher.isAlive())
             dispatcher.interrupt();
+    }
+
+    @Override
+    public void registerHistoryLogger(HistoryMessageLogger historyMessageLogger) {
+        Objects.requireNonNull(historyMessageLogger);
+        logger.info("Registering history msg logger " + historyMessageLogger + ".");
+        messageLoggers.add(historyMessageLogger);
     }
 
     private class ChatProcessorDispatcher extends Thread {

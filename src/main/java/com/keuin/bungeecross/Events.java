@@ -66,7 +66,10 @@ public class Events implements Listener {
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         try {
             ProxiedPlayer player = event.getPlayer();
-            Optional.ofNullable(player).ifPresent(p -> connectedPlayers.remove(p.getUniqueId()));
+            Optional.ofNullable(player).ifPresent(p -> {
+                logger.info("Player " + p.getName() + " disconnected. Remove him from local online list.");
+                connectedPlayers.remove(p.getUniqueId());
+            });
             ServerInfo server = (player != null) ? serverPlayerLastJoined.get(player.getUniqueId()) : null;
             if (server != null)
                 playerStateChangeNotification.notifyPlayerDisconnectServer(player, server);
@@ -129,12 +132,23 @@ public class Events implements Listener {
         serverPlayerLastJoined.put(event.getPlayer().getUniqueId(), server);
 
         // send recent history messages
-        if (!connectedPlayers.contains(player.getUniqueId())) {
-            connectedPlayers.add(player.getUniqueId());
-            for (HistoryMessage message : recentMessageManager.getRecentMessages()) {
-                player.sendMessage(message.getRichTextMessage());
+        new Thread(() -> { // The BungeeCord provides a very tedious event API, so we have to work around like this.
+            try {          // Otherwise, the client won't receive any message.
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
             }
-        }
+            if (!connectedPlayers.contains(player.getUniqueId())) {
+                logger.info("Player " + player.getName() + " logged in." +
+                        " Add him to local login list and send him recent messages.");
+                connectedPlayers.add(player.getUniqueId());
+                Collection<HistoryMessage> messages = recentMessageManager.getRecentMessages();
+                logger.info("Got " + messages.size() + " recent messages. Send them to the player.");
+                for (HistoryMessage message : messages) {
+                    logger.info("Repeat previous message " + message.getMessage());
+                    player.sendMessage(message.getRichTextMessage());
+                }
+            }
+        }).start();
     }
 
     @EventHandler

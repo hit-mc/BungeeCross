@@ -5,6 +5,7 @@ import com.keuin.bungeecross.util.date.DateUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +20,8 @@ public class HistoryMessage implements Message {
     private final LocalDateTime sentTime;
 
     public HistoryMessage(Message originalMessage, LocalDateTime sentTime) {
+        if (originalMessage instanceof HistoryMessage)
+            throw new IllegalArgumentException("Nested history message is not allowed.");
         this.originalMessage = originalMessage;
         this.sentTime = sentTime;
     }
@@ -33,13 +36,14 @@ public class HistoryMessage implements Message {
 
     @Override
     public String getMessage() {
-        return "(" + DateUtil.getOffsetString(sentTime) + ") " + originalMessage.getMessage();
+        return new TextComponent(getRichTextMessage()).getText();
     }
 
     @Override
     public BaseComponent[] getRichTextMessage() {
-        BaseComponent[] originalComponents = originalMessage.getRichTextMessage();
-        BaseComponent[] newComponents = new ComponentBuilder(getMessage()).color(ChatColor.DARK_GREEN).create();
+        BaseComponent[] originalComponents = originalMessage.toChatInGameRepeatFormat();
+        BaseComponent[] newComponents = new ComponentBuilder("(" + DateUtil.getOffsetString(sentTime) + ") ")
+                .color(ChatColor.DARK_GREEN).create();
         BaseComponent[] arr = new BaseComponent[originalComponents.length + newComponents.length];
         System.arraycopy(newComponents, 0, arr, 0, newComponents.length);
         int off = newComponents.length;

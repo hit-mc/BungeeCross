@@ -4,14 +4,19 @@ import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.message.redis.RedisManager;
+import com.keuin.bungeecross.message.repeater.LoggableMessageSource;
 import com.keuin.bungeecross.message.repeater.RedisUserRepeater;
 import com.keuin.bungeecross.message.user.SimpleRepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
+import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -19,7 +24,7 @@ import java.util.logging.Logger;
  * Receive from Redis server.
  * Send to Minecraft.
  */
-public class RedisReceiverWorker extends Thread {
+public class RedisReceiverWorker extends Thread implements LoggableMessageSource {
 
     private final Logger logger = Logger.getLogger(RedisReceiverWorker.class.getName());
 
@@ -33,6 +38,8 @@ public class RedisReceiverWorker extends Thread {
     private final int POP_TIMEOUT = 1;
     private final String redisCommandPrefix = "!";
     private InstructionDispatcher instructionDispatcher;
+
+    private final Set<HistoryMessageLogger> loggers = Collections.newSetFromMap(new IdentityHashMap<>());
 
 
     public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, InBoundMessageDispatcher inBoundMessageDispatcher, RedisManager redisManager) {
@@ -74,6 +81,9 @@ public class RedisReceiverWorker extends Thread {
                                     if (!isCommand) {
                                         logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
                                         inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
+
+                                        // send to loggers
+                                        loggers.forEach(logger -> logger.recordMessage(inboundMessage));
                                     }
 
                                     // Execute instruction
@@ -120,4 +130,9 @@ public class RedisReceiverWorker extends Thread {
         }
         logger.info("Receiver thread stopped.");
     } // void run()
+
+    @Override
+    public void registerHistoryLogger(HistoryMessageLogger historyMessageLogger) {
+        loggers.add(historyMessageLogger);
+    }
 }
