@@ -5,11 +5,11 @@ import com.keuin.bungeecross.mininstruction.context.UserContext;
 import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.util.PrettyComponents;
+import com.keuin.bungeecross.util.date.DateUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -65,8 +65,7 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
                 String playerServer = proxy.getPlayer(player.getUniqueId()).getServer().getInfo().getName();
                 builder.append(PrettyComponents.createNavigableServerButton(playerServer, " [ONLINE@%s]"));
             } else {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd HH:mm");
-                String activeTime = activityProvider.getRecentActiveTime(player).format(formatter);
+                String activeTime = DateUtil.getMonthDayHourMinuteString(activityProvider.getRecentActiveTime(player));
                 builder.append(new ComponentBuilder(String.format(" [Last seen at %s]", activeTime)).color(ChatColor.BLUE).create());
             }
             echo(echoRepeater, builder.create());

@@ -1,11 +1,13 @@
 package com.keuin.bungeecross;
 
+import com.keuin.bungeecross.message.HistoryMessage;
 import com.keuin.bungeecross.message.InGameMessage;
 import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
 import com.keuin.bungeecross.message.user.MessageUser;
 import com.keuin.bungeecross.message.user.PlayerUser;
 import com.keuin.bungeecross.mininstruction.executor.history.InGamePlayer;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
+import com.keuin.bungeecross.recentmsg.RecentMessageManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Connection;
@@ -15,9 +17,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Events implements Listener {
@@ -27,14 +27,17 @@ public class Events implements Listener {
     private final Logger logger = Logger.getLogger(Events.class.getName());
     private final ActivityProvider activityProvider;
     private final PlayerStateChangeNotification playerStateChangeNotification;
+    private final RecentMessageManager recentMessageManager;
+    private final Set<UUID> connectedPlayers = Collections.synchronizedSet(new HashSet<>()); // all players connected to the proxy
 
     private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
     private final Map<UUID, ServerInfo> serverPlayerLastJoined = new HashMap<>(); // the server players last connected to
 
-    public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor, ActivityProvider activityProvider) {
+    public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor, ActivityProvider activityProvider, RecentMessageManager recentMessageManager) {
         this.plugin = plugin;
         this.inGameChatProcessor = inGameChatProcessor;
         this.activityProvider = activityProvider;
+        this.recentMessageManager = recentMessageManager;
         this.playerStateChangeNotification = new PlayerStateChangeNotification(plugin.getProxy());
     }
 
@@ -63,6 +66,7 @@ public class Events implements Listener {
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         try {
             ProxiedPlayer player = event.getPlayer();
+            Optional.ofNullable(player).ifPresent(p -> connectedPlayers.remove(p.getUniqueId()));
             ServerInfo server = (player != null) ? serverPlayerLastJoined.get(player.getUniqueId()) : null;
             if (server != null)
                 playerStateChangeNotification.notifyPlayerDisconnectServer(player, server);
@@ -123,6 +127,14 @@ public class Events implements Listener {
 
         joiningServers.remove(event.getPlayer().getUniqueId());
         serverPlayerLastJoined.put(event.getPlayer().getUniqueId(), server);
+
+        // send recent history messages
+        if (!connectedPlayers.contains(player.getUniqueId())) {
+            connectedPlayers.add(player.getUniqueId());
+            for (HistoryMessage message : recentMessageManager.getRecentMessages()) {
+                player.sendMessage(message.getRichTextMessage());
+            }
+        }
     }
 
     @EventHandler

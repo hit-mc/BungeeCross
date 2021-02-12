@@ -16,6 +16,8 @@ import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.notification.DeployNotification;
 import com.keuin.bungeecross.notification.Notification;
+import com.keuin.bungeecross.recentmsg.ConcreteRecentMessageManager;
+import com.keuin.bungeecross.recentmsg.RecentMessageManager;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -52,6 +54,7 @@ public class BungeeCross extends Plugin {
     private ActivityProvider activityProvider;
     private InstructionDispatcher instructionDispatcher;
     private BungeeMicroApi microApi;
+    private RecentMessageManager recentMessageManager;
 
     private static final String repeatMessagePrefix = "#";
     private static final String inGameCommandPrefix = "!BC";
@@ -123,7 +126,7 @@ public class BungeeCross extends Plugin {
             inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater, redisManager, instructionDispatcher);
 
             // register events
-            getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor, activityProvider));
+            getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor, activityProvider, recentMessageManager));
 
             // start redis thread
             redisManager.start();
@@ -137,6 +140,9 @@ public class BungeeCross extends Plugin {
             } else {
                 microApi = new BungeeMicroApi(config.getMicroApiPort(), redisManager);
             }
+
+            // initialize recent message manager
+            recentMessageManager = new ConcreteRecentMessageManager();
 
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
