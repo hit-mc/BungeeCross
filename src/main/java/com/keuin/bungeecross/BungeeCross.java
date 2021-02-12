@@ -124,6 +124,7 @@ public class BungeeCross extends Plugin {
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
             redisManager.setInstructionDispatcher(instructionDispatcher);
             inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater, redisManager, instructionDispatcher);
+            recentMessageManager = new ConcreteRecentMessageManager();
 
             // register events
             getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor, activityProvider, recentMessageManager));
@@ -140,9 +141,6 @@ public class BungeeCross extends Plugin {
             } else {
                 microApi = new BungeeMicroApi(config.getMicroApiPort(), redisManager);
             }
-
-            // initialize recent message manager
-            recentMessageManager = new ConcreteRecentMessageManager();
 
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);

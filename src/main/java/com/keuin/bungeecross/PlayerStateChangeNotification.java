@@ -13,7 +13,7 @@ public class PlayerStateChangeNotification {
     private final ProxyServer proxy;
 
     public PlayerStateChangeNotification(ProxyServer proxy) {
-        this.proxy = proxy;
+        this.proxy = Objects.requireNonNull(proxy);
     }
 
     private void notifyPlayerMessageToOtherServers(ProxiedPlayer player, ServerInfo server, BaseComponent[] message) {

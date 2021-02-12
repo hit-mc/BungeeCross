@@ -34,10 +34,10 @@ public class Events implements Listener {
     private final Map<UUID, ServerInfo> serverPlayerLastJoined = new HashMap<>(); // the server players last connected to
 
     public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor, ActivityProvider activityProvider, RecentMessageManager recentMessageManager) {
-        this.plugin = plugin;
-        this.inGameChatProcessor = inGameChatProcessor;
-        this.activityProvider = activityProvider;
-        this.recentMessageManager = recentMessageManager;
+        this.plugin = Objects.requireNonNull(plugin);
+        this.inGameChatProcessor = Objects.requireNonNull(inGameChatProcessor);
+        this.activityProvider = Objects.requireNonNull(activityProvider);
+        this.recentMessageManager = Objects.requireNonNull(recentMessageManager);
         this.playerStateChangeNotification = new PlayerStateChangeNotification(plugin.getProxy());
     }
 
