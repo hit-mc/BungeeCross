@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keuin</groupId>
   <artifactId>bungeecross</artifactId>
-  <version>1.7.0+${build.time}.build-${build.number}</version>
+  <version>1.7.2+${build.time}.build-${build.number}</version>
   <build>
     <resources>
       <resource>
@@ -121,7 +121,7 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
-      <version>4.9.0</version>
+      <version>4.9.1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
