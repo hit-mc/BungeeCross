@@ -1,9 +1,9 @@
 package com.keuin.bungeecross.message.user;
 
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 
 /**
  * Representing a user who can receive messages.
  */
-public interface RepeatableUser extends MessageUser, MessageRepeater {
+public interface RepeatableUser extends MessageUser, MessageRepeatable {
 }

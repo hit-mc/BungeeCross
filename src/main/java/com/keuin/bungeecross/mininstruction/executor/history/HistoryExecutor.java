@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.executor.history;
 
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
@@ -37,7 +37,7 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
 
 
     @Override
-    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
         // TODO
         if (activityProvider == null) {
             echo(echoRepeater, new ComponentBuilder(

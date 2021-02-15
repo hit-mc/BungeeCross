@@ -2,16 +2,14 @@ package com.keuin.bungeecross.message.repeater;
 
 import com.keuin.bungeecross.message.Message;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-public class CrossServerChatRepeater implements MessageRepeater {
+public class CrossServerChatRepeater extends MessageRepeater {
 
     private final Collection<ServerInfo> servers;
 
@@ -38,11 +36,6 @@ public class CrossServerChatRepeater implements MessageRepeater {
             }
             return repeat;
         }).forEach(server -> broadcastInServer(message, server));
-    }
-
-    private void broadcastInServer(Message message, ServerInfo server) {
-        BaseComponent[] msg = message.toChatInGameRepeatFormat();
-        server.getPlayers().forEach(p -> Optional.ofNullable(p).ifPresent(player -> player.sendMessage(msg)));
     }
 
     @Override

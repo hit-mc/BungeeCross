@@ -4,7 +4,7 @@ import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.worker.RedisReceiverWorker;
 import com.keuin.bungeecross.message.redis.worker.RedisSenderWorker;
 import com.keuin.bungeecross.message.repeater.LoggableMessageSource;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * This class manages the Redis connection and its inbound/outbound queue.
  * It handles the message input and output.
  */
-public class RedisManager implements MessageRepeater, LoggableMessageSource {
+public class RedisManager implements com.keuin.bungeecross.message.repeater.MessageRepeatable, LoggableMessageSource {
 
     private final Logger logger = Logger.getLogger(RedisManager.class.getName());
 
@@ -25,7 +25,7 @@ public class RedisManager implements MessageRepeater, LoggableMessageSource {
     private final RedisSenderWorker senderWorker;
     private final RedisReceiverWorker receiverWorker;
 
-    public RedisManager(RedisConfig redisConfig, InBoundMessageDispatcher inBoundMessageDispatcher) {
+    public RedisManager(RedisConfig redisConfig, MessageRepeatable inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
 
         this.senderWorker = new RedisSenderWorker(redisConfig, enabled);

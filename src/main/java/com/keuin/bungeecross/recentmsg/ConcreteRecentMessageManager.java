@@ -57,17 +57,20 @@ public class ConcreteRecentMessageManager implements RecentMessageManager {
     private void optimizeQueue(boolean forceCheck) {
         if (++checkId == 40 || forceCheck) {
             checkId = 0; // reduce check count by using an internal counter.
+            int messagesDeleted = 0;
             while (true) {
                 HistoryMessage oldestMessage = messages.peekFirst();
                 if (oldestMessage != null && (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
                         - oldestMessage.getSentTime().toEpochSecond(ZoneOffset.UTC)
                         >= keptSecondsThreshold)) {
-                    logger.info("Message " + oldestMessage + " is too old. Delete it.");
+//                    logger.info("Message " + oldestMessage + " is too old. Delete it.");
+                    ++messagesDeleted;
                     messages.pollFirst(); // too old, remove
                 } else {
                     break;
                 }
             }
+            logger.info("Deleted " + messagesDeleted + " old message(s).");
         }
     }
 }

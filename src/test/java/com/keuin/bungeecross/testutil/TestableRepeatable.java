@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.testutil;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * For unit test only.
  */
-public class TestableRepeater implements MessageRepeater {
+public class TestableRepeatable implements MessageRepeatable {
 
     private final List<Message> messageList = new ArrayList<>();
 

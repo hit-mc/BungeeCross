@@ -1,16 +1,13 @@
 package com.keuin.bungeecross.message.repeater;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 
-public class InGameRedisRelayRepeater implements InBoundMessageDispatcher {
+public class InGameRedisRelayRepeater extends MessageRepeater implements MessageRepeatable {
 
     private final Collection<ServerInfo> servers;
 
@@ -21,13 +18,8 @@ public class InGameRedisRelayRepeater implements InBoundMessageDispatcher {
     }
 
     @Override
-    public void repeatInboundMessage(Message message) {
+    public void repeat(Message message) {
         servers.forEach(server -> broadcastInServer(message, server));
-    }
-
-    private void broadcastInServer(Message message, ServerInfo server) {
-        BaseComponent[] msg = message.toChatInGameRepeatFormat();
-        server.getPlayers().forEach(p -> Optional.ofNullable(p).ifPresent(player -> player.sendMessage(msg)));
     }
 
     @Override
@@ -47,4 +39,5 @@ public class InGameRedisRelayRepeater implements InBoundMessageDispatcher {
     public int hashCode() {
         return Objects.hash(servers);
     }
+
 }

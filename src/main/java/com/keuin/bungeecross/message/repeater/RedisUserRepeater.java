@@ -10,7 +10,7 @@ import java.util.Objects;
  * Representing a user behind the Redis server.
  * Note: Please do not use RedisManager as a repeater directly, since it does not contain the command executor's information.
  */
-public class RedisUserRepeater implements MessageRepeater {
+public class RedisUserRepeater implements MessageRepeatable {
 
     private final RedisManager redisManager;
     private final MessageUser messageSender;

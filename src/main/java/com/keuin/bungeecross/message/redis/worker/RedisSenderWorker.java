@@ -2,7 +2,7 @@ package com.keuin.bungeecross.message.redis.worker;
 
 import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.redis.RedisConfig;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.util.MessageUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * Send to Redis server.
  * Receive from Minecraft.
  */
-public class RedisSenderWorker extends Thread implements MessageRepeater {
+public class RedisSenderWorker extends Thread implements MessageRepeatable {
 
     private final Logger logger = Logger.getLogger(RedisSenderWorker.class.getName());
 

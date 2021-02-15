@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import com.keuin.bungeecross.util.PrettyComponents;
 import net.md_5.bungee.api.ChatColor;
@@ -31,7 +31,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
         ProxyServer proxy = ProxyServer.getInstance();
         int onlinePlayers = proxy.getOnlineCount();
 

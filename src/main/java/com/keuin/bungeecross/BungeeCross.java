@@ -18,7 +18,6 @@ import com.keuin.bungeecross.notification.DeployNotification;
 import com.keuin.bungeecross.notification.Notification;
 import com.keuin.bungeecross.recentmsg.ConcreteRecentMessageManager;
 import com.keuin.bungeecross.recentmsg.RecentMessageManager;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -36,7 +35,6 @@ import java.util.logging.Logger;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
-@SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
 public class BungeeCross extends Plugin {
 
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());

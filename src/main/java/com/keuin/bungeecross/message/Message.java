@@ -72,9 +72,9 @@ public interface Message {
      */
     default BaseComponent[] toChatInGameRepeatFormat() {
         String header = String.format("<%s> ", this.getSender().getName());
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append(new ComponentBuilder(header).color(ChatColor.LIGHT_PURPLE).create());
-        builder.append(new ComponentBuilder(this.getMessage()).color(ChatColor.GRAY).create());
-        return builder.create();
+        return new ComponentBuilder()
+                .append(new ComponentBuilder(header).color(ChatColor.LIGHT_PURPLE).create())
+                .append(new ComponentBuilder(this.getMessage()).color(ChatColor.GRAY).create())
+                .create();
     }
 }

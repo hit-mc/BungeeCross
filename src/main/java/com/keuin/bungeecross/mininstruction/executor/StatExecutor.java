@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.redis.RedisManager;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -25,7 +25,7 @@ public final class StatExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
         if (redisManager != null) {
             ComponentBuilder builder = new ComponentBuilder();
 //            builder.append("Stat:\n");

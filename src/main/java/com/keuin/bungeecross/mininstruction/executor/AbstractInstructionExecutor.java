@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.message.EchoMessage;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.message.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
@@ -38,7 +38,7 @@ public abstract class AbstractInstructionExecutor {
      * Execute the command.
      * While executing, the output should be put in the echoRepeater.
      */
-    protected abstract ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params);
+    protected abstract ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params);
 
     /**
      * Get the command string.
@@ -96,15 +96,15 @@ public abstract class AbstractInstructionExecutor {
         return builder.create();
     }
 
-    protected final void echo(MessageRepeater echoRepeater, String echo) {
+    protected final void echo(MessageRepeatable echoRepeater, String echo) {
         echoRepeater.repeat(new EchoMessage(getCommand(), echo));
     }
 
-    protected final void echo(MessageRepeater echoRepeater, BaseComponent[] baseComponents) {
+    protected final void echo(MessageRepeatable echoRepeater, BaseComponent[] baseComponents) {
         echoRepeater.repeat(new EchoMessage(getCommand(), baseComponents));
     }
 
-    protected final void echo(MessageRepeater echoRepeater, BaseComponent baseComponent) {
+    protected final void echo(MessageRepeatable echoRepeater, BaseComponent baseComponent) {
         echoRepeater.repeat(new EchoMessage(getCommand(), baseComponent));
     }
 

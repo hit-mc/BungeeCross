@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class WikiExecutor extends AbstractInstructionExecutor {
     }
 
     @Override
-    public ExecutionResult doExecute(UserContext context, MessageRepeater echoRepeater, String[] params) {
+    public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
         String key = "wiki_counter";
         //TODO: implement wiki search (via proxy)
         int cnt = (int) Optional.ofNullable(context.get(key)).orElse(0);

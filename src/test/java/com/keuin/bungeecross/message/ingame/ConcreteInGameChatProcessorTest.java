@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class ConcreteInGameChatProcessorTest extends TestCase {
 
-    private final TestableRepeater inGameRepeater = new TestableRepeater();
-    private final TestableRepeater outboundRepeater = new TestableRepeater();
+    private final TestableRepeatable inGameRepeater = new TestableRepeatable();
+    private final TestableRepeatable outboundRepeater = new TestableRepeatable();
     private final TestableInstructionDispatcher instructionDispatcher = new TestableInstructionDispatcher();
 
     private String repeatMessagePrefix = "98^iuho786I^FG7667";

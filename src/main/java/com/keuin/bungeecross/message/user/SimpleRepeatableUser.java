@@ -1,16 +1,16 @@
 package com.keuin.bungeecross.message.user;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 
 import java.util.UUID;
 
 public class SimpleRepeatableUser implements RepeatableUser {
 
     private final MessageUser user;
-    private final MessageRepeater repeater;
+    private final MessageRepeatable repeater;
 
-    public SimpleRepeatableUser(MessageUser user, MessageRepeater repeater) {
+    public SimpleRepeatableUser(MessageUser user, MessageRepeatable repeater) {
         this.user = user;
         this.repeater = repeater;
     }

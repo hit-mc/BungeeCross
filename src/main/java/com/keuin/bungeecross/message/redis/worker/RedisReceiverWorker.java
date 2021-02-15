@@ -1,10 +1,10 @@
 package com.keuin.bungeecross.message.redis.worker;
 
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.redis.InBoundMessageDispatcher;
 import com.keuin.bungeecross.message.redis.RedisConfig;
 import com.keuin.bungeecross.message.redis.RedisManager;
 import com.keuin.bungeecross.message.repeater.LoggableMessageSource;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.message.repeater.RedisUserRepeater;
 import com.keuin.bungeecross.message.user.SimpleRepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
@@ -31,7 +31,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
     private int cooldownMillis = 0;
     private final AtomicBoolean enabled;
     private final RedisConfig redisConfig;
-    private final InBoundMessageDispatcher inBoundMessageDispatcher;
+    private final MessageRepeatable inBoundMessageDispatcher;
     private final RedisManager redisManager;
 
     private final String popQueueName;
@@ -42,7 +42,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
     private final Set<HistoryMessageLogger> loggers = Collections.newSetFromMap(new IdentityHashMap<>());
 
 
-    public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, InBoundMessageDispatcher inBoundMessageDispatcher, RedisManager redisManager) {
+    public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, MessageRepeatable inBoundMessageDispatcher, RedisManager redisManager) {
         this.enabled = enableFlag;
         this.redisConfig = config;
         this.inBoundMessageDispatcher = inBoundMessageDispatcher;
@@ -80,7 +80,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
                                     // send to Minecraft
                                     if (!isCommand) {
                                         logger.info(String.format("Received inbound message: %s (rawString=%s).", inboundMessage, rawSting));
-                                        inBoundMessageDispatcher.repeatInboundMessage(inboundMessage);
+                                        inBoundMessageDispatcher.repeat(inboundMessage);
 
                                         // send to loggers
                                         loggers.forEach(logger -> logger.recordMessage(inboundMessage));

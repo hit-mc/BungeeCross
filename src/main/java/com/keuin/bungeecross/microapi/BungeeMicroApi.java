@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.util.InputStreams;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -24,7 +24,7 @@ public class BungeeMicroApi {
     private final HttpServer server;
     private final Logger logger = Logger.getLogger(BungeeMicroApi.class.getName());
 
-    public BungeeMicroApi(int port, MessageRepeater redisRepeater) throws IOException {
+    public BungeeMicroApi(int port, MessageRepeatable redisRepeater) throws IOException {
         Objects.requireNonNull(redisRepeater);
         if (port <= 0)
             throw new IllegalArgumentException("API listening port must be positive.");

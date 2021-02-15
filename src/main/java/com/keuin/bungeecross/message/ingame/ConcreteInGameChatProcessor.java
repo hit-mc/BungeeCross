@@ -2,7 +2,7 @@ package com.keuin.bungeecross.message.ingame;
 
 import com.keuin.bungeecross.message.InGameMessage;
 import com.keuin.bungeecross.message.repeater.InGameCommandEchoRepeater;
-import com.keuin.bungeecross.message.repeater.MessageRepeater;
+import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 
@@ -21,8 +21,8 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
     private final String repeatMessagePrefix;
     private final String inGameCommandPrefix;
 
-    private final MessageRepeater outboundRepeater;
-    private final MessageRepeater inGameRepeater;
+    private final MessageRepeatable outboundRepeater;
+    private final MessageRepeatable inGameRepeater;
 
     private final InstructionDispatcher instructionDispatcher;
     private final ChatProcessorDispatcher dispatcher = new ChatProcessorDispatcher();
@@ -34,7 +34,7 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
      *
      * @param repeatMessagePrefix the prefix marks that the message should be sent to Redis.
      */
-    public ConcreteInGameChatProcessor(String repeatMessagePrefix, String inGameCommandPrefix, MessageRepeater crossServerChatRepeater, MessageRepeater outboundRepeater, InstructionDispatcher instructionDispatcher) {
+    public ConcreteInGameChatProcessor(String repeatMessagePrefix, String inGameCommandPrefix, MessageRepeatable crossServerChatRepeater, MessageRepeatable outboundRepeater, InstructionDispatcher instructionDispatcher) {
         this.repeatMessagePrefix = repeatMessagePrefix;
         if (repeatMessagePrefix == null)
             throw new IllegalArgumentException("repeatMessagePrefix must not be null.");

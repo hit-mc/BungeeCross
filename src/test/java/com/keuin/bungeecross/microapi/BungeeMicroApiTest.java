@@ -3,7 +3,7 @@ package com.keuin.bungeecross.microapi;
 import com.google.gson.Gson;
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.testutil.TestableRepeater;
+import com.keuin.bungeecross.testutil.TestableRepeatable;
 import okhttp3.*;
 import org.junit.After;
 import org.junit.Before;
@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 
 public class BungeeMicroApiTest {
 
-    private final TestableRepeater testableRepeater = new TestableRepeater();
+    private final TestableRepeatable testableRepeater = new TestableRepeatable();
     private final int port = (new Random()).nextInt(30000) + 30000;
     private final BungeeMicroApi microApi = new BungeeMicroApi(port, testableRepeater);
     OkHttpClient client = new OkHttpClient();
