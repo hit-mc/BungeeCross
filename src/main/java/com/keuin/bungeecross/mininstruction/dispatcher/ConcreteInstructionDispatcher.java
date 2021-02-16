@@ -45,7 +45,6 @@ public class ConcreteInstructionDispatcher implements InstructionDispatcher {
             try {
                 while (running.get()) {
                     ScheduledExecution inst = instructionQueue.take();
-                    Thread.sleep(100); // a simple mitigation
                     interpreter.execute(inst.getCommand(), inst.getExecutionSender());
 
                     // repeat

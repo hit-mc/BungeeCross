@@ -5,6 +5,7 @@ import com.keuin.bungeecross.message.Message;
 import com.keuin.bungeecross.message.user.MessageUser;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.Collection;
 
@@ -13,11 +14,7 @@ public class MessageUtil {
     public static String getPlainTextOfBaseComponents(BaseComponent[] baseComponents) {
         if (baseComponents == null)
             throw new IllegalArgumentException("baseComponents must not be null.");
-        StringBuilder builder = new StringBuilder();
-        for (BaseComponent component : baseComponents) {
-            builder.append(component.toPlainText());
-        }
-        return builder.toString();
+        return new TextComponent(baseComponents).getText();
     }
 
     public static Message joinMessages(Collection<Message> messages) {

@@ -17,7 +17,7 @@ public class PrettyComponents {
     public static BaseComponent createNavigableServerButton(String serverName, String displayStringPattern) {
         // build hover text
         ComponentBuilder hoverTextBuilder = new ComponentBuilder();
-        hoverTextBuilder.append("Go to server ");
+        hoverTextBuilder.append("Go to ");
         hoverTextBuilder.append((new ComponentBuilder("[" + serverName + "]")).color(SERVER_TEXT_COLOR).create());
 
         // build server text
@@ -25,7 +25,7 @@ public class PrettyComponents {
         componentServer.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hoverTextBuilder.create())));
         componentServer.setClickEvent(
                 new ClickEvent(
-                        ClickEvent.Action.SUGGEST_COMMAND,
+                        ClickEvent.Action.RUN_COMMAND,
                         String.format("/server %s", serverName)
                 )
         );

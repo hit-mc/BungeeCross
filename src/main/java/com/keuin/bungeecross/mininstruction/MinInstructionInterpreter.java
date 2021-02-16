@@ -61,7 +61,12 @@ public class MinInstructionInterpreter {
      * @param repeatableUser where to print the echo.
      */
     public synchronized void execute(String command, RepeatableUser repeatableUser) {
-//        ComponentBuilder echoBuilder = new ComponentBuilder();
+        try {
+            Thread.sleep(100); // a simple mitigation: correct command echo place
+        } catch (InterruptedException ignored) {
+        }
+
+        //        ComponentBuilder echoBuilder = new ComponentBuilder();
 
         // default line
 //        echoBuilder.append(new ComponentBuilder(String.format("CommandExecute{cmd=%s}\n", command)).color(ChatColor.DARK_BLUE).create());
@@ -130,7 +135,7 @@ public class MinInstructionInterpreter {
                 executor.execute(repeatableUser, params);
             } else {
                 repeatableUser.repeat(new EchoMessage(defaultName, new ComponentBuilder(
-                        String.format("Invalid command %s.", instruction)
+                        "Invalid command."
                 ).color(ChatColor.RED).create()));
             }
         }

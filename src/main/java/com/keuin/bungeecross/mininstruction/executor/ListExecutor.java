@@ -58,18 +58,17 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         // print all servers' players in natural order
         List<BaseComponent> echoComponents = new ArrayList<>(20);
         playerMap.forEach((server, players2) -> {
-            final BaseComponent title
-                    = new TextComponent("[" + server + "]\n");
-            title.setColor(ChatColor.GREEN);
-            echoComponents.add(title);
+            echoComponents.add(PrettyComponents.createNavigableServerButton(server));
+            echoComponents.add(new TextComponent("\n"));
             boolean first = true;
             for (ProxiedPlayer player : players2) {
                 final BaseComponent line
-                        = new TextComponent((first ? "" : ", ") + player.getName());
+                        = new TextComponent((first ? "" : " ") + player.getName());
                 line.setColor(ChatColor.WHITE);
                 echoComponents.add(line);
                 first = false;
             }
+            echoComponents.add(new TextComponent("\n\n"));
         });
 
         if (!echoComponents.isEmpty())
@@ -85,14 +84,15 @@ public final class ListExecutor extends AbstractInstructionExecutor {
 
         // response head
         echo(echoRepeater, new ComponentBuilder(String.format(
-                "There %s %d %s online%s",
+                "There %s %s %s online%s",
                 onlinePlayers <= 1 ? "is" : "are",
-                onlinePlayers,
+                onlinePlayers == 0 ? "no" : (onlinePlayers == 1 ? "only one" : onlinePlayers),
                 onlinePlayers <= 1 ? "player" : "players",
                 onlinePlayers == 0 ? "." : ":"
         )).color(ChatColor.WHITE).create());
-        
-        if (onlinePlayers <= 3) {
+
+        // player list
+        if (onlinePlayers <= 2) {
             return printWithOldStyle(players, proxy, echoRepeater);
         } else {
             return printWithGroupedStyle(players, proxy, echoRepeater);

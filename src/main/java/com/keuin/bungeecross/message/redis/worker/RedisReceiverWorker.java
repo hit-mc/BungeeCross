@@ -28,7 +28,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
 
     private final Logger logger = Logger.getLogger(RedisReceiverWorker.class.getName());
 
-    private int cooldownMillis = 0;
+    private int coolDownMillis = 0;
     private final AtomicBoolean enabled;
     private final RedisConfig redisConfig;
     private final MessageRepeatable inBoundMessageDispatcher;
@@ -58,8 +58,8 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
     public void run() {
         try {
             while (enabled.get()) {
-                if (cooldownMillis > 0) // cool down after encountered a failure
-                    Thread.sleep(cooldownMillis);
+                if (coolDownMillis > 0) // cool down after encountered a failure
+                    Thread.sleep(coolDownMillis);
                 try (Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort(), false)) {
                     jedis.auth(redisConfig.getPassword());
 
@@ -110,19 +110,19 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
                                 }
                             }
 
-                            if (cooldownMillis > 0) {
-                                cooldownMillis = 0; // success. Reset cool down time interval.
+                            if (coolDownMillis > 0) {
+                                coolDownMillis = 0; // success. Reset cool down time interval.
                                 logger.info("Connection recovered. Set receiver cool down to 0.");
                             }
                         }
                     } catch (JedisException e) {
-                        cooldownMillis += 1000;
-                        logger.warning(String.format("Failed to pop message: %s. Retrying... (wait for %dms)", e, cooldownMillis));
+                        coolDownMillis += 1000;
+                        logger.warning(String.format("Failed to pop message: %s. Retrying... (wait for %dms)", e, coolDownMillis));
                     }
 
                 } catch (JedisConnectionException e) {
-                    cooldownMillis += 1000;
-                    logger.severe(String.format("Failed to connect Redis server: %s. Set cool down time interval to %dms.", e, cooldownMillis));
+                    coolDownMillis += 1000;
+                    logger.severe(String.format("Failed to connect Redis server: %s. Set cool down time interval to %dms.", e, coolDownMillis));
                 }
             } // while enabled
         } catch (InterruptedException ignored) {
