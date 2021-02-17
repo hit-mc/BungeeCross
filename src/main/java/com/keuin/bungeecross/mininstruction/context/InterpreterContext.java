@@ -18,7 +18,7 @@ public class InterpreterContext {
      * @param user the user
      * @return the context
      */
-    public UserContext getUserContext(MessageUser user) {
+    public synchronized UserContext getUserContext(MessageUser user) {
         UserContext context = map.get(user);
         if (context == null) {
             context = new UserContext(user);

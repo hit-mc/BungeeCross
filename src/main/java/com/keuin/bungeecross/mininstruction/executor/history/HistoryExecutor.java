@@ -49,11 +49,10 @@ public class HistoryExecutor extends AbstractInstructionExecutor {
             echo(echoRepeater, "Proxy server is not available. Cannot show history right now.");
             return ExecutionResult.FAILED;
         }
-        // TODO: Introduce time range as the 1st parameter.
         Collection<InGamePlayer> activePlayers = activityProvider.getActivePlayers(1, TimeUnit.DAYS);
         if (activePlayers.isEmpty()) {
             echo(echoRepeater, new ComponentBuilder("There is no active player in the last 24h.").color(ChatColor.RED).create());
-            return ExecutionResult.FAILED;
+            return ExecutionResult.SUCCESS;
         }
 
         echo(echoRepeater, "Active players:");
