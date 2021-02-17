@@ -13,8 +13,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,7 +38,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
     private final String redisCommandPrefix = "!";
     private InstructionDispatcher instructionDispatcher;
 
-    private final Set<HistoryMessageLogger> loggers = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<HistoryMessageLogger> loggers = new HashSet<>();
 
 
     public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, MessageRepeatable inBoundMessageDispatcher, RedisManager redisManager) {

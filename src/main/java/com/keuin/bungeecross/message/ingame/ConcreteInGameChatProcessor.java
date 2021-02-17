@@ -6,8 +6,7 @@ import com.keuin.bungeecross.message.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -26,7 +25,7 @@ public class ConcreteInGameChatProcessor implements InGameChatProcessor {
 
     private final InstructionDispatcher instructionDispatcher;
     private final ChatProcessorDispatcher dispatcher = new ChatProcessorDispatcher();
-    private final Set<HistoryMessageLogger> messageLoggers = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<HistoryMessageLogger> messageLoggers = new HashSet<>();
 
     /**
      * Construct a in-game chat message processor,
