@@ -85,9 +85,9 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         // response head
         echo(echoRepeater, new ComponentBuilder(String.format(
                 "There %s %s %s online%s",
-                onlinePlayers <= 1 ? "is" : "are",
+                onlinePlayers == 1 ? "is" : "are",
                 onlinePlayers == 0 ? "no" : (onlinePlayers == 1 ? "only one" : onlinePlayers),
-                onlinePlayers <= 1 ? "player" : "players",
+                onlinePlayers == 1 ? "player" : "players",
                 onlinePlayers == 0 ? "." : ":"
         )).color(ChatColor.WHITE).create());
 
