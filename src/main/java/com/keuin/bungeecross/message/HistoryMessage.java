@@ -1,11 +1,11 @@
 package com.keuin.bungeecross.message;
 
 import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.util.MessageUtil;
 import com.keuin.bungeecross.util.date.DateUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.time.LocalDateTime;
 
@@ -34,9 +34,17 @@ public class HistoryMessage implements Message {
         return sentTime;
     }
 
+    /**
+     * Get the original message that this history message includes.
+     * @return the original message.
+     */
+    public Message getOriginalMessage() {
+        return originalMessage;
+    }
+
     @Override
     public String getMessage() {
-        return new TextComponent(getRichTextMessage()).getText();
+        return MessageUtil.getPlainTextOfBaseComponents(this.getRichTextMessage());
     }
 
     @Override

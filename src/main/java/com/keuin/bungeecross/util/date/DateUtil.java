@@ -6,10 +6,10 @@ import java.time.format.DateTimeFormatter;
 
 public class DateUtil {
 //    private static final
-    private static final DateTimeFormatter MonthDayHourMinuteFormatter = DateTimeFormatter.ofPattern("MM.dd HH:mm");
+    private static final DateTimeFormatter MONTH_DAY_HOUR_MINUTE_FORMATTER = DateTimeFormatter.ofPattern("MM.dd HH:mm");
 
     public static String getMonthDayHourMinuteString(LocalDateTime localDateTime) {
-        return localDateTime.format(MonthDayHourMinuteFormatter);
+        return localDateTime.format(MONTH_DAY_HOUR_MINUTE_FORMATTER);
     }
 
     public static String getOffsetString(LocalDateTime localDateTime) {
