@@ -1,9 +1,9 @@
 package com.keuin.bungeecross.mininstruction;
 
 import com.keuin.bungeecross.BungeeCross;
-import com.keuin.bungeecross.message.EchoMessage;
-import com.keuin.bungeecross.message.redis.RedisManager;
-import com.keuin.bungeecross.message.user.RepeatableUser;
+import com.keuin.bungeecross.intercommunicate.message.EchoMessage;
+import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
+import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
 import com.keuin.bungeecross.mininstruction.executor.*;
 import com.keuin.bungeecross.mininstruction.executor.history.HistoryExecutor;

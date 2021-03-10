@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.recentmsg;
 
-import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.intercommunicate.message.Message;
 
 /**
  * A history message logger is able to log messages sent to it, and keep them for a certain time range.

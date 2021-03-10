@@ -1,6 +1,6 @@
 package com.keuin.bungeecross;
 
-import com.keuin.bungeecross.message.redis.RedisConfig;
+import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 
 import java.util.Objects;
 

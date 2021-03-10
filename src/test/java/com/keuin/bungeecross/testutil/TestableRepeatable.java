@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.testutil;
 
-import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.repeater.MessageRepeatable;
+import com.keuin.bungeecross.intercommunicate.message.Message;
+import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 
 import java.util.ArrayList;
 import java.util.Collections;

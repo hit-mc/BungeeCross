@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.dispatcher;
 
-import com.keuin.bungeecross.message.user.RepeatableUser;
+import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 
 import java.util.concurrent.LinkedBlockingQueue;

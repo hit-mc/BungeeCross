@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.context;
 
-import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 
 import java.util.HashMap;
 

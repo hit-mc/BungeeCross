@@ -3,12 +3,11 @@ package com.keuin.bungeecross;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import com.keuin.bungeecross.message.ingame.ConcreteInGameChatProcessor;
-import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
-import com.keuin.bungeecross.message.redis.RedisConfig;
-import com.keuin.bungeecross.message.redis.RedisManager;
-import com.keuin.bungeecross.message.repeater.CrossServerChatRepeater;
-import com.keuin.bungeecross.message.repeater.InGameRedisRelayRepeater;
+import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
+import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
+import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
+import com.keuin.bungeecross.intercommunicate.repeater.CrossServerChatRepeater;
+import com.keuin.bungeecross.intercommunicate.repeater.InGameRedisRelayRepeater;
 import com.keuin.bungeecross.microapi.BungeeMicroApi;
 import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import com.keuin.bungeecross.mininstruction.dispatcher.ConcreteInstructionDispatcher;
@@ -47,7 +46,7 @@ public class BungeeCross extends Plugin {
     private CrossServerChatRepeater crossServerChatRepeater;
     private InGameRedisRelayRepeater inGameRedisRelayRepeater;
     private RedisManager redisManager;
-    private InGameChatProcessor inGameChatProcessor;
+    private InGameChatHandler inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
     private ActivityProvider activityProvider;
     private InstructionDispatcher instructionDispatcher;
@@ -121,7 +120,7 @@ public class BungeeCross extends Plugin {
             interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider, proxyServer);
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
             redisManager.setInstructionDispatcher(instructionDispatcher);
-            inGameChatProcessor = new ConcreteInGameChatProcessor(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater, redisManager, instructionDispatcher);
+            inGameChatProcessor = new InGameChatHandler(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater, redisManager, instructionDispatcher);
             recentMessageManager = new ConcreteRecentMessageManager();
 
             // register history message logger
@@ -171,8 +170,8 @@ public class BungeeCross extends Plugin {
         logger.info("Stopping RedisManager...");
         Optional.ofNullable(redisManager).ifPresent(RedisManager::stop);
 
-        logger.info("Stopping InGameChatProcessor...");
-        Optional.ofNullable(inGameChatProcessor).ifPresent(InGameChatProcessor::close);
+        logger.info("Stopping InGameChatHandler...");
+        Optional.ofNullable(inGameChatProcessor).ifPresent(InGameChatHandler::close);
 
         logger.info("Stopping InstructionDispatcher...");
         Optional.ofNullable(instructionDispatcher).ifPresent(InstructionDispatcher::close);

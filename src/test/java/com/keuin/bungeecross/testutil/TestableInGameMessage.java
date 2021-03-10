@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.testutil;
 
-import com.keuin.bungeecross.message.InGameMessage;
-import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.intercommunicate.message.InGameMessage;
+import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class TestableInGameMessage extends InGameMessage {

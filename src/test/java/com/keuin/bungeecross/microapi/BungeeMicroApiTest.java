@@ -2,7 +2,7 @@ package com.keuin.bungeecross.microapi;
 
 import com.google.gson.Gson;
 import com.keuin.bungeecross.BungeeCross;
-import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.testutil.TestableRepeatable;
 import okhttp3.*;
 import org.junit.After;

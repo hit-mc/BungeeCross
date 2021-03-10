@@ -1,0 +1,42 @@
+package com.keuin.bungeecross.intercommunicate.user;
+
+import com.keuin.bungeecross.intercommunicate.message.Message;
+import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
+
+import java.util.UUID;
+
+public class SimpleRepeatableUser implements RepeatableUser {
+
+    private final MessageUser user;
+    private final MessageRepeatable repeater;
+
+    public SimpleRepeatableUser(MessageUser user, MessageRepeatable repeater) {
+        this.user = user;
+        this.repeater = repeater;
+    }
+
+    @Override
+    public void repeat(Message message) {
+        repeater.repeat(message);
+    }
+
+    @Override
+    public String getName() {
+        return user.getName();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return user.getUUID();
+    }
+
+    @Override
+    public String getId() {
+        return user.getId();
+    }
+
+    @Override
+    public String getLocation() {
+        return user.getLocation();
+    }
+}

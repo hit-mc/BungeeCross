@@ -1,8 +1,8 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.EchoMessage;
-import com.keuin.bungeecross.message.repeater.MessageRepeatable;
-import com.keuin.bungeecross.message.user.RepeatableUser;
+import com.keuin.bungeecross.intercommunicate.message.EchoMessage;
+import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
+import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;

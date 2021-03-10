@@ -1,10 +1,10 @@
 package com.keuin.bungeecross;
 
-import com.keuin.bungeecross.message.HistoryMessage;
-import com.keuin.bungeecross.message.InGameMessage;
-import com.keuin.bungeecross.message.ingame.InGameChatProcessor;
-import com.keuin.bungeecross.message.user.MessageUser;
-import com.keuin.bungeecross.message.user.PlayerUser;
+import com.keuin.bungeecross.intercommunicate.message.HistoryMessage;
+import com.keuin.bungeecross.intercommunicate.message.InGameMessage;
+import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
+import com.keuin.bungeecross.intercommunicate.user.MessageUser;
+import com.keuin.bungeecross.intercommunicate.user.PlayerUser;
 import com.keuin.bungeecross.mininstruction.executor.history.InGamePlayer;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.recentmsg.RecentMessageManager;
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public class Events implements Listener {
 
-    private final InGameChatProcessor inGameChatProcessor;
+    private final InGameChatHandler inGameChatProcessor;
     private final Plugin plugin;
     private final Logger logger = Logger.getLogger(Events.class.getName());
     private final ActivityProvider activityProvider;
@@ -34,7 +34,7 @@ public class Events implements Listener {
     private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
     private final Map<UUID, ServerInfo> serverPlayerLastJoined = new HashMap<>(); // the server players last connected to
 
-    public Events(Plugin plugin, InGameChatProcessor inGameChatProcessor, ActivityProvider activityProvider, RecentMessageManager recentMessageManager) {
+    public Events(Plugin plugin, InGameChatHandler inGameChatProcessor, ActivityProvider activityProvider, RecentMessageManager recentMessageManager) {
         this.plugin = Objects.requireNonNull(plugin);
         this.inGameChatProcessor = Objects.requireNonNull(inGameChatProcessor);
         this.activityProvider = Objects.requireNonNull(activityProvider);

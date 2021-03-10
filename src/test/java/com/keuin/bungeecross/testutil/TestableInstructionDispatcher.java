@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.testutil;
 
-import com.keuin.bungeecross.message.user.RepeatableUser;
+import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 
 import java.util.ArrayList;

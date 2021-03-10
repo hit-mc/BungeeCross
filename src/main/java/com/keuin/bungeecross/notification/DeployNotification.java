@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.notification;
 
 import com.keuin.bungeecross.BungeeCross;
-import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.intercommunicate.message.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;

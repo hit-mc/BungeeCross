@@ -1,8 +1,8 @@
 package com.keuin.bungeecross.util;
 
-import com.keuin.bungeecross.message.JoinedMessage;
-import com.keuin.bungeecross.message.Message;
-import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.intercommunicate.message.JoinedMessage;
+import com.keuin.bungeecross.intercommunicate.message.Message;
+import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;

@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.recentmsg;
 
-import com.keuin.bungeecross.message.HistoryMessage;
-import com.keuin.bungeecross.message.Message;
+import com.keuin.bungeecross.intercommunicate.message.HistoryMessage;
+import com.keuin.bungeecross.intercommunicate.message.Message;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

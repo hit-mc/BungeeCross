@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.testutil;
 
-import com.keuin.bungeecross.message.user.MessageUser;
+import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 
 import java.util.Objects;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.recentmsg;
 
-import com.keuin.bungeecross.message.HistoryMessage;
+import com.keuin.bungeecross.intercommunicate.message.HistoryMessage;
 
 import java.util.Collection;
 

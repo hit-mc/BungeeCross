@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.message.redis.RedisManager;
-import com.keuin.bungeecross.message.repeater.MessageRepeatable;
+import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
+import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
