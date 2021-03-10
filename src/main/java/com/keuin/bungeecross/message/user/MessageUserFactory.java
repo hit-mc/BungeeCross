@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 /**
  * The factory class of all message user classes.
- * This is designed to reduce redundant copies of identical instance in memory.
+ * This is designed to reduce redundant copies of identical instances in memory.
  */
 public class MessageUserFactory {
 
