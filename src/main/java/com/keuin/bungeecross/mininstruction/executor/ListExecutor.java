@@ -14,17 +14,8 @@ import java.util.*;
 
 public final class ListExecutor extends AbstractInstructionExecutor {
 
-    private static final ListExecutor INSTANCE = new ListExecutor(
-            "show online players in all servers.",
-            new String[0]
-    );
-
-    private ListExecutor(String description, String[] params) {
-        super("list", description, params);
-    }
-
-    public static ListExecutor getInstance() {
-        return INSTANCE;
+    public ListExecutor() {
+        super("list", "show online players in all servers.", new String[0]);
     }
 
     private ExecutionResult printWithOldStyle(Collection<ProxiedPlayer> players, ProxyServer proxy, MessageRepeatable echoRepeater) {
@@ -40,7 +31,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
             echo(echoRepeater, echoComponents.toArray(new BaseComponent[0]));
         return ExecutionResult.SUCCESS;
     }
-    
+
     private ExecutionResult printWithGroupedStyle(Collection<ProxiedPlayer> players, ProxyServer proxy, MessageRepeatable echoRepeater) {
         Objects.requireNonNull(players);
         if (players.isEmpty())
@@ -75,7 +66,7 @@ public final class ListExecutor extends AbstractInstructionExecutor {
             echo(echoRepeater, echoComponents.toArray(new BaseComponent[0]));
         return ExecutionResult.SUCCESS;
     }
-    
+
     @Override
     public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
         ProxyServer proxy = ProxyServer.getInstance();

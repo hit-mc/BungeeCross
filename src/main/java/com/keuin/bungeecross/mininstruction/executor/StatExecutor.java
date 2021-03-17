@@ -6,22 +6,14 @@ import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
+import java.util.Objects;
+
 public final class StatExecutor extends AbstractInstructionExecutor {
+    private final RedisManager redisManager;
 
-    private static final StatExecutor INSTANCE = new StatExecutor(
-            "show the status of BungeeCross.",
-            new String[0]
-    );
-
-    private static RedisManager redisManager = null;
-
-    private StatExecutor(String description, String[] params) {
-        super("stat", description, params);
-    }
-
-    public static StatExecutor getInstance(RedisManager redisManager) {
-        StatExecutor.redisManager = redisManager;
-        return INSTANCE;
+    public StatExecutor(RedisManager redisManager) {
+        super("stat", "show the status of BungeeCross.", new String[0]);
+        this.redisManager = Objects.requireNonNull(redisManager);
     }
 
     @Override

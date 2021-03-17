@@ -7,21 +7,9 @@ import java.util.Optional;
 
 public class WikiExecutor extends AbstractInstructionExecutor {
 
-    public WikiExecutor(String discription, String[] params) {
-        super("wiki", discription, params);
-    }
-
-    private static final WikiExecutor INSTANCE = new WikiExecutor(
-            "search on Minecraft wiki.",
-            new String[0]
-    );
-
-    public static WikiExecutor getInstance() {
-        return INSTANCE;
-    }
-
-    protected WikiExecutor(String instruction, String description, String[] params) {
-        super(instruction, description, params);
+    public WikiExecutor() {
+        // TODO
+        super("wiki", "search Minecraft wiki with ease.", new String[0]);
     }
 
     @Override

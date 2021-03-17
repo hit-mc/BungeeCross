@@ -9,22 +9,12 @@ import net.md_5.bungee.api.plugin.Plugin;
 import java.util.logging.Logger;
 
 public final class ReloadExecutor extends AbstractInstructionExecutor {
-
-    private static final ReloadExecutor INSTANCE = new ReloadExecutor(
-            "disable, reload all configurations, and finally enable BungeeCross.",
-            new String[0]
-    );
-
-    private static Plugin plugin;
+    private final Plugin plugin;
     private final Logger logger = Logger.getLogger(ReloadExecutor.class.getName());
 
-    private ReloadExecutor(String description, String[] params) {
-        super("reload", description, params);
-    }
-
-    public static ReloadExecutor getInstance(Plugin plugin) {
-        ReloadExecutor.plugin = plugin;
-        return INSTANCE;
+    public ReloadExecutor(Plugin plugin) {
+        super("reload", "disable, reload all configurations, and finally enable BungeeCross.", new String[0]);
+        this.plugin = plugin;
     }
 
     @Override

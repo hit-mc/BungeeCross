@@ -46,11 +46,11 @@ public class MinInstructionInterpreter {
      */
     private void registerInstructions() {
         Arrays.asList(
-                ListExecutor.getInstance().withContext(context),
-                ReloadExecutor.getInstance(plugin).withContext(context),
-                StatExecutor.getInstance(redisManager).withContext(context),
-                HistoryExecutor.getInstance(activityProvider, proxyServer).withContext(context),
-                WikiExecutor.getInstance().withContext(context)
+                new ListExecutor().withContext(context),
+                new ReloadExecutor(plugin).withContext(context),
+                new StatExecutor(redisManager).withContext(context),
+                new HistoryExecutor(activityProvider, proxyServer).withContext(context),
+                new WikiExecutor().withContext(context)
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }
 

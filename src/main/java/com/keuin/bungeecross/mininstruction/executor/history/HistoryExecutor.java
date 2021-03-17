@@ -14,25 +14,13 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public class HistoryExecutor extends AbstractInstructionExecutor {
+    private final ActivityProvider activityProvider;
+    private final ProxyServer proxy;
 
-    private final static HistoryExecutor INSTANCE = new HistoryExecutor(
-            "show the players who have joined the server recently.",
-            new String[0]
-    );
-
-    private static ActivityProvider activityProvider;
-    private static ProxyServer proxy;
-    private static final String instruction = "history";
-
-
-    public static HistoryExecutor getInstance(ActivityProvider activityProvider, ProxyServer proxy) {
-        HistoryExecutor.activityProvider = activityProvider;
-        HistoryExecutor.proxy = proxy;
-        return INSTANCE;
-    }
-
-    private HistoryExecutor(String description, String[] params) {
-        super(instruction, description, params);
+    public HistoryExecutor(ActivityProvider activityProvider, ProxyServer proxy) {
+        super("history", "show the players who have joined the server recently.", new String[0]);
+        this.activityProvider = activityProvider;
+        this.proxy = proxy;
     }
 
 
