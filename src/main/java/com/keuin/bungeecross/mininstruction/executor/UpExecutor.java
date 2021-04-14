@@ -73,7 +73,7 @@ public class UpExecutor extends AbstractInstructionExecutor {
                     .append(isUp ?
                             new ComponentBuilder("[UP]").color(ChatColor.GREEN).bold(true).create()
                             : new ComponentBuilder("[DOWN]").color(ChatColor.RED).bold(true).create()
-                    );
+                    ).append(new ComponentBuilder("\n").color(ChatColor.WHITE).create());
         });
 
         echo(echoRepeater, builder.create());
