@@ -12,11 +12,13 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class WikiEntry implements Message {
 
     private static final WikiEntry EMPTY_ENTRY = new WikiEntry(null);
     private static final Logger logger = Logger.getLogger(WikiEntry.class.getName());
+    private static final Pattern invalidWikiContentPattern = Pattern.compile("^见.*(?:特性|方块)");
 
     private final List<String> texts = new ArrayList<>(20);
     private final MessageUser user;
@@ -51,7 +53,7 @@ public class WikiEntry implements Message {
         doc.select(".mw-parser-output")
                 .forEach(container -> container.getAllElements().select("p").stream()
                         .map(Element::text)
-                        .filter(str -> str.length() > 6 && !str.startsWith("见"))
+                        .filter(str -> str.length() > 6 && !invalidWikiContentPattern.matcher(str).find())
                         .forEach(texts::add));
         logger.fine("Read " + texts.size() + " lines.");
     }

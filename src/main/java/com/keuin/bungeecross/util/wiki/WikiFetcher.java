@@ -5,7 +5,9 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -17,9 +19,29 @@ public class WikiFetcher {
     private static final Logger logger = Logger.getLogger(WikiFetcher.class.getName());
     private static final OkHttpClient client = new OkHttpClient();
 
-    public static void fetchEntry(String name, Consumer<WikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
-        var url = String.format("https://minecraft.fandom.com/zh/wiki/%s", name);
+    private static final ConcurrentMap<String, WikiEntry> cache = new ConcurrentHashMap<>();
+    private static final Set<String> cachedInvalidKeywords = Collections.synchronizedSet(new HashSet<>());
+
+    public static void fetchEntry(String keyword, Consumer<WikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
+        var url = String.format("https://minecraft.fandom.com/zh/wiki/%s", keyword);
         var request = new Request.Builder().url(url).build();
+        var cachedEntry = cache.get(keyword);
+
+        // cache success entries
+        if (cachedEntry != null) {
+            // use cached result
+            // TODO: this is not async, optimize it in the future
+            callback.accept(cachedEntry);
+            return;
+        }
+
+        // cache invalid queries
+        if (cachedInvalidKeywords.contains(keyword)) {
+            onFailure.accept(new NoSuchElementException());
+            return;
+        }
+
+        // do new query
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -33,8 +55,11 @@ public class WikiFetcher {
                 try {
                     if (response.isSuccessful()) {
                         logger.fine("Response is successful.");
-                        callback.accept(new WikiEntry(response, messageUser));
+                        var entry = new WikiEntry(response, messageUser);
+                        cache.put(keyword, entry);
+                        callback.accept(entry);
                     } else if (response.code() == 404) {
+                        cachedInvalidKeywords.add(keyword);
                         throw new NoSuchEntryException();
                     } else {
                         logger.fine("Response is not successful.");
@@ -60,7 +85,7 @@ public class WikiFetcher {
 
         @Override
         public String toString() {
-            return String.format("BadResponseException{responseCode=%d}", responseCode);
+            return String.format("Minecraft wiki made an invalid response: status code is %d", responseCode);
         }
 
         @Override
