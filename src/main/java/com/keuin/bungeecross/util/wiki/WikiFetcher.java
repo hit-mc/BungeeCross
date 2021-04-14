@@ -7,12 +7,14 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Search, fetch pages from Minecraft wiki.
  */
 public class WikiFetcher {
 
+    private static final Logger logger = Logger.getLogger(WikiFetcher.class.getName());
     private static final OkHttpClient client = new OkHttpClient();
 
     public static void fetchEntry(String name, Consumer<WikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
@@ -21,15 +23,19 @@ public class WikiFetcher {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                logger.warning("Failed to make request: " + e.getMessage());
                 onFailure.accept(e);
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                logger.fine("Response returned.");
                 try {
                     if (response.isSuccessful()) {
+                        logger.fine("Response is successful.");
                         callback.accept(new WikiEntry(response, messageUser));
                     } else {
+                        logger.fine("Response is not successful.");
                         onFailure.accept(new BadResponseException(response.code()));
                     }
                 } catch (Exception e) {

@@ -11,45 +11,49 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class WikiEntry implements Message {
 
     private static final WikiEntry EMPTY_ENTRY = new WikiEntry(null);
+    private static final Logger logger = Logger.getLogger(WikiEntry.class.getName());
+
     private final List<String> texts = new ArrayList<>(20);
     private final MessageUser user;
     private String title = "";
+
+    private boolean isMessageGenerated;
     private BaseComponent[] message;
 
     private WikiEntry(MessageUser messageUser) {
         message = new BaseComponent[0];
+        isMessageGenerated = true;
         this.user = messageUser;
     }
 
-    public WikiEntry(Response response, MessageUser messageUser) throws IOException {
+    public WikiEntry(Response response, MessageUser messageUser) throws IOException, EntryNotFoundException {
         this(messageUser);
+        isMessageGenerated = false;
         var body = Objects.requireNonNull(response.body());
         var content = body.string();
         if (content.contains("<p><i>No results found.</i></p>")) {
-            return;
+            logger.info("Construct empty WikiEntry");
+            throw new EntryNotFoundException();
         }
         var doc = Jsoup.parse(content);
 
         // extract page title
-        for (Element ele : doc.select("hi#firstHeading")) {
-            title = ele.text();
-            break;
-        }
+        title = doc.select("h1#firstHeading").text();
 
         // add text into entry
-        for (var container : doc.select(".mw-parser-output")) {
-//                container.getElementsByTag("p").stream()
+        //                container.getElementsByTag("p").stream()
 //                        .map(Element::text).forEach(entry.texts::add);
-            container.getAllElements().select("p").stream()
-                    .map(Element::text)
-                    .filter(str -> str.length() > 6)
-                    .filter(str -> !str.startsWith("见"))
-                    .forEach(texts::add);
-        }
+        doc.select(".mw-parser-output")
+                .forEach(container -> container.getAllElements().select("p").stream()
+                        .map(Element::text)
+                        .filter(str -> str.length() > 6 && !str.startsWith("见"))
+                        .forEach(texts::add));
+        logger.fine("Read " + texts.size() + " lines.");
     }
 
     public List<String> getTexts() {
@@ -57,17 +61,23 @@ public class WikiEntry implements Message {
     }
 
     private void buildMessage() {
+        if (texts.isEmpty()) {
+            message = new BaseComponent[0];
+            isMessageGenerated = true;
+        }
+
         var builder = new ComponentBuilder();
         builder.append(WikiPrettyUtil.h1(title));
         for (String s : texts) {
             builder.append(WikiPrettyUtil.p(s));
         }
         message = builder.create();
+        isMessageGenerated = true;
     }
 
     @Override
     public String getMessage() {
-        if (message == null)
+        if (!isMessageGenerated)
             buildMessage();
         assert message != null;
         return MessageUtil.getPlainTextOfBaseComponents(message);
@@ -75,7 +85,7 @@ public class WikiEntry implements Message {
 
     @Override
     public BaseComponent[] getRichTextMessage() {
-        if (message == null)
+        if (!isMessageGenerated)
             buildMessage();
         assert message != null;
         return Arrays.copyOf(message, message.length);
@@ -92,17 +102,5 @@ public class WikiEntry implements Message {
     }
 
     public static class EntryNotFoundException extends Exception {
-        private final String entryName;
-
-        public EntryNotFoundException(String entryName) {
-            this.entryName = entryName;
-        }
-
-        @Override
-        public String toString() {
-            return "EntryNotFoundException{" +
-                    "entryName='" + entryName + '\'' +
-                    '}';
-        }
     }
 }
