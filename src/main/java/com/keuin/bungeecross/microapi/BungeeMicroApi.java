@@ -1,20 +1,10 @@
 package com.keuin.bungeecross.microapi;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.keuin.bungeecross.BungeeCross;
-import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
-import com.keuin.bungeecross.util.InputStreams;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -30,49 +20,8 @@ public class BungeeMicroApi {
 
         logger.info(String.format("Starting MicroApi at localhost:%d...", port));
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String response = "{\"version\": \"" + BungeeCross.getVersion() + "\"}";
-                exchange.sendResponseHeaders(200, response.getBytes().length);
-                OutputStream os = exchange.getResponseBody();
-                os.write(response.getBytes());
-                os.flush();
-                exchange.close();
-            }
-        });
-        server.createContext("/message", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                try {
-                    if ("POST".equals(exchange.getRequestMethod())) {
-                        String responseSuccess = "{\"success\": true}";
-                        String responseFailed = "{\"success\": failed}";
-                        InputStream is = exchange.getRequestBody();
-                        String request = new String(InputStreams.toByteArray(is), StandardCharsets.UTF_8);
-                        MethodMessage mm = (new Gson()).fromJson(request, MethodMessage.class);
-                        if (mm.isValid()) {
-                            logger.info(String.format(
-                                    "Send message{sender=%s, message=%s} to redis.",
-                                    mm.getSender(),
-                                    mm.getMessage()
-                            ));
-                            redisRepeater.repeat(Message.build(mm.getMessage(), mm.getSender()));
-                            exchange.sendResponseHeaders(200, responseSuccess.getBytes().length);
-                            exchange.getResponseBody().write(responseSuccess.getBytes());
-                        } else {
-                            exchange.sendResponseHeaders(400, -1);
-                        }
-                    } else {
-                        exchange.sendResponseHeaders(405, -1);
-                    }
-                } catch (JsonSyntaxException e) {
-                    exchange.sendResponseHeaders(400, -1);
-                }
-                exchange.getResponseBody().flush();
-                exchange.close();
-            }
-        });
+        server.createContext("/", new RootHandler());
+        server.createContext("/message", new MessageHandler(redisRepeater));
         server.setExecutor(null);
         server.start();
     }
