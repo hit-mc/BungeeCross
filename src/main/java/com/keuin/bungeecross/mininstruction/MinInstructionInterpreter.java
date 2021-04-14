@@ -41,8 +41,8 @@ public class MinInstructionInterpreter {
     }
 
     /**
-     * Bind all instructions.
-     * Non-registered instructions cannot be executed.
+     * Register instructions.
+     * Unregistered instructions cannot be executed.
      */
     private void registerInstructions() {
         Arrays.asList(
