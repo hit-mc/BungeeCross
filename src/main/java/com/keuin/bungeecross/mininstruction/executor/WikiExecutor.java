@@ -5,6 +5,8 @@ import com.keuin.bungeecross.intercommunicate.user.MessageUserFactory;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import com.keuin.bungeecross.util.wiki.WikiFetcher;
 
+import java.util.Optional;
+
 public class WikiExecutor extends AbstractInstructionExecutor {
 
     private static final String instruction = "wiki";
@@ -29,7 +31,7 @@ public class WikiExecutor extends AbstractInstructionExecutor {
         WikiFetcher.fetchEntry(
                 params[0],
                 echoRepeater::repeat,
-                exception -> echo(echoRepeater, exception.getMessage()),
+                exception -> echo(echoRepeater, Optional.ofNullable(exception.getLocalizedMessage()).orElse(exception.toString())),
                 MessageUserFactory.getConsoleUser(instruction)
         );
         return ExecutionResult.SUCCESS;

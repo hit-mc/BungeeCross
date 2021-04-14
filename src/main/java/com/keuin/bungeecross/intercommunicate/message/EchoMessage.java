@@ -13,6 +13,10 @@ public class EchoMessage implements Message {
     private final String instruction;
 
     public EchoMessage(String instruction, String echo) {
+        if (instruction == null)
+            throw new IllegalArgumentException("instruction is null");
+        if (echo == null)
+            throw new IllegalArgumentException("echo message is null");
         this.echo = echo;
         this.instruction = instruction;
         this.baseComponents = new ComponentBuilder(echo).create();

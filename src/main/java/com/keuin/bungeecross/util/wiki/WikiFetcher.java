@@ -34,6 +34,8 @@ public class WikiFetcher {
                     if (response.isSuccessful()) {
                         logger.fine("Response is successful.");
                         callback.accept(new WikiEntry(response, messageUser));
+                    } else if (response.code() == 404) {
+                        throw new NoSuchEntryException();
                     } else {
                         logger.fine("Response is not successful.");
                         onFailure.accept(new BadResponseException(response.code()));
@@ -72,6 +74,13 @@ public class WikiFetcher {
         @Override
         public int hashCode() {
             return Objects.hash(responseCode);
+        }
+    }
+
+    private static class NoSuchEntryException extends Exception {
+        @Override
+        public String toString() {
+            return "No such entry in Minecraft wiki. Your keyword is incorrect.";
         }
     }
 }
