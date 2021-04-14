@@ -18,26 +18,29 @@ public final class StatExecutor extends AbstractInstructionExecutor {
 
     @Override
     public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
-        if (redisManager != null) {
-            ComponentBuilder builder = new ComponentBuilder();
-//            builder.append("Stat:\n");
-            builder.append(new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create());
-            builder.append(redisManager.isSenderAlive() ?
-                    new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
-                    new ComponentBuilder("Stopped").color(ChatColor.RED).create()
-            );
-            echo(echoRepeater, builder.create());
-
-            builder = new ComponentBuilder();
-
-            builder.append(new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create());
-            builder.append(redisManager.isReceiverAlive() ?
-                    new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
-                    new ComponentBuilder("Stopped").color(ChatColor.RED).create());
-            echo(echoRepeater, builder.create());
-        } else {
-            echo(echoRepeater, new ComponentBuilder("RedisManager is not available. Cannot get stat.").color(ChatColor.RED).create());
+        if (redisManager == null) {
+            echo(echoRepeater, new ComponentBuilder("RedisManager is not available. Cannot get stat.")
+                    .color(ChatColor.RED).create());
+            return ExecutionResult.FAILED;
         }
+
+        var builder = new ComponentBuilder();
+
+        // sender
+        builder.append(new ComponentBuilder("Sender thread: ").color(ChatColor.WHITE).create());
+        builder.append(redisManager.isSenderAlive() ?
+                new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
+                new ComponentBuilder("Stopped").color(ChatColor.RED).create()
+        );
+        echo(echoRepeater, builder.create());
+
+        // receiver
+        builder = new ComponentBuilder();
+        builder.append(new ComponentBuilder("Receiver thread: ").color(ChatColor.WHITE).create());
+        builder.append(redisManager.isReceiverAlive() ?
+                new ComponentBuilder("Alive").color(ChatColor.GREEN).create() :
+                new ComponentBuilder("Stopped").color(ChatColor.RED).create());
+        echo(echoRepeater, builder.create());
         return ExecutionResult.SUCCESS;
     }
 

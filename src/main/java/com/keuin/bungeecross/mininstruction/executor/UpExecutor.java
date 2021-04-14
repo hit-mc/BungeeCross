@@ -58,23 +58,19 @@ public class UpExecutor extends AbstractInstructionExecutor {
             // all up
             // do nothing here
         }
+
         // if not interrupted, means timed out, and at least one server has down
-        ComponentBuilder builder = new ComponentBuilder()
+        var builder = new ComponentBuilder()
                 .append(new ComponentBuilder("Servers:").color(ChatColor.WHITE).create());
 
-        boolean[] isFirst = new boolean[]{true};
-        pingResult.forEach((name, isUp) -> {
-            if (isFirst[0]) {
-                isFirst[0] = false;
-                builder.append("\n");
-            }
-            builder.append(new ComponentBuilder(name).color(ChatColor.WHITE).create())
-                    .append(new TextComponent(": "))
-                    .append(isUp ?
-                            new ComponentBuilder("[UP]").color(ChatColor.GREEN).bold(true).create()
-                            : new ComponentBuilder("[DOWN]").color(ChatColor.RED).bold(true).create()
-                    ).append(new ComponentBuilder("\n").color(ChatColor.WHITE).create());
-        });
+        pingResult.forEach(
+                (name, isUp) -> builder.append(new ComponentBuilder("\n" + name).color(ChatColor.WHITE).create())
+                        .append(new TextComponent(": "))
+                        .append(isUp ?
+                                new ComponentBuilder("[UP]").color(ChatColor.GREEN).bold(true).create()
+                                : new ComponentBuilder("[DOWN]").color(ChatColor.RED).bold(true).create()
+                        )
+        );
 
         echo(echoRepeater, builder.create());
         return ExecutionResult.SUCCESS;

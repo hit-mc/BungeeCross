@@ -69,8 +69,8 @@ public final class ListExecutor extends AbstractInstructionExecutor {
 
     @Override
     public ExecutionResult doExecute(UserContext context, MessageRepeatable echoRepeater, String[] params) {
-        ProxyServer proxy = ProxyServer.getInstance();
-        Collection<ProxiedPlayer> players = proxy.getPlayers();
+        var proxy = ProxyServer.getInstance();
+        var players = proxy.getPlayers();
         int onlinePlayers = players.size();
 
         // response head
@@ -94,18 +94,18 @@ public final class ListExecutor extends AbstractInstructionExecutor {
         ComponentBuilder prettyBuilder = new ComponentBuilder();
 
         // build server text
-        BaseComponent componentServer = PrettyComponents.createNavigableServerButton(player.getServer().getInfo().getName());
+        var serverButton = PrettyComponents.createNavigableServerButton(player.getServer().getInfo().getName());
 
         // build player text
-        TextComponent componentPlayer = new TextComponent(" " + player.getName());
-        componentPlayer.setColor(ChatColor.WHITE);
-        componentPlayer.setUnderlined(false);
-        componentPlayer.setHoverEvent(null);
+        var playerDisplay = new TextComponent(" " + player.getName());
+        playerDisplay.setColor(ChatColor.WHITE);
+        playerDisplay.setUnderlined(false);
+        playerDisplay.setHoverEvent(null);
 
         // build pretty text
-        prettyBuilder.append(componentPlayer);
+        prettyBuilder.append(playerDisplay);
         prettyBuilder.append(new TextComponent(" "));
-        prettyBuilder.append(componentServer);
+        prettyBuilder.append(serverButton);
         return prettyBuilder.create();
     }
 }

@@ -70,30 +70,30 @@ public abstract class AbstractInstructionExecutor {
         // TODO: Add highlight and click shortcut.
 
         // create params
-        ComponentBuilder paramBuilder = new ComponentBuilder();
+        var paramDisplayBuilder = new ComponentBuilder();
         boolean isEmpty = true;
         for (String s : params) {
             TextComponent component = new TextComponent(String.format("<%s>", s));
             component.setColor(ChatColor.GREEN);
-            paramBuilder.append(component);
-            paramBuilder.append(new TextComponent(" "));
+            paramDisplayBuilder.append(component);
+            paramDisplayBuilder.append(new TextComponent(" "));
             isEmpty = false;
         }
 
-        ComponentBuilder builder = new ComponentBuilder();
+        var usageDisplayBuilder = new ComponentBuilder();
         // command name
-        builder.append(new ComponentBuilder(getCommand()).color(ChatColor.YELLOW).create());
-        builder.append(new TextComponent(" "));
+        usageDisplayBuilder.append(new ComponentBuilder(getCommand()).color(ChatColor.YELLOW).create());
+        usageDisplayBuilder.append(new TextComponent(" "));
 
         // params
         if (!isEmpty) {
-            paramBuilder.removeComponent(paramBuilder.getCursor());
-            builder.append(paramBuilder.create());
+            paramDisplayBuilder.removeComponent(paramDisplayBuilder.getCursor());
+            usageDisplayBuilder.append(paramDisplayBuilder.create());
         }
 
         // description
-        builder.append(new ComponentBuilder(": " + description).color(ChatColor.WHITE).create());
-        return builder.create();
+        usageDisplayBuilder.append(new ComponentBuilder(": " + description).color(ChatColor.WHITE).create());
+        return usageDisplayBuilder.create();
     }
 
     protected final void echo(MessageRepeatable echoRepeater, String echo) {
