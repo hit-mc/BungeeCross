@@ -29,6 +29,7 @@ class RedisSubscriber extends BinaryJedisPubSub {
             if (timeDelta > 180 * 1000)
                 logger.warning(String.format("Too far UTC timestamp %d. Potentially wrong time?", messageCreateTime));
 
+            // TODO: this should not be synchronized, or it will block the jedis pool loop
             messageConsumer.accept(message);
         } catch (Message.IllegalPackedMessageException e) {
             logger.warning(e.getLocalizedMessage());

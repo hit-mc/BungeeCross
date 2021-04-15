@@ -3,7 +3,6 @@ package com.keuin.bungeecross.intercommunicate.redis.worker;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
-import com.keuin.bungeecross.intercommunicate.repeater.LoggableMessageSource;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.intercommunicate.user.SimpleRepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
@@ -22,7 +21,7 @@ import java.util.logging.Logger;
  * Receive from Redis server.
  * Send to Minecraft.
  */
-public class LegacyRedisReceiverWorker extends Thread implements LoggableMessageSource {
+public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
 
     private final Logger logger = Logger.getLogger(LegacyRedisReceiverWorker.class.getName());
 
@@ -48,6 +47,7 @@ public class LegacyRedisReceiverWorker extends Thread implements LoggableMessage
         this.redisManager = redisManager;
     }
 
+    @Override
     public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
         this.instructionDispatcher = instructionDispatcher;
     }
