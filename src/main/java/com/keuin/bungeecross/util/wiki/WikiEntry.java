@@ -3,6 +3,7 @@ package com.keuin.bungeecross.util.wiki;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import com.keuin.bungeecross.util.MessageUtil;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import okhttp3.Response;
@@ -69,8 +70,16 @@ public class WikiEntry extends Message {
         }
 
         var builder = new ComponentBuilder();
+        int builtTextSize = 0;
+        final int MAX_LENGTH = 300;
         builder.append(WikiPrettyUtil.h1(title));
         for (String s : texts) {
+            if ((builtTextSize > 0) && (builtTextSize + s.length()) >= MAX_LENGTH) {
+                builder.append(new ComponentBuilder("(more...)")
+                        .color(ChatColor.DARK_GRAY).italic(true).bold(true).create());
+                break;
+            }
+            builtTextSize += s.length();
             builder.append(WikiPrettyUtil.p(s));
         }
         message = builder.create();
