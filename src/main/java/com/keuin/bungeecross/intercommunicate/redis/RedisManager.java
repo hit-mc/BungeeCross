@@ -1,12 +1,13 @@
 package com.keuin.bungeecross.intercommunicate.redis;
 
 import com.keuin.bungeecross.intercommunicate.message.Message;
-import com.keuin.bungeecross.intercommunicate.redis.worker.RedisReceiverWorker;
+import com.keuin.bungeecross.intercommunicate.redis.worker.LegacyRedisReceiverWorker;
 import com.keuin.bungeecross.intercommunicate.redis.worker.RedisSenderWorker;
 import com.keuin.bungeecross.intercommunicate.repeater.LoggableMessageSource;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
+import redis.clients.jedis.JedisPool;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,13 +24,15 @@ public class RedisManager implements com.keuin.bungeecross.intercommunicate.repe
     private final AtomicBoolean enabled = new AtomicBoolean(true);
 
     private final RedisSenderWorker senderWorker;
-    private final RedisReceiverWorker receiverWorker;
+    private final LegacyRedisReceiverWorker receiverWorker;
 
     public RedisManager(RedisConfig redisConfig, MessageRepeatable inBoundMessageDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
 
+        var pool = new JedisPool();
+
         this.senderWorker = new RedisSenderWorker(redisConfig, enabled);
-        this.receiverWorker = new RedisReceiverWorker(
+        this.receiverWorker = new LegacyRedisReceiverWorker(
                 enabled,
                 redisConfig,
                 inBoundMessageDispatcher,

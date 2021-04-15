@@ -6,7 +6,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 
 import java.util.Objects;
 
-class ConcreteMessage implements Message {
+class ConcreteMessage extends Message {
     private final String sender;
     private final String message;
 

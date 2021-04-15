@@ -9,15 +9,16 @@ public class RedisUser implements MessageUser {
 
     private final String userName;
     private final String uniqueId;
-    private static final String location = "QQ";
+    private final String location;
 
     public RedisUser(String userName) {
-        this(userName, userName);
+        this(userName, userName, "QQ");
     }
 
-    public RedisUser(String userName, String uniqueId) {
+    public RedisUser(String userName, String uniqueId, String location) {
         this.userName = userName;
         this.uniqueId = uniqueId;
+        this.location = location;
     }
 
     @Override

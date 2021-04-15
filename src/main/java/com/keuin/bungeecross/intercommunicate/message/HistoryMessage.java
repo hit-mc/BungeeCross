@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * Showing a message sent in the past, i.e. when the player is offline,
  * or the display is not the original display.
  */
-public class HistoryMessage implements Message {
+public class HistoryMessage extends Message {
 
     private final Message originalMessage;
     private final LocalDateTime sentTime;

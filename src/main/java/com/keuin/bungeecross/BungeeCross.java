@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -36,11 +37,13 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class BungeeCross extends Plugin {
 
+    public static String topicPrefix = "bc_";
+
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
     private static String VERSION = "";
     private static String BUILD_TIME = "";
 
-    private BungeeCrossConfig config;
+    private static BungeeCrossConfig config;
 
     private ProxyServer proxyServer;
     private CrossServerChatRepeater crossServerChatRepeater;
@@ -60,6 +63,17 @@ public class BungeeCross extends Plugin {
 
     public static String getVersion() {
         return VERSION;
+    }
+
+    public static String getEndpointName() {
+        return Optional.ofNullable(config.getRedis().getEndpointName())
+                .orElse("<unknownEndpoint:CONFIG_NOT_LOADED>");
+    }
+
+    public static String getTopicId() {
+        var id = config.getRedis().getTopicId();
+        assert id != null;
+        return id;
     }
 
     public static String getBuildTime() {
@@ -207,22 +221,9 @@ public class BungeeCross extends Plugin {
      * Generate default config file.
      */
     private void generateDefaultConfig() {
+
         // generate default config programmatically
-        BungeeCrossConfig defaultConfig = new BungeeCrossConfig(
-                new RedisConfig(
-                        "",
-                        6379,
-                        "",
-                        "",
-                        "",
-                        "!",
-                        10,
-                        1,
-                        500,
-                        false
-                ),
-                7000
-        );
+        BungeeCrossConfig defaultConfig = new BungeeCrossConfig();
         String jsonString = (new GsonBuilder().setPrettyPrinting().create()).toJson(defaultConfig);
 
         // save to file
@@ -233,6 +234,17 @@ public class BungeeCross extends Plugin {
         } catch (IOException e) {
             logger.severe(String.format("Failed to generate default config file %s: %s.", BungeeCross.configurationFileName, e));
         }
+    }
+
+    public static String generateTopicId() {
+        var rng = new SecureRandom();
+        var rand = new byte[8];
+        rng.nextBytes(rand);
+        long acc = 0;
+        for (int i = 0; i != 8; ++i) {
+            acc = (acc << 8) + (rand[i] & 0xFFL);
+        }
+        return Long.toHexString(acc);
     }
 
 }

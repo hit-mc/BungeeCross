@@ -1,5 +1,7 @@
 package com.keuin.bungeecross.intercommunicate.redis;
 
+import com.keuin.bungeecross.BungeeCross;
+
 /**
  * Redis configuration section
  * Immutable.
@@ -15,18 +17,24 @@ public class RedisConfig {
     private final String redisCommandPrefix;
     private final int sendCoolDownMillis;
     private final boolean sslEnabled;
+    private final boolean legacyProtocol;
+    private final String topicId;
+    private final String endpointName;
 
-    public RedisConfig(String host, int port, String password, String pushQueueName, String popQueueName, String redisCommandPrefix, int maxRetryTimes, int popTimeoutSeconds, int sendCoolDownMillis, boolean sslEnabled) {
-        this.host = host;
-        this.port = port;
-        this.password = password;
-        this.pushQueueName = pushQueueName;
-        this.popQueueName = popQueueName;
-        this.maxRetryTimes = maxRetryTimes;
-        this.popTimeoutSeconds = popTimeoutSeconds;
-        this.redisCommandPrefix = redisCommandPrefix;
-        this.sendCoolDownMillis = sendCoolDownMillis;
-        this.sslEnabled = sslEnabled;
+    public RedisConfig() {
+        host = "";
+        port = 6379;
+        password = "";
+        pushQueueName = "";
+        popQueueName = "";
+        redisCommandPrefix = "!";
+        maxRetryTimes = 10;
+        popTimeoutSeconds = 1;
+        sendCoolDownMillis = 500;
+        sslEnabled = false;
+        legacyProtocol = true;
+        topicId = BungeeCross.generateTopicId();
+        endpointName = "noname_endpoint";
     }
 
     public String getHost() {
@@ -69,17 +77,15 @@ public class RedisConfig {
         return sslEnabled;
     }
 
-    @Override
-    public String toString() {
-        return "RedisConfig{" +
-                "host='" + host + '\'' +
-                ", port=" + port +
-                ", password='" + password + '\'' +
-                ", pushQueueName='" + pushQueueName + '\'' +
-                ", popQueueName='" + popQueueName + '\'' +
-                ", maxRetryTimes=" + maxRetryTimes +
-                ", popTimeout=" + popTimeoutSeconds +
-                ", redisCommandPrefix='" + redisCommandPrefix + '\'' +
-                '}';
+    public boolean isLegacyProtocol() {
+        return legacyProtocol;
+    }
+
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public String getEndpointName() {
+        return endpointName;
     }
 }

@@ -13,9 +13,9 @@ public class BungeeCrossConfig {
     private final RedisConfig redis;
     private final int microApiPort;
 
-    public BungeeCrossConfig(RedisConfig redis, int microApiPort) {
-        this.redis = Objects.requireNonNull(redis);
-        this.microApiPort = microApiPort;
+    public BungeeCrossConfig() {
+        this.redis = new RedisConfig();
+        this.microApiPort = 7000;
     }
 
     public RedisConfig getRedis() {
@@ -26,17 +26,4 @@ public class BungeeCrossConfig {
         return microApiPort;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BungeeCrossConfig that = (BungeeCrossConfig) o;
-        return microApiPort == that.microApiPort &&
-                redis.equals(that.redis);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(redis, microApiPort);
-    }
 }

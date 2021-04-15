@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
+import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
@@ -7,6 +8,7 @@ import com.keuin.bungeecross.util.MessageUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,12 +33,17 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
     private final BlockingQueue<Message> sendQueue = new LinkedBlockingQueue<>();
     private final int sendCoolDownMillis = 500;
     private final int maxJoinedMessageCount = 10;
+    private final byte[] topicId;
     private Jedis jedis = null;
 
     public RedisSenderWorker(RedisConfig redisConfig, AtomicBoolean enabled) {
         this.redisConfig = redisConfig;
         this.enabled = enabled;
         this.pushQueueName = redisConfig.getPushQueueName();
+        if (redisConfig.isLegacyProtocol())
+            topicId = new byte[0];
+        else
+            topicId = (BungeeCross.topicPrefix + redisConfig.getTopicId()).getBytes(StandardCharsets.UTF_8);
     }
 
 
@@ -88,9 +95,13 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
         while (enabled.get()) {
             try {
 //                        pendingOutboundMessage = message;
-                jedis.lpush(pushQueueName, message.pack());
+                long returnValue;
+                if (redisConfig.isLegacyProtocol())
+                    returnValue = jedis.lpush(pushQueueName, message.pack());
+                else
+                    returnValue = jedis.publish(topicId, message.pack2());
 //                        pendingOutboundMessage = null;
-                logger.info("Message was sent to Redis server successfully.");
+                logger.info("Message was sent to Redis server successfully. retval=" + returnValue);
                 return;
             } catch (JedisException e) {
                 logger.warning(String.format("Failed to push message: %s.", e));

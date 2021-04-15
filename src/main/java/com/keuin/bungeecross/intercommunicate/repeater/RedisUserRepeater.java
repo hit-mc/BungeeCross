@@ -12,21 +12,21 @@ import java.util.Objects;
  */
 public class RedisUserRepeater implements MessageRepeatable {
 
-    private final RedisManager redisManager;
+    private final MessageRepeatable messageRepeatable;
     private final MessageUser messageSender;
 
-    public RedisUserRepeater(RedisManager redisManager, MessageUser messageSender) {
-        this.redisManager = redisManager;
+    public RedisUserRepeater(MessageRepeatable messageRepeatable, MessageUser messageSender) {
+        this.messageRepeatable = messageRepeatable;
         this.messageSender = messageSender;
-        if (this.redisManager == null)
-            throw new IllegalArgumentException("redisManager should not be null");
+        if (this.messageRepeatable == null)
+            throw new IllegalArgumentException("messageRepeatable should not be null");
         if (this.messageSender == null)
             throw new IllegalArgumentException("messageSender should not be null");
     }
 
     @Override
     public void repeat(Message message) {
-        redisManager.repeat(message); // simply delegate to the Redis manager
+        messageRepeatable.repeat(message); // simply delegate to the Redis manager
     }
 
     @Override
@@ -39,12 +39,12 @@ public class RedisUserRepeater implements MessageRepeatable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RedisUserRepeater that = (RedisUserRepeater) o;
-        return redisManager.equals(that.redisManager) &&
+        return messageRepeatable.equals(that.messageRepeatable) &&
                 messageSender.equals(that.messageSender);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(redisManager, messageSender);
+        return Objects.hash(messageRepeatable, messageSender);
     }
 }

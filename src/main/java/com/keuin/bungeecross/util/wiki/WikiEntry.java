@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-public class WikiEntry implements Message {
+public class WikiEntry extends Message {
 
     private static final WikiEntry EMPTY_ENTRY = new WikiEntry(null);
     private static final Logger logger = Logger.getLogger(WikiEntry.class.getName());

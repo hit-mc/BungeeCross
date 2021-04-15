@@ -9,7 +9,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 /**
  * The message sent by a game player.
  */
-public class InGameMessage implements Message {
+public class InGameMessage extends Message {
 
     private final String message;
     private final MessageUser sender;

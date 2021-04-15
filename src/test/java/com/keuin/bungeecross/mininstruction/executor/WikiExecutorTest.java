@@ -24,7 +24,6 @@ public class WikiExecutorTest {
         var msg = repeatable.getMessageList().get(0);
         assertTrue(String.format("Message (len=%d) is too short.", msg.getMessage().length()),
                 msg.getMessage().length() > 10);
-        System.out.println(msg.getMessage());
     }
 
     @Test

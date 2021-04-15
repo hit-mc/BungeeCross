@@ -5,7 +5,6 @@ import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
 import com.keuin.bungeecross.intercommunicate.repeater.LoggableMessageSource;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
-import com.keuin.bungeecross.intercommunicate.repeater.RedisUserRepeater;
 import com.keuin.bungeecross.intercommunicate.user.SimpleRepeatableUser;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
@@ -23,9 +22,9 @@ import java.util.logging.Logger;
  * Receive from Redis server.
  * Send to Minecraft.
  */
-public class RedisReceiverWorker extends Thread implements LoggableMessageSource {
+public class LegacyRedisReceiverWorker extends Thread implements LoggableMessageSource {
 
-    private final Logger logger = Logger.getLogger(RedisReceiverWorker.class.getName());
+    private final Logger logger = Logger.getLogger(LegacyRedisReceiverWorker.class.getName());
 
     private int coolDownMillis = 0;
     private final AtomicBoolean enabled;
@@ -41,7 +40,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
     private final Set<HistoryMessageLogger> loggers = new HashSet<>();
 
 
-    public RedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, MessageRepeatable inBoundMessageDispatcher, RedisManager redisManager) {
+    public LegacyRedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, MessageRepeatable inBoundMessageDispatcher, RedisManager redisManager) {
         this.enabled = enableFlag;
         this.redisConfig = config;
         this.inBoundMessageDispatcher = inBoundMessageDispatcher;
@@ -97,10 +96,7 @@ public class RedisReceiverWorker extends Thread implements LoggableMessageSource
                                                 cmd,
                                                 new SimpleRepeatableUser(
                                                         inboundMessage.getSender(),
-                                                        new RedisUserRepeater(
-                                                                redisManager,
-                                                                inboundMessage.getSender()
-                                                        )
+                                                        redisManager
                                                 )
                                         );
                                     }
