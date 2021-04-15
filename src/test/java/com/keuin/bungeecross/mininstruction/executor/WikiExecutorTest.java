@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.Assert.*;
 
@@ -17,10 +18,11 @@ public class WikiExecutorTest {
         var ctx = new UserContext(new TestableMessageUser("name",
                 UUID.randomUUID(), "id", "location"));
         var wiki = new WikiExecutor();
-        var repeatable = new TestableRepeatable();
+        var que = new LinkedBlockingDeque<>();
+        var repeatable = new TestableRepeatable(msg -> que.add(0));
         wiki.doExecute(ctx, repeatable, new String[]{"圆石"});
-        Thread.sleep(5000);
-        assertEquals(1, repeatable.getMessageList().size());
+        que.takeFirst();
+        assertEquals("No message sent.", 1, repeatable.getMessageList().size());
         var msg = repeatable.getMessageList().get(0);
         assertTrue(String.format("Message (len=%d) is too short.", msg.getMessage().length()),
                 msg.getMessage().length() > 10);

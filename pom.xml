@@ -6,12 +6,12 @@
 
     <groupId>com.keuin</groupId>
     <artifactId>bungeecross</artifactId>
-    <version>1.8.0-pre11+${build.time}.build-${build.number}</version>
+    <version>1.8.0-pre11-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <!-- <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format> -->
 
         <build.manifest.section>Build Details</build.manifest.section>
         <build.unknown>SNAPSHOT</build.unknown>
@@ -39,9 +39,9 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                         </manifest>
-                        <manifestEntries>
+                        <!-- <manifestEntries>
                             <Build-Time>${maven.build.timestamp}</Build-Time>
-                        </manifestEntries>
+                        </manifestEntries> -->
                         <manifestSections>
                             <manifestSection>
                                 <name>${build.manifest.section}</name>
@@ -92,7 +92,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>3.2.0</version>
@@ -110,7 +110,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
         </plugins>
 
         <resources>
@@ -165,21 +165,18 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.9.1</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.13.1</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
