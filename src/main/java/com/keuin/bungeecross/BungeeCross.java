@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
-import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
 import com.keuin.bungeecross.intercommunicate.repeater.CrossServerChatRepeater;
 import com.keuin.bungeecross.intercommunicate.repeater.InGameRedisRelayRepeater;
@@ -66,8 +65,16 @@ public class BungeeCross extends Plugin {
     }
 
     public static String getEndpointName() {
-        return Optional.ofNullable(config.getRedis().getEndpointName())
-                .orElse("<unknownEndpoint:CONFIG_NOT_LOADED>");
+        final var fallback = "<unknownEndpoint:CONFIG_NOT_LOADED>";
+        if (config == null)
+            return fallback;
+
+        var redisConfig = config.getRedis();
+        if (redisConfig == null)
+            return fallback;
+
+        return Optional.ofNullable(redisConfig.getEndpointName())
+                .orElse(fallback);
     }
 
     public static String getTopicId() {

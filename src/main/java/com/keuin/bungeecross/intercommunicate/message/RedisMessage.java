@@ -25,6 +25,13 @@ public class RedisMessage extends Message {
         this.message = MessageUtil.getPlainTextOfBaseComponents(components);
     }
 
+    public RedisMessage(MessageUser sender, BaseComponent[] components, long createTime) {
+        super(createTime);
+        this.sender = sender;
+        this.components = Arrays.copyOf(components, components.length);
+        this.message = MessageUtil.getPlainTextOfBaseComponents(components);
+    }
+
     @Override
     public String getMessage() {
         return message;
