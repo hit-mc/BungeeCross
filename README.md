@@ -8,3 +8,14 @@ What's BungeeCross? **It integrates chatting & messaging among all your bungee s
 - Cross-server chatting integration.
 - Cross-server login/logout message integration.
 - Integrated command system, which is available in both in-game and out-game chatting.
+
+## TODO
+
+- Console commands:
+  + `/bc reload` reload BungeeCross
+  + `/bc disable` disable BungeeCross
+  + `/bc enable` enable BungeeCross
+
+- Code quality:
+  + Refactor code
+  + Improve source code documentation
