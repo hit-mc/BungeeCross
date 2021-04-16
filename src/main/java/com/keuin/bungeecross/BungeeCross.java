@@ -62,19 +62,6 @@ public class BungeeCross extends Plugin {
         return VERSION;
     }
 
-//    public static String getEndpointName() {
-//        final var fallback = "<unknownEndpoint:CONFIG_NOT_LOADED>";
-//        if (config == null)
-//            return fallback;
-//
-//        var redisConfig = config.getRedis();
-//        if (redisConfig == null)
-//            return fallback;
-//
-//        return Optional.ofNullable(redisConfig.getEndpointName())
-//                .orElse(fallback);
-//    }
-
     public static String getBuildTime() {
         return BUILD_TIME;
     }
@@ -84,8 +71,6 @@ public class BungeeCross extends Plugin {
             // get version string
             Properties properties = new Properties();
             properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
-//            VERSION = properties.getProperty("version");
-//            System.out.println(properties.getProperty("artifactId"));
             VERSION = properties.getProperty("version");
             BUILD_TIME = properties.getProperty("build.date");
         } catch (IOException e) {

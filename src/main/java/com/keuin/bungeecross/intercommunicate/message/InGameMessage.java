@@ -47,6 +47,6 @@ public class InGameMessage extends Message {
 
     @Override
     public String toString() {
-        return String.format("<%s> %s", sender.getName(), message);
+        return String.format("<%s> %s", sender, message);
     }
 }

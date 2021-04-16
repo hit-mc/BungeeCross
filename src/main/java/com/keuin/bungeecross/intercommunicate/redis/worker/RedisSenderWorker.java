@@ -116,17 +116,6 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
         }
     }
 
-//        /**
-//         * Send the pending outbound message to the Redis server.
-//         */
-//        private void processPendingMessage() throws InterruptedException {
-//            if (pendingOutboundMessage != null) {
-//                logger.info("Sending pending message " + pendingOutboundMessage.toString());
-//                sendToRedis(pendingOutboundMessage);
-//            }
-//            // otherwise, never mind.
-//        }
-
     private void handleSendQueue() throws InterruptedException {
 //            processPendingMessage(); // process the pending message firstly.
 

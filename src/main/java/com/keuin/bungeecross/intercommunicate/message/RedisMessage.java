@@ -6,6 +6,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class RedisMessage extends Message {
 
@@ -14,22 +15,22 @@ public class RedisMessage extends Message {
     private final BaseComponent[] components;
 
     public RedisMessage(MessageUser sender, String message) {
-        this.sender = sender;
-        this.message = message;
+        this.sender = Objects.requireNonNull(sender);
+        this.message = Objects.requireNonNull(message);
         this.components = null;
     }
 
     public RedisMessage(MessageUser sender, BaseComponent[] components) {
-        this.sender = sender;
-        this.components = Arrays.copyOf(components, components.length);
-        this.message = MessageUtil.getPlainTextOfBaseComponents(components);
+        this.sender = Objects.requireNonNull(sender);
+        this.components = Objects.requireNonNull(Arrays.copyOf(components, components.length));
+        this.message = Objects.requireNonNull(MessageUtil.getPlainTextOfBaseComponents(components));
     }
 
     public RedisMessage(MessageUser sender, BaseComponent[] components, long createTime) {
         super(createTime);
-        this.sender = sender;
-        this.components = Arrays.copyOf(components, components.length);
-        this.message = MessageUtil.getPlainTextOfBaseComponents(components);
+        this.sender = Objects.requireNonNull(sender);
+        this.components = Objects.requireNonNull(Arrays.copyOf(components, components.length));
+        this.message = Objects.requireNonNull(MessageUtil.getPlainTextOfBaseComponents(components));
     }
 
     @Override
@@ -56,6 +57,6 @@ public class RedisMessage extends Message {
 
     @Override
     public String toString() {
-        return String.format("<%s> %s", sender.getName(), message);
+        return String.format("<%s> %s (time=%d)", sender, message, getCreateTime());
     }
 }

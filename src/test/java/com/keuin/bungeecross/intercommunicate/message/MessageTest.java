@@ -31,9 +31,6 @@ public class MessageTest {
         var message = Message.build("message", sender);
         var bson = message.pack2(endpoint);
         var unpacked = Message.unpack(bson);
-//        try (var f = new FileOutputStream("testcase.bson")) {
-//            f.write(bson);
-//        }
         assertEquals(message.getMessage(), unpacked.getMessage());
         assertTrue("packed message contains incorrect sender string",
                 unpacked.getSender().getName().contains(sender));

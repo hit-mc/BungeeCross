@@ -42,17 +42,6 @@ public class Events implements Listener {
         this.playerStateChangeNotification = new PlayerStateChangeNotification(plugin.getProxy());
     }
 
-//    @EventHandler
-//    public void onTargeted(TargetedEvent event) {
-//        if (event.getSender() instanceof Server && event.getReceiver() instanceof ProxiedPlayer) {
-//            Server server = (Server) event.getSender();
-//            ProxiedPlayer player = (ProxiedPlayer) event.getReceiver();
-//
-//            logger.info(event.toString());
-//        }
-//        logger.info("PluginMessage: " + new String(event.getData(), StandardCharsets.UTF_8));
-//    }
-
     @EventHandler
     public void onServerDisconnect(ServerDisconnectEvent event) {
         try {
@@ -100,12 +89,6 @@ public class Events implements Listener {
         ProxyServer proxy = plugin.getProxy();
         ServerInfo server = joiningServers.get(player.getUniqueId());
 
-        // Set custom tab header
-//        player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("actionbar")); // invalid?
-//        player.sendMessage(ChatMessageType.CHAT, new TextComponent("chat"));
-//        player.sendMessage(ChatMessageType.SYSTEM, new TextComponent("system"));
-//        player.setTabHeader(new ComponentBuilder("Test Header 1").color(ChatColor.GOLD).create(), new ComponentBuilder("Test Header 2").color(ChatColor.GOLD).create());
-
         if (!joiningServers.containsKey(event.getPlayer().getUniqueId())) {
             logger.warning(String.format("Unexpected player %s. Login broadcast will not be sent.", event.getPlayer().getName()));
             return;
@@ -114,19 +97,12 @@ public class Events implements Listener {
         // log activity
         activityProvider.logPlayerActivity(InGamePlayer.fromProxiedPlayer(player));
 
-        // build message
-//        TranslatableComponent joinedMessage = new TranslatableComponent("multiplayer.player.joined");
-//        joinedMessage.addWith(player.getName());
-//        logger.info(String.format("Player %s joined server %s.", player, server));
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(250); // to make the message sequence correct: a stupid work-around.
-                } catch (InterruptedException ignored) {
-                }
-                playerStateChangeNotification.notifyPlayerJoinServer(player, server);
+        new Thread(() -> {
+            try {
+                Thread.sleep(250); // to make the message sequence correct: a stupid work-around.
+            } catch (InterruptedException ignored) {
             }
+            playerStateChangeNotification.notifyPlayerJoinServer(player, server);
         }).start();
 
         joiningServers.remove(event.getPlayer().getUniqueId());
@@ -168,23 +144,6 @@ public class Events implements Listener {
 
         logger.info(String.format("Chat message: %s, sender: %s", message, messageUser));
         inGameChatProcessor.issue(new InGameMessage(message, sender));
-
-//        String rel = String.format("Broadcast! user=%s, msg=%s.", sender, message);
-//        BungeeCross.logger.info(rel);
-//        ProxyServer.getInstance().broadcast(new ComponentBuilder(rel).color(ChatColor.RED).create());
-//        ProxyServer proxy = ProxyServer.getInstance();
-//        ProxiedPlayer
-//        assert event.getSender() instanceof ProxiedPlayer;
-//        ProxiedPlayer sender = (ProxiedPlayer)event.getSender();
-//        //        String sender = event.getSender().toString();
-//        ProxyServer proxy = ProxyServer.getInstance();
-//        Map<String, ServerInfo> servers = proxy.getServers();
-//        for (Map.Entry<String, ServerInfo> entry : servers.entrySet()) {
-//            if(!sender.getServer().getInfo().getName().equals(entry.getValue().getName())) {
-////              entry.getValue()
-//            }
-//        }
-//        String message = event.getMessage();
     }
 
 }

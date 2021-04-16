@@ -3,6 +3,7 @@ package com.keuin.bungeecross.intercommunicate.message;
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -10,9 +11,9 @@ class ConcreteMessage extends Message {
     private final String sender;
     private final String message;
 
-    ConcreteMessage(String sender, String message) {
-        this.sender = sender;
-        this.message = message;
+    ConcreteMessage(@NotNull String sender, @NotNull String message) {
+        this.sender = Objects.requireNonNull(sender);
+        this.message = Objects.requireNonNull(message);
     }
 
     @Override
@@ -27,7 +28,7 @@ class ConcreteMessage extends Message {
 
     @Override
     public MessageUser getSender() {
-        return MessageUser.build(sender, sender, sender);
+        return MessageUser.createNameOnlyUser(sender);
     }
 
     @Override

@@ -49,8 +49,6 @@ public class WikiEntry extends Message {
         title = doc.select("h1#firstHeading").text();
 
         // add text into entry
-        //                container.getElementsByTag("p").stream()
-//                        .map(Element::text).forEach(entry.texts::add);
         doc.select(".mw-parser-output")
                 .forEach(container -> container.getAllElements().select("p").stream()
                         .map(Element::text)
