@@ -36,6 +36,6 @@ public class DateUtil {
         if (absOffset.length() == 0)
             return "now";
         else
-            return absOffset.toString() + direction; // e.g. 1m3s ago
+            return absOffset + direction; // e.g. 1m3s ago
     }
 }
