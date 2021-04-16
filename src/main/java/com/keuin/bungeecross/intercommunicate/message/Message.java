@@ -163,10 +163,12 @@ public abstract class Message {
                 )))
                 .append("time", new BsonDateTime(getCreateTime()));
         var codec = new BsonDocumentCodec();
-        var writeBuffer = new BasicOutputBuffer();
-        var writer = new BsonBinaryWriter(writeBuffer);
-        codec.encode(writer, doc, EncoderContext.builder().build());
-        return writeBuffer.getInternalBuffer();
+        try (var writeBuffer = new BasicOutputBuffer();
+             var writer = new BsonBinaryWriter(writeBuffer)) {
+            codec.encode(writer, doc, EncoderContext.builder().build());
+            return Arrays.copyOf(writeBuffer.getInternalBuffer(), writeBuffer.getSize());
+        }
+
     }
 
     public static Message build(String message, String sender) {
