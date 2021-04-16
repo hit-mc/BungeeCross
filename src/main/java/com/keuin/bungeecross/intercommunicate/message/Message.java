@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,7 +67,7 @@ public abstract class Message {
             reader.readStartArray();
             while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
                 // read sub array
-//                reader.readStartArray();
+                reader.readStartArray();
 //                var i = reader.readInt32();
 //                System.out.println("Index: " + i);
                 // we only deal with text messages
@@ -77,7 +78,7 @@ public abstract class Message {
                 } catch (IOException e) {
                     throw new IllegalPackedMessageException("Unsupported message block type: " + messageType, e);
                 }
-//                reader.readEndArray();
+                reader.readEndArray();
             }
             reader.readEndArray();
 
@@ -155,9 +156,11 @@ public abstract class Message {
         var doc = new BsonDocument()
                 .append("endpoint", new BsonString(endpoint))
                 .append("sender", new BsonString(getSender().getName()))
-                .append("msg", new BsonArray(new BsonArray(Arrays.asList(
-                        new BsonInt32(0), new BsonBinary(getMessage().getBytes(StandardCharsets.UTF_8))
-                ))))
+                .append("msg", new BsonArray(Collections.singletonList(
+                        new BsonArray(Arrays.asList(
+                                new BsonInt32(0), new BsonBinary(getMessage().getBytes(StandardCharsets.UTF_8))
+                        ))
+                )))
                 .append("time", new BsonDateTime(getCreateTime()));
         var codec = new BsonDocumentCodec();
         var writeBuffer = new BasicOutputBuffer();
