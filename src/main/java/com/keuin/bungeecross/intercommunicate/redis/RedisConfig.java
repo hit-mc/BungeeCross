@@ -22,6 +22,7 @@ public class RedisConfig {
     private String endpointName;
     private String topicPrefix;
     private final String chatRelayPrefix;
+    private final int maxJoinedMessageCount = 10;
 
     /**
      * Create a config using new protocol.
@@ -114,5 +115,9 @@ public class RedisConfig {
 
     public String getChatRelayPrefix() {
         return chatRelayPrefix;
+    }
+
+    public int getMaxJoinedMessageCount() {
+        return maxJoinedMessageCount;
     }
 }

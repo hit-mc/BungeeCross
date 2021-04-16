@@ -20,7 +20,7 @@ public class BungeeMicroApiTest {
     private final TestableRepeatable testableRepeater = new TestableRepeatable();
     private final int port = (new Random()).nextInt(30000) + 30000;
     private final BungeeMicroApi microApi = new BungeeMicroApi(port, testableRepeater);
-    OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON
             = MediaType.get("application/json; charset=utf-8");
 

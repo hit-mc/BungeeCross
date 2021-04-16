@@ -21,7 +21,8 @@ public class MessageTest {
         Message message = Message.fromRedisRawString("sender||message");
         assertNotNull(message);
         assertEquals(message.getMessage(), "message");
-        assertEquals(message.getSender().getName(), "sender@QQ");
+        assertEquals(message.getSender().getName(), "sender");
+        assertEquals(message.getSender().toString(), "sender@QQ");
     }
 
     @Test
@@ -32,10 +33,8 @@ public class MessageTest {
         var bson = message.pack2(endpoint);
         var unpacked = Message.unpack(bson);
         assertEquals(message.getMessage(), unpacked.getMessage());
-        assertTrue("packed message contains incorrect sender string",
-                unpacked.getSender().getName().contains(sender));
-        assertTrue("packed message contains incorrect sender string",
-                unpacked.getSender().getName().contains(endpoint));
+        assertEquals(sender, unpacked.getSender().getName());
+        assertEquals(endpoint, unpacked.getSender().getLocation());
     }
 
     @Test

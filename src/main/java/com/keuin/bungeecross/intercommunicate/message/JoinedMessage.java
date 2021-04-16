@@ -36,7 +36,7 @@ public class JoinedMessage extends Message {
     }
 
     @Override
-    public boolean isJoinable() {
+    public boolean ifCanBeJoined() {
         return true;
     }
 }

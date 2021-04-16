@@ -5,6 +5,7 @@ import com.keuin.bungeecross.intercommunicate.user.PlayerUser;
 import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -61,8 +62,8 @@ public class InGameCommandEchoRepeater implements RepeatableUser {
     }
 
     @Override
-    public String getName() {
-        return playerUser.getName();
+    public @NotNull String getName() {
+        return Objects.requireNonNull(playerUser.getName());
     }
 
     @Override
@@ -71,8 +72,8 @@ public class InGameCommandEchoRepeater implements RepeatableUser {
     }
 
     @Override
-    public String getId() {
-        return playerUser.getId();
+    public @NotNull String getId() {
+        return Objects.requireNonNull(playerUser.getId());
     }
 
     @Override

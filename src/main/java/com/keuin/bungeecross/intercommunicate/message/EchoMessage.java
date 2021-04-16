@@ -57,7 +57,7 @@ public class EchoMessage extends Message {
     }
 
     @Override
-    public boolean isJoinable() {
+    public boolean ifCanBeJoined() {
         return true;
     }
 }

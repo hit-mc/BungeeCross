@@ -1,5 +1,8 @@
 package com.keuin.bungeecross.intercommunicate.user;
 
+import com.keuin.bungeecross.util.Locations;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,13 +11,13 @@ public class ConsoleUser implements MessageUser {
     private static final String LOCATION = "SERVER";
     private final String instruction;
 
-    ConsoleUser(String instruction) {
-        this.instruction = instruction;
+    ConsoleUser(@NotNull String instruction) {
+        this.instruction = Objects.requireNonNull(instruction);
     }
 
     @Override
-    public String getName() {
-        return String.format("%s@%s", instruction, getLocation());
+    public @NotNull String getName() {
+        return instruction;
     }
 
     @Override
@@ -23,13 +26,18 @@ public class ConsoleUser implements MessageUser {
     }
 
     @Override
-    public String getId() {
+    public @NotNull String getId() {
         return instruction;
     }
 
     @Override
     public String getLocation() {
         return LOCATION;
+    }
+
+    @Override
+    public String toString() {
+        return Locations.locate(LOCATION, instruction);
     }
 
     @Override

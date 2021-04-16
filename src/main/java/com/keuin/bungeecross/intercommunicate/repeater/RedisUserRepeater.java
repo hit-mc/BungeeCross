@@ -1,7 +1,6 @@
 package com.keuin.bungeecross.intercommunicate.repeater;
 
 import com.keuin.bungeecross.intercommunicate.message.Message;
-import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 
 import java.util.Objects;

@@ -37,7 +37,7 @@ public class InGameMessage extends Message {
     }
 
     @Override
-    public boolean isJoinable() {
+    public boolean ifCanBeJoined() {
         return false;
     }
 

@@ -65,8 +65,8 @@ public class HistoryMessage extends Message {
     }
 
     @Override
-    public boolean isJoinable() {
+    public boolean ifCanBeJoined() {
         // May be buggy?
-        return originalMessage.isJoinable();
+        return originalMessage.ifCanBeJoined();
     }
 }

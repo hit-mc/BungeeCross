@@ -2,7 +2,9 @@ package com.keuin.bungeecross.intercommunicate.user;
 
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class SimpleRepeatableUser implements RepeatableUser {
@@ -21,8 +23,8 @@ public class SimpleRepeatableUser implements RepeatableUser {
     }
 
     @Override
-    public String getName() {
-        return user.getName();
+    public @NotNull String getName() {
+        return Objects.requireNonNull(user.getName());
     }
 
     @Override
@@ -31,8 +33,8 @@ public class SimpleRepeatableUser implements RepeatableUser {
     }
 
     @Override
-    public String getId() {
-        return user.getId();
+    public @NotNull String getId() {
+        return Objects.requireNonNull(user.getId());
     }
 
     @Override

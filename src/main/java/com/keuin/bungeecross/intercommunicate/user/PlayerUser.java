@@ -1,6 +1,8 @@
 package com.keuin.bungeecross.intercommunicate.user;
 
+import com.keuin.bungeecross.util.Locations;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -14,9 +16,9 @@ public class PlayerUser implements MessageUser {
     private final String location;
 
     public PlayerUser(String playerName, UUID uuid, String location) {
-        this.playerName = playerName;
-        this.uuid = uuid;
-        this.location = location;
+        this.playerName = Objects.requireNonNull(playerName);
+        this.uuid = Objects.requireNonNull(uuid);
+        this.location = Objects.requireNonNull(location);
     }
 
     public static PlayerUser fromProxiedPlayer(ProxiedPlayer proxiedPlayer) {
@@ -28,31 +30,28 @@ public class PlayerUser implements MessageUser {
     }
 
     @Override
-    public String getId() {
+    public @NotNull String getId() {
         return playerName;
     }
 
     @Override
-    public String getLocation() {
+    public @NotNull String getLocation() {
         return location;
     }
 
     @Override
-    public String getName() {
-        return String.format("%s@%s", playerName, location);
+    public @NotNull String getName() {
+        return playerName;
     }
 
     @Override
-    public UUID getUUID() {
+    public @NotNull UUID getUUID() {
         return uuid;
     }
 
     @Override
     public String toString() {
-        return "MessagePlayer{" +
-                "playerName='" + playerName + '\'' +
-                ", uuid='" + uuid + '\'' +
-                '}';
+        return Locations.locate(location, playerName);
     }
 
     @Override

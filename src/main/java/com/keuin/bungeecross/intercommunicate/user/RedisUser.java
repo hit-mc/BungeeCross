@@ -1,6 +1,8 @@
 package com.keuin.bungeecross.intercommunicate.user;
 
+import com.keuin.bungeecross.util.Locations;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -17,35 +19,36 @@ public class RedisUser implements MessageUser {
         this(userName, userName, "QQ");
     }
 
-    public RedisUser(@NotNull String userName, @NotNull String uniqueId, String location) {
+    public RedisUser(@NotNull String userName, @NotNull String uniqueId, @NotNull String location) {
         this.userName = Objects.requireNonNull(userName);
         this.uniqueId = Objects.requireNonNull(uniqueId);
-        this.location = location;
+        this.location = Objects.requireNonNull(location);
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return userName;
     }
 
     @Override
-    public UUID getUUID() {
+    public @Nullable UUID getUUID() {
         return null;
     }
 
     @Override
-    public String getId() {
+    public @NotNull String getId() {
         return uniqueId;
     }
 
     @Override
-    public String getLocation() {
+    public @NotNull String getLocation() {
         return location;
     }
 
     @Override
     public String toString() {
-        return String.format("%s@%s", getName(), getLocation());
+        var location = getLocation();
+        return Locations.locate(getLocation(), getName());
     }
 
     @Override

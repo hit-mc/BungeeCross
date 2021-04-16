@@ -32,6 +32,11 @@ public interface MessageUser {
             public String getLocation() {
                 return null;
             }
+
+            @Override
+            public String toString() {
+                return name;
+            }
         };
     }
 

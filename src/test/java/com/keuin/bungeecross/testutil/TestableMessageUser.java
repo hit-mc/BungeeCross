@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.testutil;
 
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -44,7 +45,7 @@ public class TestableMessageUser implements MessageUser {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -54,7 +55,7 @@ public class TestableMessageUser implements MessageUser {
     }
 
     @Override
-    public String getId() {
+    public @NotNull String getId() {
         return id;
     }
 

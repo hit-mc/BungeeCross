@@ -31,7 +31,6 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
     private final int joinWaitMillis = 125;
     private final BlockingQueue<Message> sendQueue = new LinkedBlockingQueue<>();
     private final int sendCoolDownMillis = 500;
-    private final int maxJoinedMessageCount = 10;
     private final byte[] topicId;
     private Jedis jedis = null;
 
@@ -120,7 +119,7 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
 //            processPendingMessage(); // process the pending message firstly.
 
         Message firstMessage = sendQueue.take();
-        if (maxJoinedMessageCount > 1 && firstMessage.isJoinable()) {
+        if (redisConfig.getMaxJoinedMessageCount() > 1 && firstMessage.ifCanBeJoined()) {
 
             List<Message> joinList = new ArrayList<>(); // messages should be joined before sent (always contains the first message).
             joinList.add(firstMessage);
@@ -128,13 +127,13 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
             Message tailMessage = null; // the last message that should be sent separately (if has).
 
             // get next messages with max count maxJoinedMessageCount.
-            for (int i = 0; i < maxJoinedMessageCount - 1; ++i) {
+            for (int i = 0; i < redisConfig.getMaxJoinedMessageCount() - 1; ++i) {
                 Message nextMessage = sendQueue.poll(joinWaitMillis, TimeUnit.MILLISECONDS);
                 if (nextMessage == null) {
                     // no more messages
                     // just send the joinList as a single message.
                     break;
-                } else if (!nextMessage.isJoinable() || !nextMessage.getSender().equals(firstMessage.getSender())) {
+                } else if (!nextMessage.ifCanBeJoined() || !nextMessage.getSender().equals(firstMessage.getSender())) {
 
                     // the next message is not join-able.
                     // they have to be sent separately.

@@ -29,7 +29,7 @@ public class CrossServerChatRepeater extends MessageRepeater {
             boolean repeat = true; // whether we should repeat message to this server
             UUID senderUUID = message.getSender().getUUID();
             for (ProxiedPlayer player : server.getPlayers()) {
-                if (player != null && senderUUID.equals(player.getUniqueId())) {
+                if (player != null && Objects.equals(senderUUID, player.getUniqueId())) {
                     repeat = false;
                     break;
                 }

@@ -2,8 +2,6 @@ package com.keuin.bungeecross;
 
 import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 
-import java.util.Objects;
-
 /**
  * Configuration in a class.
  * Immutable.

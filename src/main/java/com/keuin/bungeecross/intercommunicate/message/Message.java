@@ -11,6 +11,7 @@ import org.bson.codecs.BsonDocumentCodec;
 import org.bson.codecs.EncoderContext;
 import org.bson.io.BasicOutputBuffer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -40,7 +41,7 @@ public abstract class Message {
     }
 
     /**
-     * Unserialize BSON packed message.
+     * Deserialize BSON packed message.
      *
      * @param bson the BSON data.
      * @return the message object.
@@ -135,11 +136,21 @@ public abstract class Message {
     public abstract MessageUser getSender();
 
     /**
-     * If the message could be joined with neighbouring messages sent by the same user.
+     * Construct a Message object by raw string from Redis.
      *
-     * @return true if joinable, false if not.
+     * @param rawString the raw string.
+     * @return a Message object. If the raw string is invalid, return null.
      */
-    public abstract boolean isJoinable();
+    public static @Nullable Message fromRedisRawString(String rawString) {
+        Pattern pattern = Pattern.compile("([^|]*)(?:\\|\\|)([\\s\\S]*)");
+        Matcher matcher = pattern.matcher(rawString);
+        if (matcher.matches()) {
+            String sender = matcher.group(1);
+            String body = matcher.group(2);
+            return new RedisMessage(new RedisUser(sender), body);
+        }
+        return null;
+    }
 
     /**
      * Pack message into Redis format.
@@ -152,6 +163,13 @@ public abstract class Message {
     }
 
     /**
+     * If the message could be joined with neighbouring messages sent by the same user.
+     *
+     * @return true if join-able, false if not.
+     */
+    public abstract boolean ifCanBeJoined();
+
+    /**
      * Get new protocol serialized BSON data.
      *
      * @return the BSON bytes array. Do not modify it.
@@ -159,8 +177,8 @@ public abstract class Message {
     public byte[] pack2(String endpoint) {
         Objects.requireNonNull(endpoint);
         var doc = new BsonDocument()
-                .append("endpoint", new BsonString(String.format("%s@%s", getSender().getLocation(), endpoint)))
-                .append("sender", new BsonString(getSender().getName()))
+                .append("endpoint", new BsonString(endpoint))
+                .append("sender", new BsonString(getSender().toString()))
                 .append("msg", new BsonArray(Collections.singletonList(
                         new BsonArray(Arrays.asList(
                                 new BsonInt32(0), new BsonBinary(getMessage().getBytes(StandardCharsets.UTF_8))
@@ -174,23 +192,6 @@ public abstract class Message {
             return Arrays.copyOf(writeBuffer.getInternalBuffer(), writeBuffer.getSize());
         }
 
-    }
-
-    /**
-     * Construct a Message object by raw string from Redis.
-     *
-     * @param rawString the raw string.
-     * @return a Message object. If the raw string is invalid, return null.
-     */
-    public static Message fromRedisRawString(String rawString) {
-        Pattern pattern = Pattern.compile("([^|]*)(?:\\|\\|)([\\s\\S]*)");
-        Matcher matcher = pattern.matcher(rawString);
-        if (matcher.matches()) {
-            String sender = matcher.group(1);
-            String body = matcher.group(2);
-            return new RedisMessage(new RedisUser(sender), body);
-        }
-        return null;
     }
 
     /**
