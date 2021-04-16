@@ -31,13 +31,14 @@ class RedisSubscriber extends BinaryJedisPubSub {
     public void onMessage(byte[] channel, byte[] bson) {
         var channelString = new String(channel, StandardCharsets.UTF_8);
         try {
-            logger.info(String.format("Receive message from topic `%s`.", channelString));
+            logger.info(String.format("Received message from topic `%s`.", channelString));
 
             var message = Message.unpack(bson);
+            logger.info("Unpacked message: " + message);
 
             var messageCreateTime = message.getCreateTime();
-            var timeDelta = Math.abs(Instant.now().toEpochMilli() - messageCreateTime);
-            if (timeDelta > 180 * 1000)
+            var timeDelta = Math.abs(Instant.now().getEpochSecond() - messageCreateTime);
+            if (timeDelta > 180)
                 logger.warning(String.format("Too far UTC timestamp %d. Potentially wrong time?", messageCreateTime));
 
             // TODO: this should not be synchronized, or it will block the jedis pool loop

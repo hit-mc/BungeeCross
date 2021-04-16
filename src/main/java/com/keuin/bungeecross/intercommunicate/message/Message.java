@@ -10,6 +10,7 @@ import org.bson.*;
 import org.bson.codecs.BsonDocumentCodec;
 import org.bson.codecs.EncoderContext;
 import org.bson.io.BasicOutputBuffer;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,7 +28,7 @@ public abstract class Message {
 //    private static final Logger logger = Logger.getLogger("AbstractMessageStaticContext");
 
     public Message() {
-        this.createTime = Instant.now().toEpochMilli();
+        this.createTime = Instant.now().getEpochSecond();
     }
 
     public Message(long createTime) {
@@ -84,7 +85,7 @@ public abstract class Message {
 
             if (isBsonKeyInvalid(reader, "time"))
                 throw new IllegalPackedMessageException("time");
-            var createTime = reader.readDateTime();
+            var createTime = reader.readInt64();
 
             reader.readEndDocument();
 
@@ -122,14 +123,8 @@ public abstract class Message {
      */
     public abstract BaseComponent[] getRichTextMessage();
 
-    /**
-     * Pack message into Redis format.
-     *
-     * @return packed string.
-     */
-    public String pack() {
-        String SPLIT = "||";
-        return String.format("%s%s%s", getSender().getName(), SPLIT, getMessage());
+    public static Message build(@NotNull String message, @NotNull String sender) {
+        return new ConcreteMessage(sender, message);
     }
 
     /**
@@ -147,6 +142,16 @@ public abstract class Message {
     public abstract boolean isJoinable();
 
     /**
+     * Pack message into Redis format.
+     *
+     * @return packed string.
+     */
+    public String pack() {
+        String SPLIT = "||";
+        return String.format("%s%s%s", getSender(), SPLIT, getMessage());
+    }
+
+    /**
      * Get new protocol serialized BSON data.
      *
      * @return the BSON bytes array. Do not modify it.
@@ -154,14 +159,14 @@ public abstract class Message {
     public byte[] pack2(String endpoint) {
         Objects.requireNonNull(endpoint);
         var doc = new BsonDocument()
-                .append("endpoint", new BsonString(endpoint))
+                .append("endpoint", new BsonString(String.format("%s@%s", getSender().getLocation(), endpoint)))
                 .append("sender", new BsonString(getSender().getName()))
                 .append("msg", new BsonArray(Collections.singletonList(
                         new BsonArray(Arrays.asList(
                                 new BsonInt32(0), new BsonBinary(getMessage().getBytes(StandardCharsets.UTF_8))
                         ))
                 )))
-                .append("time", new BsonDateTime(getCreateTime()));
+                .append("time", new BsonInt64(getCreateTime()));
         var codec = new BsonDocumentCodec();
         try (var writeBuffer = new BasicOutputBuffer();
              var writer = new BsonBinaryWriter(writeBuffer)) {
@@ -169,10 +174,6 @@ public abstract class Message {
             return Arrays.copyOf(writeBuffer.getInternalBuffer(), writeBuffer.getSize());
         }
 
-    }
-
-    public static Message build(String message, String sender) {
-        return new ConcreteMessage(sender, message);
     }
 
     /**
@@ -198,7 +199,7 @@ public abstract class Message {
      * @return a BaseComponent[] instance.
      */
     public BaseComponent[] toChatInGameRepeatFormat() {
-        String header = String.format("<%s> ", this.getSender().getName());
+        String header = String.format("<%s> ", this.getSender());
         return new ComponentBuilder()
                 .append(new ComponentBuilder(header).color(ChatColor.LIGHT_PURPLE).create())
                 .append(new ComponentBuilder(this.getMessage()).color(ChatColor.GRAY).create())

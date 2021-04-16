@@ -55,7 +55,7 @@ public class MessageTest {
                                 new BsonInt32(0), new BsonBinary(str.getBytes(StandardCharsets.UTF_8))
                         ))
                 ).collect(Collectors.toList())))
-                .append("time", new BsonDateTime(createTime));
+                .append("time", new BsonInt64(createTime));
         var codec = new BsonDocumentCodec();
         var writeBuffer = new BasicOutputBuffer();
         var writer = new BsonBinaryWriter(writeBuffer);
