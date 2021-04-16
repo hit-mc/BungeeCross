@@ -90,7 +90,7 @@ public abstract class Message {
             // TODO: refactor, create a new class `UnpackedRedisMessage`,
             //  which has a more powerful internal representation
             return new RedisMessage(new RedisUser(sender, sender, endpoint), msgBuilder.create(), createTime);
-        } catch (BsonInvalidOperationException e) {
+        } catch (Exception e) {
             throw new IllegalPackedMessageException("invalid packed message data", e);
         }
     }
