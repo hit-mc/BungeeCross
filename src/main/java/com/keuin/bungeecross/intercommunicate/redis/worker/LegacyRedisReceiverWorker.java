@@ -34,7 +34,7 @@ public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
 
     private final String popQueueName;
     private final int POP_TIMEOUT = 1;
-    private final String redisCommandPrefix = "!";
+    private final String redisCommandPrefix;
     private InstructionDispatcher instructionDispatcher;
 
     private final Set<HistoryMessageLogger> loggers = new HashSet<>();
@@ -45,6 +45,7 @@ public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
         this.inBoundMessageDispatcher = inBoundMessageDispatcher;
         this.popQueueName = config.getPopQueueName();
         this.redisManager = redisManager;
+        this.redisCommandPrefix = config.getRedisCommandPrefix();
     }
 
     public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {

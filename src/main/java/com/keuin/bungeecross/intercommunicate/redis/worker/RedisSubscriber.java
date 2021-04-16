@@ -5,6 +5,7 @@ import redis.clients.jedis.BinaryJedisPubSub;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -42,7 +43,10 @@ class RedisSubscriber extends BinaryJedisPubSub {
             // TODO: this should not be synchronized, or it will block the jedis pool loop
             messageConsumer.accept(message);
         } catch (Message.IllegalPackedMessageException e) {
-            logger.warning(String.format("Cannot decode message from channel %s: %s.", channelString, e.getLocalizedMessage()));
+            logger.warning(String.format("Cannot decode message from channel %s: %s.",
+                    channelString, e.getMessage()));
+            Optional.ofNullable(e.getCause())
+                    .ifPresent(cause -> logger.warning("Reason: " + cause.getMessage()));
         }
     }
 

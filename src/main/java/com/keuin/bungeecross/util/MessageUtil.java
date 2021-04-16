@@ -23,6 +23,7 @@ public class MessageUtil {
     }
 
     public static Message joinMessages(Collection<Message> messages) {
+        // TODO: move this to Message, as a static factory method
         if (messages.isEmpty())
             return null;
         Message firstMessage = messages.toArray(new Message[0])[0];
