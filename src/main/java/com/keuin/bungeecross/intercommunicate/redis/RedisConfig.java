@@ -10,19 +10,18 @@ public class RedisConfig {
     private String host;
     private int port;
     private String password;
-    private String pushQueueName;
-    private String popQueueName;
-    private int maxRetryTimes;
-    private int popTimeoutSeconds;
-    private String redisCommandPrefix;
-    private int sendCoolDownMillis;
-    private boolean sslEnabled;
+    private final String pushQueueName;
+    private final String popQueueName;
+    private final int maxRetryTimes;
+    private final int popTimeoutSeconds;
+    private final String redisCommandPrefix;
+    private final int sendCoolDownMillis;
+    private final boolean sslEnabled;
     private boolean legacyProtocol;
     private String topicId;
     private String endpointName;
     private String topicPrefix;
-    private String commandPrefix;
-    private String chatRelayPrefix;
+    private final String chatRelayPrefix;
 
     /**
      * Create a config using new protocol.
@@ -54,7 +53,6 @@ public class RedisConfig {
         topicId = BungeeCross.generateTopicId();
         endpointName = "noname_endpoint";
         topicPrefix = "bc.";
-        commandPrefix = "!";
         chatRelayPrefix = "";
     }
 
@@ -112,5 +110,9 @@ public class RedisConfig {
 
     public String getTopicPrefix() {
         return topicPrefix;
+    }
+
+    public String getChatRelayPrefix() {
+        return chatRelayPrefix;
     }
 }
