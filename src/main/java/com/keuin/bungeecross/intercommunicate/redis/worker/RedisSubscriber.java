@@ -4,6 +4,7 @@ import com.keuin.bungeecross.intercommunicate.message.Message;
 import redis.clients.jedis.BinaryJedisPubSub;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -34,7 +35,7 @@ class RedisSubscriber extends BinaryJedisPubSub {
             var message = Message.unpack(bson);
 
             var messageCreateTime = message.getCreateTime();
-            var timeDelta = Math.abs(System.currentTimeMillis() - messageCreateTime);
+            var timeDelta = Math.abs(Instant.now().toEpochMilli() - messageCreateTime);
             if (timeDelta > 180 * 1000)
                 logger.warning(String.format("Too far UTC timestamp %d. Potentially wrong time?", messageCreateTime));
 

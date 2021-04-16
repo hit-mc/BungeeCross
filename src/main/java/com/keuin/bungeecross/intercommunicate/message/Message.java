@@ -26,7 +26,7 @@ public abstract class Message {
 //    private static final Logger logger = Logger.getLogger("AbstractMessageStaticContext");
 
     public Message() {
-        this.createTime = Instant.now().getEpochSecond();
+        this.createTime = Instant.now().toEpochMilli();
     }
 
     public Message(long createTime) {
