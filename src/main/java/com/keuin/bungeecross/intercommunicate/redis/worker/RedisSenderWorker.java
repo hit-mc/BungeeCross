@@ -99,7 +99,7 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
                 if (redisConfig.isLegacyProtocol())
                     returnValue = jedis.lpush(pushQueueName, message.pack());
                 else
-                    returnValue = jedis.publish(topicId, message.pack2());
+                    returnValue = jedis.publish(topicId, message.pack2(redisConfig.getEndpointName()));
 //                        pendingOutboundMessage = null;
                 logger.info("Message was sent to Redis server successfully. retval=" + returnValue);
                 return;

@@ -1,6 +1,5 @@
 package com.keuin.bungeecross.intercommunicate.message;
 
-import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import com.keuin.bungeecross.intercommunicate.user.RedisUser;
 import com.keuin.bungeecross.util.SerializedMessages;
@@ -17,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -150,9 +150,10 @@ public abstract class Message {
      *
      * @return the BSON bytes array. Do not modify it.
      */
-    public byte[] pack2() {
+    public byte[] pack2(String endpoint) {
+        Objects.requireNonNull(endpoint);
         var doc = new BsonDocument()
-                .append("endpoint", new BsonString(BungeeCross.getEndpointName()))
+                .append("endpoint", new BsonString(endpoint))
                 .append("sender", new BsonString(getSender().getName()))
                 .append("msg", new BsonArray(new BsonArray(Arrays.asList(
                         new BsonInt32(0), new BsonBinary(getMessage().getBytes(StandardCharsets.UTF_8))

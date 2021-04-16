@@ -16,11 +16,15 @@ public class MessageTest {
 
     @Test
     public void testMessagePackBSON() throws Message.IllegalPackedMessageException {
-        var message = Message.build("message", "sender");
-        var bson = message.pack2();
+        var endpoint = "test-endpoint";
+        var sender = "message_sender";
+        var message = Message.build("message", sender);
+        var bson = message.pack2(endpoint);
         var unpacked = Message.unpack(bson);
         assertEquals(message.getMessage(), unpacked.getMessage());
         assertTrue("packed message contains incorrect sender string",
-                unpacked.getSender().getName().contains(message.getSender().getName()));
+                unpacked.getSender().getName().contains(sender));
+        assertTrue("packed message contains incorrect sender string",
+                unpacked.getSender().getName().contains(endpoint));
     }
 }
