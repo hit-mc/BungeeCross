@@ -1,6 +1,5 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
-import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
@@ -42,8 +41,11 @@ public class RedisSenderWorker extends Thread implements MessageRepeatable {
         this.pushQueueName = redisConfig.getPushQueueName();
         if (redisConfig.isLegacyProtocol())
             topicId = new byte[0];
-        else
-            topicId = (BungeeCross.topicPrefix + redisConfig.getTopicId()).getBytes(StandardCharsets.UTF_8);
+        else {
+            var topicString = (redisConfig.getTopicPrefix() + redisConfig.getTopicId());
+            topicId = topicString.getBytes(StandardCharsets.UTF_8);
+            logger.info(String.format("Set sender topic id to `%s`.", topicString));
+        }
     }
 
 

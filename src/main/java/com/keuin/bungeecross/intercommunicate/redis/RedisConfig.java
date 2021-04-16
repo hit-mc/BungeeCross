@@ -7,19 +7,35 @@ import com.keuin.bungeecross.BungeeCross;
  * Immutable.
  */
 public class RedisConfig {
-    private final String host;
-    private final int port;
-    private final String password;
-    private final String pushQueueName;
-    private final String popQueueName;
-    private final int maxRetryTimes;
-    private final int popTimeoutSeconds;
-    private final String redisCommandPrefix;
-    private final int sendCoolDownMillis;
-    private final boolean sslEnabled;
-    private final boolean legacyProtocol;
-    private final String topicId;
-    private final String endpointName;
+    private String host;
+    private int port;
+    private String password;
+    private String pushQueueName;
+    private String popQueueName;
+    private int maxRetryTimes;
+    private int popTimeoutSeconds;
+    private String redisCommandPrefix;
+    private int sendCoolDownMillis;
+    private boolean sslEnabled;
+    private boolean legacyProtocol;
+    private String topicId;
+    private String endpointName;
+    private String topicPrefix;
+
+    /**
+     * Create a config using new protocol.
+     */
+    public RedisConfig(String host, int port, String password,
+                       String topicId, String endpointName, String topicPrefix) {
+        this();
+        this.host = host;
+        this.port = port;
+        this.password = password;
+        this.topicId = topicId;
+        this.endpointName = endpointName;
+        this.legacyProtocol = false;
+        this.topicPrefix = topicPrefix;
+    }
 
     public RedisConfig() {
         host = "";
@@ -35,6 +51,7 @@ public class RedisConfig {
         legacyProtocol = true;
         topicId = BungeeCross.generateTopicId();
         endpointName = "noname_endpoint";
+        topicPrefix = "bc.";
     }
 
     public String getHost() {
@@ -87,5 +104,9 @@ public class RedisConfig {
 
     public String getEndpointName() {
         return endpointName;
+    }
+
+    public String getTopicPrefix() {
+        return topicPrefix;
     }
 }
