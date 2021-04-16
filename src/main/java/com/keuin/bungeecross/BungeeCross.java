@@ -74,7 +74,7 @@ public class BungeeCross extends Plugin {
             VERSION = properties.getProperty("version");
             BUILD_TIME = properties.getProperty("build.date");
         } catch (IOException e) {
-            logger.warning("Failed to get version string: " + e);
+            logger.warning("Failed to get version string: " + e.getMessage());
         }
     }
 
