@@ -35,8 +35,10 @@ public class RedisManager implements com.keuin.bungeecross.intercommunicate.repe
 
         this.instructionDispatcher = Objects.requireNonNull(instructionDispatcher);
         this.senderWorker = new RedisSenderWorker(redisConfig, enabled);
-        this.inboundMessageHandler = new InboundMessageHandler(instructionDispatcher, inBoundMessageDispatcher,
-                this.senderWorker, redisConfig.getRedisCommandPrefix());
+        this.inboundMessageHandler = new InboundMessageHandler(
+                instructionDispatcher, inBoundMessageDispatcher,
+                this.senderWorker, redisConfig.getRedisCommandPrefix(),
+                redisConfig.getChatRelayPrefix());
 
         if (redisConfig.isLegacyProtocol()) {
             var legacyReceiver = new LegacyRedisReceiverWorker(
