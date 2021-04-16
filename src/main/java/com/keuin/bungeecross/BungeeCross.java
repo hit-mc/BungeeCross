@@ -36,8 +36,6 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class BungeeCross extends Plugin {
 
-    public static String topicPrefix = "bc_";
-
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
     private static String VERSION = "";
     private static String BUILD_TIME = "";
@@ -64,24 +62,18 @@ public class BungeeCross extends Plugin {
         return VERSION;
     }
 
-    public static String getEndpointName() {
-        final var fallback = "<unknownEndpoint:CONFIG_NOT_LOADED>";
-        if (config == null)
-            return fallback;
-
-        var redisConfig = config.getRedis();
-        if (redisConfig == null)
-            return fallback;
-
-        return Optional.ofNullable(redisConfig.getEndpointName())
-                .orElse(fallback);
-    }
-
-    public static String getTopicId() {
-        var id = config.getRedis().getTopicId();
-        assert id != null;
-        return id;
-    }
+//    public static String getEndpointName() {
+//        final var fallback = "<unknownEndpoint:CONFIG_NOT_LOADED>";
+//        if (config == null)
+//            return fallback;
+//
+//        var redisConfig = config.getRedis();
+//        if (redisConfig == null)
+//            return fallback;
+//
+//        return Optional.ofNullable(redisConfig.getEndpointName())
+//                .orElse(fallback);
+//    }
 
     public static String getBuildTime() {
         return BUILD_TIME;
