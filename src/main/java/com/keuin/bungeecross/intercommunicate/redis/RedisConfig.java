@@ -21,6 +21,8 @@ public class RedisConfig {
     private String topicId;
     private String endpointName;
     private String topicPrefix;
+    private String commandPrefix;
+    private String chatRelayPrefix;
 
     /**
      * Create a config using new protocol.
@@ -52,6 +54,8 @@ public class RedisConfig {
         topicId = BungeeCross.generateTopicId();
         endpointName = "noname_endpoint";
         topicPrefix = "bc.";
+        commandPrefix = "!";
+        chatRelayPrefix = "";
     }
 
     public String getHost() {

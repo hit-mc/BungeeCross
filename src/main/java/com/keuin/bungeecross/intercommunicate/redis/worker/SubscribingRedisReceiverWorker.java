@@ -1,9 +1,7 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
+import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
-import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
-import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
-import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
@@ -13,7 +11,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class SubscribingRedisReceiverWorker extends AbstractRedisReceiver {
@@ -22,11 +20,10 @@ public class SubscribingRedisReceiverWorker extends AbstractRedisReceiver {
     private final Set<HistoryMessageLogger> loggers = Collections.newSetFromMap(new IdentityHashMap<>());
     private final RedisSubscriber subscriber;
     private final RedisConfig redisConfig;
-    private InstructionDispatcher instructionDispatcher;
 
-    public SubscribingRedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig redisConfig,
-                                          MessageRepeatable inBoundMessageDispatcher, RedisManager redisManager) {
-        this.subscriber = new RedisSubscriber(inBoundMessageDispatcher::repeat,
+    public SubscribingRedisReceiverWorker(RedisConfig redisConfig,
+                                          Consumer<Message> inboundMessageHandler) {
+        this.subscriber = new RedisSubscriber(inboundMessageHandler,
                 topic -> !Objects.equals(new String(topic, StandardCharsets.UTF_8),
                         redisConfig.getTopicPrefix() + redisConfig.getTopicId()));
         this.redisConfig = redisConfig;
@@ -53,10 +50,5 @@ public class SubscribingRedisReceiverWorker extends AbstractRedisReceiver {
     @Override
     public void registerHistoryLogger(HistoryMessageLogger historyMessageLogger) {
         this.loggers.add(historyMessageLogger);
-    }
-
-    @Override
-    public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
-        this.instructionDispatcher = instructionDispatcher;
     }
 }

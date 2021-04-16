@@ -34,6 +34,7 @@ public class SubscribingRedisReceiverWorkerTest {
             config = (new Gson()).fromJson(configReader, TestConfig.class);
             if (config.host == null)
                 throw new RuntimeException();
+            logger.info(config.toString());
         } catch (NoSuchFileException | RuntimeException e) {
             fail("Please configure your test Redis server in `test_config.json`" +
                     "according to `TestConfig.java`.");
@@ -69,7 +70,7 @@ public class SubscribingRedisReceiverWorkerTest {
         };
         logger.info("starting sender and receiver...");
 
-        var receiveWorker = new SubscribingRedisReceiverWorker(flg, receiverConfig, receiver, null);
+        var receiveWorker = new SubscribingRedisReceiverWorker(receiverConfig, receiver::repeat);
         var sendWorker = new RedisSenderWorker(senderConfig, flg);
         sendWorker.start();
         receiveWorker.start();
@@ -109,7 +110,7 @@ public class SubscribingRedisReceiverWorkerTest {
         };
         logger.info("starting sender and receiver...");
 
-        var receiveWorker = new SubscribingRedisReceiverWorker(flg, senderConfig, receiver, null);
+        var receiveWorker = new SubscribingRedisReceiverWorker(senderConfig, receiver::repeat);
         var sendWorker = new RedisSenderWorker(senderConfig, flg);
         sendWorker.start();
         receiveWorker.start();

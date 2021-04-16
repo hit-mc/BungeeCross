@@ -21,6 +21,7 @@ import java.util.logging.Logger;
  * Receive from Redis server.
  * Send to Minecraft.
  */
+@Deprecated
 public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
 
     private final Logger logger = Logger.getLogger(LegacyRedisReceiverWorker.class.getName());
@@ -38,7 +39,6 @@ public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
 
     private final Set<HistoryMessageLogger> loggers = new HashSet<>();
 
-
     public LegacyRedisReceiverWorker(AtomicBoolean enableFlag, RedisConfig config, MessageRepeatable inBoundMessageDispatcher, RedisManager redisManager) {
         this.enabled = enableFlag;
         this.redisConfig = config;
@@ -47,7 +47,6 @@ public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
         this.redisManager = redisManager;
     }
 
-    @Override
     public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
         this.instructionDispatcher = instructionDispatcher;
     }
@@ -71,6 +70,7 @@ public class LegacyRedisReceiverWorker extends AbstractRedisReceiver {
                                 continue;
                             }
 
+                            // TODO: refactor this to use {@link InboundMessageHandler}
                             for (String rawSting : list) {
                                 Message inboundMessage = Message.fromRedisRawString(rawSting);
                                 if (inboundMessage != null) {

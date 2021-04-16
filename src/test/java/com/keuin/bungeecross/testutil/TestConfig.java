@@ -16,4 +16,13 @@ public class TestConfig {
         port = -1;
         password = "";
     }
+
+    @Override
+    public String toString() {
+        return "TestConfig{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

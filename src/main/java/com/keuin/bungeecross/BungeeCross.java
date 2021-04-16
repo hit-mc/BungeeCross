@@ -119,7 +119,7 @@ public class BungeeCross extends Plugin {
             crossServerChatRepeater = new CrossServerChatRepeater(proxyServer);
             inGameRedisRelayRepeater = new InGameRedisRelayRepeater(proxyServer);
 
-            redisManager = new RedisManager(config.getRedis(), inGameRedisRelayRepeater);
+            redisManager = new RedisManager(config.getRedis(), inGameRedisRelayRepeater, instructionDispatcher);
 
             File file = new File(activityPersistenceFileName);
             if (!file.exists()) {
@@ -130,9 +130,9 @@ public class BungeeCross extends Plugin {
                 activityProvider = new ActivityProvider(activityPersistenceFileName);
             }
 
-            interpreter = new MinInstructionInterpreter(redisManager, this, activityProvider, proxyServer);
+            interpreter = new MinInstructionInterpreter(this, activityProvider, proxyServer);
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
-            redisManager.setInstructionDispatcher(instructionDispatcher);
+//            redisManager.setInstructionDispatcher(instructionDispatcher);
             inGameChatProcessor = new InGameChatHandler(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater, redisManager, instructionDispatcher);
             recentMessageManager = new ConcreteRecentMessageManager();
 

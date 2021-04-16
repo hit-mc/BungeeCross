@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.intercommunicate.redis;
 
 import com.keuin.bungeecross.intercommunicate.message.Message;
+import com.keuin.bungeecross.intercommunicate.msghandler.InboundMessageHandler;
 import com.keuin.bungeecross.intercommunicate.redis.worker.AbstractRedisReceiver;
 import com.keuin.bungeecross.intercommunicate.redis.worker.LegacyRedisReceiverWorker;
 import com.keuin.bungeecross.intercommunicate.redis.worker.RedisSenderWorker;
@@ -23,21 +24,27 @@ public class RedisManager implements com.keuin.bungeecross.intercommunicate.repe
     private final Logger logger = Logger.getLogger(RedisManager.class.getName());
 
     private final AtomicBoolean enabled = new AtomicBoolean(true);
+    private final InboundMessageHandler inboundMessageHandler;
+    private final InstructionDispatcher instructionDispatcher;
 
     private final RedisSenderWorker senderWorker;
     private final AbstractRedisReceiver receiverWorker;
 
-    public RedisManager(RedisConfig redisConfig, MessageRepeatable inBoundMessageDispatcher) {
+    public RedisManager(RedisConfig redisConfig, MessageRepeatable inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher) {
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
 
+        this.instructionDispatcher = Objects.requireNonNull(instructionDispatcher);
         this.senderWorker = new RedisSenderWorker(redisConfig, enabled);
+        this.inboundMessageHandler = new InboundMessageHandler(instructionDispatcher, inBoundMessageDispatcher,
+                this.senderWorker, redisConfig.getRedisCommandPrefix());
 
         if (redisConfig.isLegacyProtocol()) {
-            this.receiverWorker = new LegacyRedisReceiverWorker(
+            var legacyReceiver = new LegacyRedisReceiverWorker(
                     enabled, redisConfig, inBoundMessageDispatcher, this);
+            legacyReceiver.setInstructionDispatcher(instructionDispatcher);
+            this.receiverWorker = legacyReceiver;
         } else {
-            this.receiverWorker = new SubscribingRedisReceiverWorker(
-                    enabled, redisConfig, inBoundMessageDispatcher, this);
+            this.receiverWorker = new SubscribingRedisReceiverWorker(redisConfig, inboundMessageHandler);
         }
     }
 
@@ -78,10 +85,6 @@ public class RedisManager implements com.keuin.bungeecross.intercommunicate.repe
     @Override
     public void repeat(Message message) {
         senderWorker.repeat(message);
-    }
-
-    public void setInstructionDispatcher(InstructionDispatcher instructionDispatcher) {
-        this.receiverWorker.setInstructionDispatcher(instructionDispatcher);
     }
 
     @Override

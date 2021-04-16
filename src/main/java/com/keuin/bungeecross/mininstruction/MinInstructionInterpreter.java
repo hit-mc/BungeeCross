@@ -2,7 +2,6 @@ package com.keuin.bungeecross.mininstruction;
 
 import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.intercommunicate.message.EchoMessage;
-import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
 import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
 import com.keuin.bungeecross.mininstruction.executor.*;
@@ -23,8 +22,6 @@ public class MinInstructionInterpreter {
     private static final int MAX_COMMAND_LINE_LENGTH = 20;
     private static final String defaultName = "MinInst";
 
-
-    private final RedisManager redisManager;
     private final Plugin plugin;
     private final ActivityProvider activityProvider;
     private final ProxyServer proxyServer;
@@ -32,8 +29,7 @@ public class MinInstructionInterpreter {
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
     private final InterpreterContext context = new InterpreterContext(); // providing persistent context across executions
 
-    public MinInstructionInterpreter(RedisManager redisManager, Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer) {
-        this.redisManager = redisManager;
+    public MinInstructionInterpreter(Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer) {
         this.plugin = plugin;
         this.activityProvider = activityProvider;
         this.proxyServer = proxyServer;
@@ -48,7 +44,7 @@ public class MinInstructionInterpreter {
         Arrays.asList(
                 new ListExecutor().withContext(context),
                 new ReloadExecutor(plugin).withContext(context),
-                new StatExecutor(redisManager).withContext(context),
+//                new StatExecutor(redisManager).withContext(context),
                 new HistoryExecutor(activityProvider, proxyServer).withContext(context),
                 new WikiExecutor().withContext(context),
                 new UpExecutor(proxyServer).withContext(context)
