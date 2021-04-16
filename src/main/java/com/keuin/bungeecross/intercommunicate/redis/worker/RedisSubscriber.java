@@ -46,7 +46,10 @@ class RedisSubscriber extends BinaryJedisPubSub {
             logger.warning(String.format("Cannot decode message from channel %s: %s.",
                     channelString, e.getMessage()));
             Optional.ofNullable(e.getCause())
-                    .ifPresent(cause -> logger.warning("Reason: " + cause.getMessage()));
+                    .ifPresent(cause -> {
+                        logger.warning("Reason: " + cause.getMessage());
+                        cause.printStackTrace();
+                    });
         }
     }
 
