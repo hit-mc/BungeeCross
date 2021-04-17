@@ -1,8 +1,8 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
 import com.google.gson.Gson;
+import com.keuin.bungeecross.config.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
-import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.testutil.TestConfig;
 import org.junit.Before;

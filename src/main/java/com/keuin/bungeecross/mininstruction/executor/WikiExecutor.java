@@ -3,17 +3,21 @@ package com.keuin.bungeecross.mininstruction.executor;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.intercommunicate.user.MessageUserFactory;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
-import com.keuin.bungeecross.util.wiki.WikiFetcher;
+import com.keuin.bungeecross.wiki.WikiFetcher;
 
+import java.net.Proxy;
+import java.util.Objects;
 import java.util.Optional;
 
 public class WikiExecutor extends AbstractInstructionExecutor {
 
     private static final String instruction = "wiki";
+    private final WikiFetcher fetcher;
 
-    public WikiExecutor() {
-        // TODO
+    public WikiExecutor(Proxy proxy) {
         super(instruction, "search Minecraft wiki with ease.", new String[0]);
+        Objects.requireNonNull(proxy);
+        this.fetcher = new WikiFetcher(proxy);
     }
 
     @Override
@@ -28,7 +32,7 @@ public class WikiExecutor extends AbstractInstructionExecutor {
             echo(echoRepeater, "Invalid parameter.");
             return ExecutionResult.FAILED;
         }
-        WikiFetcher.fetchEntry(
+        fetcher.fetchEntry(
                 params[0],
                 echoRepeater::repeat,
                 exception -> echo(echoRepeater, Optional.ofNullable(exception.getLocalizedMessage()).orElse(exception.toString())),

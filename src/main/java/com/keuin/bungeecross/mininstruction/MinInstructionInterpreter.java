@@ -13,9 +13,11 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.net.Proxy;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class MinInstructionInterpreter {
 
@@ -28,11 +30,13 @@ public class MinInstructionInterpreter {
 
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
     private final InterpreterContext context = new InterpreterContext(); // providing persistent context across executions
+    private final Proxy internetProxy;
 
-    public MinInstructionInterpreter(Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer) {
+    public MinInstructionInterpreter(Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer, Proxy internetProxy) {
         this.plugin = plugin;
         this.activityProvider = activityProvider;
         this.proxyServer = proxyServer;
+        this.internetProxy = Optional.ofNullable(internetProxy).orElse(Proxy.NO_PROXY);
         registerInstructions();
     }
 
@@ -46,7 +50,7 @@ public class MinInstructionInterpreter {
                 new ReloadExecutor(plugin).withContext(context),
 //                new StatExecutor(redisManager).withContext(context),
                 new HistoryExecutor(activityProvider, proxyServer).withContext(context),
-                new WikiExecutor().withContext(context),
+                new WikiExecutor(internetProxy).withContext(context),
                 new UpExecutor(proxyServer).withContext(context)
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }

@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.util.wiki;
+package com.keuin.bungeecross.wiki;
 
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;

@@ -1,6 +1,4 @@
-package com.keuin.bungeecross;
-
-import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
+package com.keuin.bungeecross.config;
 
 /**
  * Configuration in a class.
@@ -10,10 +8,12 @@ public class BungeeCrossConfig {
 
     private final RedisConfig redis;
     private final int microApiPort;
+    private final ProxyConfig proxy;
 
     public BungeeCrossConfig() {
         this.redis = new RedisConfig();
         this.microApiPort = 7000;
+        this.proxy = new ProxyConfig();
     }
 
     public RedisConfig getRedis() {
@@ -24,4 +24,7 @@ public class BungeeCrossConfig {
         return microApiPort;
     }
 
+    public ProxyConfig getProxy() {
+        return proxy;
+    }
 }

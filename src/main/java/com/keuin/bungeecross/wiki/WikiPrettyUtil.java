@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.util.wiki;
+package com.keuin.bungeecross.wiki;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

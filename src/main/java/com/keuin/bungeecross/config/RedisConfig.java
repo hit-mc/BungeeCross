@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.intercommunicate.redis;
+package com.keuin.bungeecross.config;
 
 import com.keuin.bungeecross.BungeeCross;
 

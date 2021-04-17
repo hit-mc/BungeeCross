@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.util;
 
-import com.keuin.bungeecross.util.wiki.WikiFetcher;
+import com.keuin.bungeecross.wiki.WikiFetcher;
 import org.junit.Test;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -14,7 +14,7 @@ public class WikiFetcherTest {
     @Test
     public void testWiki() throws InterruptedException {
         final var queue = new LinkedBlockingDeque<>();
-        WikiFetcher.fetchEntry("远古守卫者", wikiEntry -> {
+        new WikiFetcher().fetchEntry("远古守卫者", wikiEntry -> {
             for (String s : wikiEntry.getTexts()) {
                 logger.info(s);
             }

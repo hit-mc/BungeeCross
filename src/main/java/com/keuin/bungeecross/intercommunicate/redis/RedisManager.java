@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.intercommunicate.redis;
 
+import com.keuin.bungeecross.config.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.msghandler.InboundMessageHandler;
 import com.keuin.bungeecross.intercommunicate.redis.worker.AbstractRedisReceiver;

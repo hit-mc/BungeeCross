@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
+import com.keuin.bungeecross.config.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
-import com.keuin.bungeecross.intercommunicate.redis.RedisConfig;
 import com.keuin.bungeecross.recentmsg.HistoryMessageLogger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;

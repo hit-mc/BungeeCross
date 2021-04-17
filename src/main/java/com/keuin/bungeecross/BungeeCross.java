@@ -3,6 +3,7 @@ package com.keuin.bungeecross;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.keuin.bungeecross.config.BungeeCrossConfig;
 import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
 import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
 import com.keuin.bungeecross.intercommunicate.repeater.CrossServerChatRepeater;
@@ -113,7 +114,8 @@ public class BungeeCross extends Plugin {
                 activityProvider = new ActivityProvider(activityPersistenceFileName);
             }
 
-            interpreter = new MinInstructionInterpreter(this, activityProvider, proxyServer);
+            interpreter = new MinInstructionInterpreter(this, activityProvider, proxyServer,
+                    config.getProxy().getProxy());
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
 //            redisManager.setInstructionDispatcher(instructionDispatcher);
             redisManager = new RedisManager(config.getRedis(), inGameRedisRelayRepeater, instructionDispatcher);

@@ -1,10 +1,11 @@
-package com.keuin.bungeecross.util.wiki;
+package com.keuin.bungeecross.wiki;
 
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -16,13 +17,22 @@ import java.util.logging.Logger;
  */
 public class WikiFetcher {
 
-    private static final Logger logger = Logger.getLogger(WikiFetcher.class.getName());
-    private static final OkHttpClient client = new OkHttpClient();
+    private final Logger logger = Logger.getLogger(WikiFetcher.class.getName());
+    private final OkHttpClient client;
 
-    private static final ConcurrentMap<String, WikiEntry> cache = new ConcurrentHashMap<>();
-    private static final Set<String> cachedInvalidKeywords = Collections.synchronizedSet(new HashSet<>());
+    private final ConcurrentMap<String, WikiEntry> cache = new ConcurrentHashMap<>();
+    private final Set<String> cachedInvalidKeywords = Collections.synchronizedSet(new HashSet<>());
 
-    public static void fetchEntry(String keyword, Consumer<WikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
+    public WikiFetcher() {
+        client = new OkHttpClient();
+    }
+
+    public WikiFetcher(Proxy proxy) {
+        Objects.requireNonNull(proxy);
+        client = new OkHttpClient.Builder().proxy(proxy).build();
+    }
+
+    public void fetchEntry(String keyword, Consumer<WikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
         var url = String.format("https://minecraft.fandom.com/zh/wiki/%s", keyword);
         var request = new Request.Builder().url(url).build();
         var cachedEntry = cache.get(keyword);
