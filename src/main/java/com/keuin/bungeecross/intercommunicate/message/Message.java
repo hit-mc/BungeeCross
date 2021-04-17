@@ -3,43 +3,19 @@ package com.keuin.bungeecross.intercommunicate.message;
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import com.keuin.bungeecross.intercommunicate.user.RedisUser;
 import com.keuin.bungeecross.util.SerializedMessages;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import org.bson.*;
-import org.bson.codecs.BsonDocumentCodec;
-import org.bson.codecs.EncoderContext;
-import org.bson.io.BasicOutputBuffer;
+import org.bson.BsonBinaryReader;
+import org.bson.BsonType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Message {
-
-    private final long createTime;
-//    private static final Logger logger = Logger.getLogger("AbstractMessageStaticContext");
-
-    public Message() {
-        this.createTime = Instant.now().getEpochSecond();
-    }
-
-    public Message(long createTime) {
-        this.createTime = createTime;
-    }
-
-    public long getCreateTime() {
-        return createTime;
-    }
-
+public interface Message {
     /**
      * Deserialize BSON packed message.
      *
@@ -47,7 +23,7 @@ public abstract class Message {
      * @return the message object.
      * @throws IllegalPackedMessageException if the message data is not valid.
      */
-    public static Message unpack(byte[] bson) throws IllegalPackedMessageException {
+    static Message unpack(byte[] bson) throws IllegalPackedMessageException {
         try {
             var reader = new BsonBinaryReader(ByteBuffer.wrap(bson));
 
@@ -105,35 +81,14 @@ public abstract class Message {
      * @param keyName expected key.
      * @return if the key name equals to what is expected.
      */
-    private static boolean isBsonKeyInvalid(BsonBinaryReader reader, String keyName) {
+    static boolean isBsonKeyInvalid(BsonBinaryReader reader, String keyName) {
         var name = reader.readName();
         return !keyName.equals(name);
     }
 
-    /**
-     * Get the message in pure text formatting.
-     *
-     * @return the pure text message.
-     */
-    public abstract String getMessage();
-
-    /**
-     * Get the message in minecraft rich text formatting.
-     *
-     * @return the rich text message.
-     */
-    public abstract BaseComponent[] getRichTextMessage();
-
-    public static Message build(@NotNull String message, @NotNull String sender) {
+    static Message build(@NotNull String message, @NotNull String sender) {
         return new ConcreteMessage(sender, message);
     }
-
-    /**
-     * Get the sender of this message.
-     *
-     * @return the sender.
-     */
-    public abstract MessageUser getSender();
 
     /**
      * Construct a Message object by raw string from Redis.
@@ -141,7 +96,7 @@ public abstract class Message {
      * @param rawString the raw string.
      * @return a Message object. If the raw string is invalid, return null.
      */
-    public static @Nullable Message fromRedisRawString(String rawString) {
+    static @Nullable Message fromRedisRawString(String rawString) {
         Pattern pattern = Pattern.compile("([^|]*)(?:\\|\\|)([\\s\\S]*)");
         Matcher matcher = pattern.matcher(rawString);
         if (matcher.matches()) {
@@ -152,60 +107,41 @@ public abstract class Message {
         return null;
     }
 
+    long getCreateTime();
+
     /**
-     * Pack message into Redis format.
+     * Get the message in pure text formatting.
      *
-     * @return packed string.
+     * @return the pure text message.
      */
-    public String pack() {
-        String SPLIT = "||";
-        return String.format("%s%s%s", getSender(), SPLIT, getMessage());
-    }
+    String getMessage();
+
+    /**
+     * Get the message in minecraft rich text formatting.
+     *
+     * @return the rich text message.
+     */
+    BaseComponent[] getRichTextMessage();
+
+    /**
+     * Get the sender of this message.
+     *
+     * @return the sender.
+     */
+    MessageUser getSender();
+
+    String pack();
 
     /**
      * If the message could be joined with neighbouring messages sent by the same user.
      *
      * @return true if join-able, false if not.
      */
-    public abstract boolean ifCanBeJoined();
+    boolean ifCanBeJoined();
 
-    /**
-     * Get new protocol serialized BSON data.
-     *
-     * @return the BSON bytes array. Do not modify it.
-     */
-    public byte[] pack2(String endpoint) {
-        Objects.requireNonNull(endpoint);
-        var doc = new BsonDocument()
-                .append("endpoint", new BsonString(endpoint))
-                .append("sender", new BsonString(getSender().toString()))
-                .append("msg", new BsonArray(Collections.singletonList(
-                        new BsonArray(Arrays.asList(
-                                new BsonInt32(0), new BsonBinary(getMessage().getBytes(StandardCharsets.UTF_8))
-                        ))
-                )))
-                .append("time", new BsonInt64(getCreateTime()));
-        var codec = new BsonDocumentCodec();
-        try (var writeBuffer = new BasicOutputBuffer();
-             var writer = new BsonBinaryWriter(writeBuffer)) {
-            codec.encode(writer, doc, EncoderContext.builder().build());
-            return Arrays.copyOf(writeBuffer.getInternalBuffer(), writeBuffer.getSize());
-        }
+    byte[] pack2(String endpoint);
 
-    }
-
-    /**
-     * Convert the message into BaseComponent[], which can be sent to the game by player.sendMessage directly.
-     *
-     * @return a BaseComponent[] instance.
-     */
-    public BaseComponent[] toChatInGameRepeatFormat() {
-        String header = String.format("<%s> ", this.getSender());
-        return new ComponentBuilder()
-                .append(new ComponentBuilder(header).color(ChatColor.LIGHT_PURPLE).create())
-                .append(new ComponentBuilder(this.getMessage()).color(ChatColor.GRAY).create())
-                .create();
-    }
+    BaseComponent[] toChatInGameRepeatFormat();
 
     public static class IllegalPackedMessageException extends Exception {
         public IllegalPackedMessageException() {

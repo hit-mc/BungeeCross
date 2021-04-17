@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
+import com.keuin.bungeecross.intercommunicate.message.FixedTimeMessage;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import redis.clients.jedis.BinaryJedisPubSub;
 
@@ -43,7 +44,7 @@ class RedisSubscriber extends BinaryJedisPubSub {
 
             // TODO: this should not be synchronized, or it will block the jedis pool loop
             messageConsumer.accept(message);
-        } catch (Message.IllegalPackedMessageException e) {
+        } catch (FixedTimeMessage.IllegalPackedMessageException e) {
             logger.warning(String.format("Cannot decode message from channel %s: %s.",
                     channelString, e.getMessage()));
             Optional.ofNullable(e.getCause())

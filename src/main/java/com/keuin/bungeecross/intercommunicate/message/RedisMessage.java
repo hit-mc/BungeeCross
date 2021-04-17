@@ -8,7 +8,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class RedisMessage extends Message {
+public class RedisMessage extends FixedTimeMessage {
 
     private final MessageUser sender;
     private final String message;

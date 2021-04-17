@@ -4,6 +4,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
+@Deprecated
 class WikiPrettyUtil {
     public static BaseComponent[] h1(String string) {
         return new ComponentBuilder(string).color(ChatColor.GOLD).bold(true).append("\n").create();

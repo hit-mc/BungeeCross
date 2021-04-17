@@ -4,7 +4,7 @@ import com.keuin.bungeecross.intercommunicate.user.MessageUser;
 import com.keuin.bungeecross.util.MessageUtil;
 import net.md_5.bungee.api.chat.BaseComponent;
 
-public class JoinedMessage extends Message {
+public class JoinedMessage extends FixedTimeMessage {
 
     private final BaseComponent[] baseComponents;
     private final String message;

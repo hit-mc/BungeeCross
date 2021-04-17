@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.wiki;
 
 import com.keuin.bungeecross.intercommunicate.user.MessageUser;
+import com.keuin.bungeecross.wiki.entry.WikiEntryView;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +21,7 @@ public class WikiFetcher {
     private final Logger logger = Logger.getLogger(WikiFetcher.class.getName());
     private final OkHttpClient client;
 
-    private final ConcurrentMap<String, WikiEntry> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, LegacyWikiEntry> cache = new ConcurrentHashMap<>();
     private final Set<String> cachedInvalidKeywords = Collections.synchronizedSet(new HashSet<>());
 
     public WikiFetcher() {
@@ -32,7 +33,7 @@ public class WikiFetcher {
         client = new OkHttpClient.Builder().proxy(proxy).build();
     }
 
-    public void fetchEntry(String keyword, Consumer<WikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
+    public void fetchEntry(String keyword, Consumer<LegacyWikiEntry> callback, Consumer<Exception> onFailure, MessageUser messageUser) {
         var url = String.format("https://minecraft.fandom.com/zh/wiki/%s", keyword);
         var request = new Request.Builder().url(url).build();
         var cachedEntry = cache.get(keyword);
@@ -65,12 +66,12 @@ public class WikiFetcher {
                 try {
                     if (response.isSuccessful()) {
                         logger.fine("Response is successful.");
-                        var entry = new WikiEntry(response, messageUser);
+                        var entry = new LegacyWikiEntry(response, messageUser);
                         cache.put(keyword, entry);
                         callback.accept(entry);
                     } else if (response.code() == 404) {
                         cachedInvalidKeywords.add(keyword);
-                        throw new NoSuchEntryException();
+                        throw new WikiEntryView.NoSuchEntryException();
                     } else {
                         logger.fine("Response is not successful.");
                         onFailure.accept(new BadResponseException(response.code()));
@@ -112,10 +113,4 @@ public class WikiFetcher {
         }
     }
 
-    private static class NoSuchEntryException extends Exception {
-        @Override
-        public String toString() {
-            return "No such entry in Minecraft wiki. Your keyword is incorrect.";
-        }
-    }
 }

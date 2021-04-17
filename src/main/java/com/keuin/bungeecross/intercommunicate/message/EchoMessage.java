@@ -6,7 +6,7 @@ import com.keuin.bungeecross.util.MessageUtil;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-public class EchoMessage extends Message {
+public class EchoMessage extends FixedTimeMessage {
 
     private final String echo;
     private final BaseComponent[] baseComponents;

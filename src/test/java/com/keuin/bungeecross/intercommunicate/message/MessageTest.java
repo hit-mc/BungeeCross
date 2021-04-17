@@ -26,7 +26,7 @@ public class MessageTest {
     }
 
     @Test
-    public void testMessagePackBSON() throws Message.IllegalPackedMessageException, IOException {
+    public void testMessagePackBSON() throws FixedTimeMessage.IllegalPackedMessageException, IOException {
         var endpoint = "test-endpoint";
         var sender = "message_sender";
         var message = Message.build("message", sender);
@@ -38,7 +38,7 @@ public class MessageTest {
     }
 
     @Test
-    public void testMultipleMessageBlocksUnpacking() throws Message.IllegalPackedMessageException {
+    public void testMultipleMessageBlocksUnpacking() throws FixedTimeMessage.IllegalPackedMessageException {
         var endpoint = "test-endpoint";
         var sender = "test-sender";
         var messages = new String[]{"message1", "message2", "msg3"};

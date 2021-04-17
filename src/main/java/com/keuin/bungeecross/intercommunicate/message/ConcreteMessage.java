@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-class ConcreteMessage extends Message {
+class ConcreteMessage extends FixedTimeMessage {
     private final String sender;
     private final String message;
 
