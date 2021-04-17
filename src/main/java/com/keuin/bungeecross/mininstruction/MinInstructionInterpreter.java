@@ -4,7 +4,10 @@ import com.keuin.bungeecross.BungeeCross;
 import com.keuin.bungeecross.intercommunicate.message.EchoMessage;
 import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
-import com.keuin.bungeecross.mininstruction.executor.*;
+import com.keuin.bungeecross.mininstruction.executor.AbstractInstructionExecutor;
+import com.keuin.bungeecross.mininstruction.executor.ListExecutor;
+import com.keuin.bungeecross.mininstruction.executor.UpExecutor;
+import com.keuin.bungeecross.mininstruction.executor.WikiExecutor;
 import com.keuin.bungeecross.mininstruction.executor.history.HistoryExecutor;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
 import com.keuin.bungeecross.util.CharacterFilter;
@@ -47,7 +50,7 @@ public class MinInstructionInterpreter {
     private void registerInstructions() {
         Arrays.asList(
                 new ListExecutor().withContext(context),
-                new ReloadExecutor(plugin).withContext(context),
+//                new ReloadExecutor(plugin).withContext(context),
 //                new StatExecutor(redisManager).withContext(context),
                 new HistoryExecutor(activityProvider, proxyServer).withContext(context),
                 new WikiExecutor(internetProxy).withContext(context),
