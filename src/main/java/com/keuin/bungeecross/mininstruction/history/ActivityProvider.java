@@ -38,6 +38,7 @@ public class ActivityProvider {
     }
 
     public ActivityProvider(String jsonFile, boolean loadFromFile) throws IOException {
+        // TODO: use sqlite instead of json
         if (loadFromFile) {
             TreeMap<Long, InGamePlayer> tmp;
             try (Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8))) {
