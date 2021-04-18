@@ -33,7 +33,9 @@ public class ProxyConfig {
     }
 
     private void buildProxy() {
-        var matcher = Pattern.compile("(.+)://(.+)(:?:([0-9]+))?").matcher(address);
+        var matcher = Pattern.compile("(\\S+)://([^:]+)(?::([0-9]+))?").matcher(address);
+        if (!matcher.matches())
+            throw new IllegalArgumentException("Illegal proxy address");
         Proxy.Type schema;
         switch (matcher.group(1).toLowerCase()) {
             case "http":
