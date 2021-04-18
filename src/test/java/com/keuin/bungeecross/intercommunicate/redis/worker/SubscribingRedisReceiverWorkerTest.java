@@ -46,43 +46,54 @@ public class SubscribingRedisReceiverWorkerTest {
      */
     @Test
     public void testSubscribe() throws InterruptedException {
-        var topicPrefix = "bcdev.";
-        var senderTopic = "test-topic_sender";
-        var receiverTopic = "test-topic_receiver";
-        var senderEndpoint = "test-endpoint_sender";
-        var receiverEndpoint = "test-endpoint_receiver";
+        int failCounter = 0;
+        while (failCounter < 3) {
+            try {
+                var topicPrefix = "bcdev.";
+                var senderTopic = "test-topic_sender";
+                var receiverTopic = "test-topic_receiver";
+                var senderEndpoint = "test-endpoint_sender";
+                var receiverEndpoint = "test-endpoint_receiver";
 
-        var flg = new AtomicBoolean(true);
-        var que = new LinkedBlockingDeque<>();
-        var senderConfig = new RedisConfig(config.host, config.port, config.password,
-                senderTopic, senderEndpoint, topicPrefix);
-        var receiverConfig = new RedisConfig(config.host, config.port, config.password,
-                receiverTopic, receiverEndpoint, topicPrefix);
+                var flg = new AtomicBoolean(true);
+                var que = new LinkedBlockingDeque<>();
+                var senderConfig = new RedisConfig(config.host, config.port, config.password,
+                        senderTopic, senderEndpoint, topicPrefix);
+                var receiverConfig = new RedisConfig(config.host, config.port, config.password,
+                        receiverTopic, receiverEndpoint, topicPrefix);
 
-        var msgReceived = new Message[1];
-        var receiver = new MessageRepeatable() {
-            @Override
-            public void repeat(Message message) {
-                msgReceived[0] = message;
-                flg.set(false);
-                que.add(0);
+                var msgReceived = new Message[1];
+                var receiver = new MessageRepeatable() {
+                    @Override
+                    public void repeat(Message message) {
+                        msgReceived[0] = message;
+                        flg.set(false);
+                        que.add(0);
+                    }
+                };
+                logger.info("starting sender and receiver...");
+
+                var receiveWorker = new SubscribingRedisReceiverWorker(receiverConfig, receiver::repeat);
+                var sendWorker = new RedisSenderWorker(senderConfig, flg);
+                sendWorker.start();
+                receiveWorker.start();
+
+                var msg = Message.build("test message\n测试消息", "test sender");
+                logger.info("sending message...");
+                sendWorker.repeat(msg);
+                logger.info("waiting receiver to respond...");
+                if (que.poll(5, TimeUnit.SECONDS) == null)
+                    throw new RuntimeException("receiver timed out."); // timed out
+                assertNotNull(msgReceived[0]);
+                assertEquals("received message does not equal to what had been sent",
+                        msg.getMessage(), msgReceived[0].getMessage());
+                return;
+            } catch (RuntimeException ignored) {
+                logger.warning("Receiver timed out. Retry.");
             }
-        };
-        logger.info("starting sender and receiver...");
-
-        var receiveWorker = new SubscribingRedisReceiverWorker(receiverConfig, receiver::repeat);
-        var sendWorker = new RedisSenderWorker(senderConfig, flg);
-        sendWorker.start();
-        receiveWorker.start();
-
-        var msg = Message.build("test message\n测试消息", "test sender");
-        logger.info("sending message...");
-        sendWorker.repeat(msg);
-        logger.info("waiting receiver to respond...");
-        assertNotNull("receiver timed out.", que.poll(5, TimeUnit.SECONDS));
-        assertNotNull(msgReceived[0]);
-        assertEquals("received message does not equal to what had been sent",
-                msg.getMessage(), msgReceived[0].getMessage());
+            ++failCounter;
+        }
+        fail("Test failed. Maybe timed out too many times.");
     }
 
     /**
