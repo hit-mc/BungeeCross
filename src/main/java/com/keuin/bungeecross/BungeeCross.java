@@ -13,8 +13,6 @@ import com.keuin.bungeecross.mininstruction.MinInstructionInterpreter;
 import com.keuin.bungeecross.mininstruction.dispatcher.ConcreteInstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
 import com.keuin.bungeecross.mininstruction.history.ActivityProvider;
-import com.keuin.bungeecross.notification.DeployNotification;
-import com.keuin.bungeecross.notification.Notification;
 import com.keuin.bungeecross.recentmsg.ConcreteRecentMessageManager;
 import com.keuin.bungeecross.recentmsg.RecentMessageManager;
 import net.md_5.bungee.api.ProxyServer;
@@ -128,7 +126,7 @@ public class BungeeCross extends Plugin {
             inGameChatProcessor.registerHistoryLogger(recentMessageManager);
 
             // register events
-            getProxy().getPluginManager().registerListener(this, new Events(this, inGameChatProcessor, activityProvider, recentMessageManager));
+            getProxy().getPluginManager().registerListener(this, new BungeeEventHandler(this, inGameChatProcessor, activityProvider, recentMessageManager));
 
             // start redis thread
             redisManager.start();
@@ -145,11 +143,6 @@ public class BungeeCross extends Plugin {
 
 //        // Start the repeat thread
 //        getProxy().getScheduler().runAsync(this, this::messageRepeatThread);
-
-            // Notify if deployed by CI/CD
-            Notification deployNotification = DeployNotification.INSTANCE;
-            deployNotification.notifyIfNeeded(redisManager::repeat)
-                    .notifyIfNeeded(msg -> logger.info(msg::toString));
         } catch (IOException e) {
             logger.severe("Failed to initialize: " + e);
         }

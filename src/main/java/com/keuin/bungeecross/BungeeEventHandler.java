@@ -21,11 +21,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-public class Events implements Listener {
+public class BungeeEventHandler implements Listener {
 
     private final InGameChatHandler inGameChatProcessor;
     private final Plugin plugin;
-    private final Logger logger = Logger.getLogger(Events.class.getName());
+    private final Logger logger = Logger.getLogger(BungeeEventHandler.class.getName());
     private final ActivityProvider activityProvider;
     private final PlayerStateChangeNotification playerStateChangeNotification;
     private final RecentMessageManager recentMessageManager;
@@ -34,7 +34,7 @@ public class Events implements Listener {
     private final Map<UUID, ServerInfo> joiningServers = new HashMap<>();
     private final Map<UUID, ServerInfo> serverPlayerLastJoined = new HashMap<>(); // the server players last connected to
 
-    public Events(Plugin plugin, InGameChatHandler inGameChatProcessor, ActivityProvider activityProvider, RecentMessageManager recentMessageManager) {
+    public BungeeEventHandler(Plugin plugin, InGameChatHandler inGameChatProcessor, ActivityProvider activityProvider, RecentMessageManager recentMessageManager) {
         this.plugin = Objects.requireNonNull(plugin);
         this.inGameChatProcessor = Objects.requireNonNull(inGameChatProcessor);
         this.activityProvider = Objects.requireNonNull(activityProvider);
