@@ -63,7 +63,7 @@ public class WikiFetcher {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 logger.fine("Response returned.");
-                try {
+                try (response) {
                     if (response.isSuccessful()) {
                         logger.fine("Response is successful.");
                         var entry = new LegacyWikiEntry(response, messageUser);
