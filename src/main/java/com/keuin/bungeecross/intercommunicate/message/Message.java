@@ -96,8 +96,9 @@ public interface Message {
      * @param rawString the raw string.
      * @return a Message object. If the raw string is invalid, return null.
      */
+    @Deprecated
     static @Nullable Message fromRedisRawString(String rawString) {
-        Pattern pattern = Pattern.compile("([^|]*)(?:\\|\\|)([\\s\\S]*)");
+        Pattern pattern = Pattern.compile("([^|]*)\\|\\|([\\s\\S]*)");
         Matcher matcher = pattern.matcher(rawString);
         if (matcher.matches()) {
             String sender = matcher.group(1);
