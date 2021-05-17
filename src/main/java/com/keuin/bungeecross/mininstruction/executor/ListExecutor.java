@@ -48,7 +48,11 @@ public final class ListExecutor extends AbstractInstructionExecutor {
 
         // print all servers' players in natural order
         List<BaseComponent> echoComponents = new ArrayList<>(20);
+        boolean[] isFirst = {true};
         playerMap.forEach((server, players2) -> {
+            if (!isFirst[0])
+                echoComponents.add(new TextComponent("\n\n"));
+            isFirst[0] = false;
             echoComponents.add(PrettyComponents.createNavigableServerButton(server));
             echoComponents.add(new TextComponent("\n"));
             boolean first = true;
@@ -59,7 +63,6 @@ public final class ListExecutor extends AbstractInstructionExecutor {
                 echoComponents.add(line);
                 first = false;
             }
-            echoComponents.add(new TextComponent("\n\n"));
         });
 
         if (!echoComponents.isEmpty())
