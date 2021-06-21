@@ -41,7 +41,10 @@ public class ActivityProvider {
         // TODO: use sqlite instead of json
         if (loadFromFile) {
             TreeMap<Long, InGamePlayer> tmp;
-            try (Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8))) {
+            var startTime = System.nanoTime();
+            try (var fis = new FileInputStream(jsonFile);
+                 var isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+                 var reader = new BufferedReader(isr)) {
                 Gson gson = new Gson();
                 Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>() {
                 }.getType();
@@ -50,6 +53,8 @@ public class ActivityProvider {
                 if (tmp == null)
                     tmp = new TreeMap<>();
             }
+            var endTime = System.nanoTime();
+            logger.info(String.format("Parse time: %.3f us", (endTime - startTime) / 1e3));
             history = tmp;
         } else {
             history = new TreeMap<>();
@@ -74,8 +79,9 @@ public class ActivityProvider {
 
     /**
      * Add a player activity to the look-up-table.
+     *
      * @param player the player.
-     * @param ts activity time stamp. If the time stamp is newer than the existing one, it will be updated.
+     * @param ts     activity time stamp. If the time stamp is newer than the existing one, it will be updated.
      */
     private void updateLookUpTable(InGamePlayer player, Long ts) {
         if (reverseLookUpTable.getOrDefault(player, 0L) < ts)
@@ -84,8 +90,9 @@ public class ActivityProvider {
 
     /**
      * Get the set of active players in a certain time range.
+     *
      * @param timeRange the time range backed from current time.
-     * @param unit the time unit.
+     * @param unit      the time unit.
      * @return a set containing all active players. You are not allowed to modify it.
      */
     public Collection<InGamePlayer> getActivePlayers(long timeRange, TimeUnit unit) {
@@ -109,6 +116,7 @@ public class ActivityProvider {
 
     /**
      * Record the activity of a player.
+     *
      * @param player the player's UUID.
      */
     public void logPlayerActivity(InGamePlayer player) {
@@ -161,14 +169,14 @@ public class ActivityProvider {
                     continue;
 
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>(){}.getType();
+                Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>() {
+                }.getType();
                 String jsonString;
                 synchronized (history) {
                     jsonString = gson.toJson(history, gsonType);
                 }
-                try(BufferedOutputStream outputStream = new BufferedOutputStream(
-                        Files.newOutputStream(Paths.get(jsonFileName))
-                )) {
+                try (var fos = Files.newOutputStream(Paths.get(jsonFileName));
+                     var outputStream = new BufferedOutputStream(fos)) {
                     outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
                     logger.info("Activity saved to file " + jsonFileName);
                 } catch (IOException e) {
