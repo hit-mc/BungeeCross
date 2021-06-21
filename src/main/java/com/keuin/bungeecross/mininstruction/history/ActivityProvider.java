@@ -33,6 +33,8 @@ public class ActivityProvider {
 
     private final Object saveNotifier = new Object();
 
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     public ActivityProvider(String jsonFile) throws IOException {
         this(jsonFile, true);
     }
@@ -45,7 +47,6 @@ public class ActivityProvider {
             try (var fis = new FileInputStream(jsonFile);
                  var isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
                  var reader = new BufferedReader(isr)) {
-                Gson gson = new Gson();
                 Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>() {
                 }.getType();
                 // String gsonString = gson.toJson(data, gsonType);
@@ -168,7 +169,6 @@ public class ActivityProvider {
                 if (!modified.getAndSet(false))
                     continue;
 
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 Type gsonType = new TypeToken<TreeMap<Long, InGamePlayer>>() {
                 }.getType();
                 String jsonString;
