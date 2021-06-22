@@ -4,7 +4,6 @@ import com.keuin.bungeecross.config.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.msghandler.InboundMessageHandler;
 import com.keuin.bungeecross.intercommunicate.redis.worker.AbstractRedisReceiver;
-import com.keuin.bungeecross.intercommunicate.redis.worker.LegacyRedisReceiverWorker;
 import com.keuin.bungeecross.intercommunicate.redis.worker.RedisSenderWorker;
 import com.keuin.bungeecross.intercommunicate.redis.worker.SubscribingRedisReceiverWorker;
 import com.keuin.bungeecross.intercommunicate.repeater.LoggableMessageSource;
@@ -42,10 +41,12 @@ public class RedisManager implements com.keuin.bungeecross.intercommunicate.repe
                 redisConfig.getChatRelayPrefix());
 
         if (redisConfig.isLegacyProtocol()) {
-            var legacyReceiver = new LegacyRedisReceiverWorker(
-                    enabled, redisConfig, inBoundMessageDispatcher, this);
-            legacyReceiver.setInstructionDispatcher(instructionDispatcher);
-            this.receiverWorker = legacyReceiver;
+            throw new RuntimeException("Legacy protocol is unsupported. " +
+                    "Please switch to new protocol or downgrade to BungeeCross 1.x.");
+//            var legacyReceiver = new LegacyRedisReceiverWorker(
+//                    enabled, redisConfig, inBoundMessageDispatcher, this);
+//            legacyReceiver.setInstructionDispatcher(instructionDispatcher);
+//            this.receiverWorker = legacyReceiver;
         } else {
             this.receiverWorker = new SubscribingRedisReceiverWorker(redisConfig, inboundMessageHandler);
         }
