@@ -54,7 +54,7 @@ public class MinInstructionInterpreter {
 //                new StatExecutor(redisManager).withContext(context),
                 new HistoryExecutor(activityProvider, proxyServer).withContext(context),
                 new WikiExecutor(internetProxy).withContext(context),
-                new UpExecutor(proxyServer).withContext(context)
+                new UpExecutor(plugin).withContext(context)
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }
 
