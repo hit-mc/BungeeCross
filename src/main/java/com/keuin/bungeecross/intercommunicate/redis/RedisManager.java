@@ -1,5 +1,6 @@
 package com.keuin.bungeecross.intercommunicate.redis;
 
+import com.keuin.bungeecross.config.ConfigManager;
 import com.keuin.bungeecross.config.RedisConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.msghandler.InboundMessageHandler;
@@ -30,9 +31,9 @@ public class RedisManager implements com.keuin.bungeecross.intercommunicate.repe
     private final RedisSenderWorker senderWorker;
     private final AbstractRedisReceiver receiverWorker;
 
-    public RedisManager(RedisConfig redisConfig, MessageRepeatable inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher) {
+    public RedisManager(MessageRepeatable inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher) {
+        var redisConfig = ConfigManager.INSTANCE.getRootConfig().getRedis();
         logger.info(String.format("%s created with redis info: %s", this.getClass().getName(), redisConfig.toString()));
-
         this.instructionDispatcher = Objects.requireNonNull(instructionDispatcher);
         this.senderWorker = new RedisSenderWorker(redisConfig, enabled);
         this.inboundMessageHandler = new InboundMessageHandler(

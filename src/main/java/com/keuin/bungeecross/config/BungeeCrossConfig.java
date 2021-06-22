@@ -1,30 +1,11 @@
 package com.keuin.bungeecross.config;
 
-/**
- * Configuration in a class.
- * Immutable.
- */
-public class BungeeCrossConfig {
+import com.keuin.bungeecross.config.mutable.MutableRedisConfig;
 
-    private final RedisConfig redis;
-    private final int microApiPort;
-    private final ProxyConfig proxy;
+public interface BungeeCrossConfig {
+    RedisConfig getRedis();
 
-    public BungeeCrossConfig() {
-        this.redis = new RedisConfig();
-        this.microApiPort = 7000;
-        this.proxy = new ProxyConfig();
-    }
+    int getMicroApiPort();
 
-    public RedisConfig getRedis() {
-        return redis;
-    }
-
-    public int getMicroApiPort() {
-        return microApiPort;
-    }
-
-    public ProxyConfig getProxy() {
-        return proxy;
-    }
+    ProxyConfig getProxy();
 }

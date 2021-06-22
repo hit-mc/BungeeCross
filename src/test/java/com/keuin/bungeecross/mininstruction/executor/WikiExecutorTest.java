@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
 import com.keuin.bungeecross.config.ProxyConfig;
+import com.keuin.bungeecross.config.mutable.MutableProxyConfig;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import com.keuin.bungeecross.testutil.TestableMessageUser;
 import com.keuin.bungeecross.testutil.TestableRepeatable;
@@ -48,7 +49,7 @@ public class WikiExecutorTest {
     public void testProxy() throws InterruptedException {
         var ctx = new UserContext(new TestableMessageUser("name",
                 UUID.randomUUID(), "id", "location"));
-        var wiki = new WikiExecutor(new ProxyConfig("http://127.0.0.1:10809").getProxy());
+        var wiki = new WikiExecutor(new MutableProxyConfig("http://127.0.0.1:10809").getProxy());
         var que = new LinkedBlockingDeque<>();
         var repeatable = new TestableRepeatable(msg -> que.add(0));
         wiki.doExecute(ctx, repeatable, new String[]{"圆石"});

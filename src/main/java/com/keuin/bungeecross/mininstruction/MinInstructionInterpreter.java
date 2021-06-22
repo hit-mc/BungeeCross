@@ -1,6 +1,7 @@
 package com.keuin.bungeecross.mininstruction;
 
 import com.keuin.bungeecross.BungeeCross;
+import com.keuin.bungeecross.config.ConfigManager;
 import com.keuin.bungeecross.intercommunicate.message.EchoMessage;
 import com.keuin.bungeecross.intercommunicate.user.RepeatableUser;
 import com.keuin.bungeecross.mininstruction.context.InterpreterContext;
@@ -33,13 +34,11 @@ public class MinInstructionInterpreter {
 
     private final Map<String, AbstractInstructionExecutor> instructions = new HashMap<>();
     private final InterpreterContext context = new InterpreterContext(); // providing persistent context across executions
-    private final Proxy internetProxy;
 
-    public MinInstructionInterpreter(Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer, Proxy internetProxy) {
+    public MinInstructionInterpreter(Plugin plugin, ActivityProvider activityProvider, ProxyServer proxyServer) {
         this.plugin = plugin;
         this.activityProvider = activityProvider;
         this.proxyServer = proxyServer;
-        this.internetProxy = Optional.ofNullable(internetProxy).orElse(Proxy.NO_PROXY);
         registerInstructions();
     }
 
@@ -53,7 +52,7 @@ public class MinInstructionInterpreter {
 //                new ReloadExecutor(plugin).withContext(context),
 //                new StatExecutor(redisManager).withContext(context),
                 new HistoryExecutor(activityProvider, proxyServer).withContext(context),
-                new WikiExecutor(internetProxy).withContext(context),
+                new WikiExecutor(ConfigManager.INSTANCE.getRootConfig().getProxy().getProxy()).withContext(context),
                 new UpExecutor(plugin).withContext(context)
         ).forEach(executor -> instructions.put(executor.getCommand(), executor));
     }

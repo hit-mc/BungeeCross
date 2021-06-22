@@ -1,123 +1,35 @@
 package com.keuin.bungeecross.config;
 
-import com.keuin.bungeecross.BungeeCross;
+public interface RedisConfig {
+    String getHost();
 
-/**
- * Redis configuration section
- * Immutable.
- */
-public class RedisConfig {
-    private String host;
-    private int port;
-    private String password;
-    private final String pushQueueName;
-    private final String popQueueName;
-    private final int maxRetryTimes;
-    private final int popTimeoutSeconds;
-    private final String redisCommandPrefix;
-    private final int sendCoolDownMillis;
-    private final boolean sslEnabled;
-    private boolean legacyProtocol;
-    private String topicId;
-    private String endpointName;
-    private String topicPrefix;
-    private final String chatRelayPrefix;
-    private final int maxJoinedMessageCount = 10;
+    int getPort();
 
-    /**
-     * Create a config using new protocol.
-     */
-    public RedisConfig(String host, int port, String password,
-                       String topicId, String endpointName, String topicPrefix) {
-        this();
-        this.host = host;
-        this.port = port;
-        this.password = password;
-        this.topicId = topicId;
-        this.endpointName = endpointName;
-        this.legacyProtocol = false;
-        this.topicPrefix = topicPrefix;
-    }
+    String getPassword();
 
-    public RedisConfig() {
-        host = "";
-        port = 6379;
-        password = "";
-        pushQueueName = "";
-        popQueueName = "";
-        redisCommandPrefix = "!";
-        maxRetryTimes = 10;
-        popTimeoutSeconds = 1;
-        sendCoolDownMillis = 500;
-        sslEnabled = false;
-        legacyProtocol = true;
-        topicId = BungeeCross.generateTopicId();
-        endpointName = "noname_endpoint";
-        topicPrefix = "bc.";
-        chatRelayPrefix = "";
-    }
+    String getPushQueueName();
 
-    public String getHost() {
-        return host;
-    }
+    String getPopQueueName();
 
-    public int getPort() {
-        return port;
-    }
+    int getMaxRetryTimes();
 
-    public String getPassword() {
-        return password;
-    }
+    int getPopTimeoutSeconds();
 
-    public String getPushQueueName() {
-        return pushQueueName;
-    }
+    String getRedisCommandPrefix();
 
-    public String getPopQueueName() {
-        return popQueueName;
-    }
+    int getSendCoolDownMillis();
 
-    public int getMaxRetryTimes() {
-        return maxRetryTimes;
-    }
+    boolean isSslEnabled();
 
-    public int getPopTimeoutSeconds() {
-        return popTimeoutSeconds;
-    }
+    boolean isLegacyProtocol();
 
-    public String getRedisCommandPrefix() {
-        return redisCommandPrefix;
-    }
+    String getTopicId();
 
-    public int getSendCoolDownMillis() {
-        return sendCoolDownMillis;
-    }
+    String getEndpointName();
 
-    public boolean isSslEnabled() {
-        return sslEnabled;
-    }
+    String getTopicPrefix();
 
-    public boolean isLegacyProtocol() {
-        return legacyProtocol;
-    }
+    String getChatRelayPrefix();
 
-    public String getTopicId() {
-        return topicId;
-    }
-
-    public String getEndpointName() {
-        return endpointName;
-    }
-
-    public String getTopicPrefix() {
-        return topicPrefix;
-    }
-
-    public String getChatRelayPrefix() {
-        return chatRelayPrefix;
-    }
-
-    public int getMaxJoinedMessageCount() {
-        return maxJoinedMessageCount;
-    }
+    int getMaxJoinedMessageCount();
 }

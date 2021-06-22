@@ -1,9 +1,7 @@
 package com.keuin.bungeecross;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import com.keuin.bungeecross.config.BungeeCrossConfig;
+import com.keuin.bungeecross.config.ConfigManager;
 import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
 import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
 import com.keuin.bungeecross.intercommunicate.repeater.CrossServerChatRepeater;
@@ -18,28 +16,20 @@ import com.keuin.bungeecross.recentmsg.RecentMessageManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.FileAlreadyExistsException;
 import java.security.SecureRandom;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class BungeeCross extends Plugin {
 
     private final Logger logger = Logger.getLogger(BungeeCross.class.getName());
     private static String VERSION = "";
     private static String BUILD_TIME = "";
-
-    private static BungeeCrossConfig config;
 
     private ProxyServer proxyServer;
     private CrossServerChatRepeater crossServerChatRepeater;
@@ -77,27 +67,48 @@ public class BungeeCross extends Plugin {
         }
     }
 
+    private boolean loadConfig() {
+        try {
+            ConfigManager.INSTANCE.loadConfig(configurationFileName);
+            return true;
+        } catch (FileNotFoundException e) {
+            logger.severe(String.format("BungeeCross config file %s does not exist.",
+                    BungeeCross.configurationFileName));
+            return false;
+        } catch (JsonParseException e) {
+            logger.severe(String.format("Malformed JSON config file : %s", e.getMessage()));
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            logger.severe(String.format("Cannot read config file: %s", e.getMessage()));
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public void onEnable() {
         try {
+            // try to generate default config
+            try {
+                ConfigManager.INSTANCE.generateDefaultConfig(configurationFileName);
+                logger.warning(String.format("A template config file %s has been generated. " +
+                        "Please edit it and reload BungeeCross.", configurationFileName));
+                // default config generated
+                return;
+            } catch (FileAlreadyExistsException ignored) {
+                // config file already exists
+                // continue loading
+            }
+
+            // load config
+            if (!loadConfig()) {
+                logger.severe("Cannot load config. BungeeCross will be disabled.");
+                return;
+            }
+
             // get proxy server
             proxyServer = ProxyServer.getInstance();
-
-            // generate default config file (skeleton)
-            File configFile = new File(configurationFileName);
-            if (!configFile.exists()) {
-                logger.warning(String.format("Config file %s does not exist. A skeleton file will be generated. Please edit it and reload BungeeCross.", configurationFileName));
-                generateDefaultConfig();
-                return;
-            }
-
-            // load global config
-            if (!loadConfig() || config == null) {
-                logger.severe(String.format("Cannot read config from file: %s. BungeeCross is disabled.", configurationFileName));
-                return;
-            }
-
-            // load redis config
 
             // initialize repeater
             crossServerChatRepeater = new CrossServerChatRepeater(proxyServer);
@@ -112,11 +123,10 @@ public class BungeeCross extends Plugin {
                 activityProvider = new ActivityProvider(activityPersistenceFileName);
             }
 
-            interpreter = new MinInstructionInterpreter(this, activityProvider, proxyServer,
-                    config.getProxy().getProxy());
+            interpreter = new MinInstructionInterpreter(this, activityProvider, proxyServer);
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
 //            redisManager.setInstructionDispatcher(instructionDispatcher);
-            redisManager = new RedisManager(config.getRedis(), inGameRedisRelayRepeater, instructionDispatcher);
+            redisManager = new RedisManager(inGameRedisRelayRepeater, instructionDispatcher);
             inGameChatProcessor = new InGameChatHandler(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater,
                     redisManager, instructionDispatcher);
             recentMessageManager = new ConcreteRecentMessageManager();
@@ -132,13 +142,14 @@ public class BungeeCross extends Plugin {
             redisManager.start();
 
             // start micro api server
-            if (config.getMicroApiPort() <= 0) {
+            int port;
+            if ((port = ConfigManager.INSTANCE.getRootConfig().getMicroApiPort()) <= 0) {
                 logger.info(String.format(
                         "Illegal MicroApi port: %d. MicroApi will be disabled.",
-                        config.getMicroApiPort()
+                        port
                 ));
             } else {
-                microApi = new BungeeMicroApi(config.getMicroApiPort(), redisManager);
+                microApi = new BungeeMicroApi(port, redisManager);
             }
 
 //        // Start the repeat thread
@@ -173,47 +184,6 @@ public class BungeeCross extends Plugin {
         super.onDisable();
     }
 
-    /**
-     * Load global config.
-     * @return whether it succeeds.
-     */
-    private boolean loadConfig() {
-        try {
-            File configFile = new File(BungeeCross.configurationFileName);
-            if (!configFile.exists()) {
-                logger.severe(String.format("Specific config file %s does not exist.", BungeeCross.configurationFileName));
-                return false;
-            }
-            Reader configReader = Files.newBufferedReader(configFile.toPath());
-            config = (new Gson()).fromJson(configReader, BungeeCrossConfig.class);
-        } catch (IOException e) {
-            logger.severe(String.format("Failed to read config file %s: %s.", BungeeCross.configurationFileName, e));
-            return false;
-        } catch (JsonParseException e) {
-            logger.severe(String.format("Malformed config file %s: %s.", BungeeCross.configurationFileName, e));
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Generate default config file.
-     */
-    private void generateDefaultConfig() {
-
-        // generate default config programmatically
-        BungeeCrossConfig defaultConfig = new BungeeCrossConfig();
-        String jsonString = (new GsonBuilder().setPrettyPrinting().create()).toJson(defaultConfig);
-
-        // save to file
-        try(BufferedOutputStream outputStream = new BufferedOutputStream(
-                Files.newOutputStream(Paths.get(BungeeCross.configurationFileName),CREATE_NEW, APPEND)
-        )) {
-            outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            logger.severe(String.format("Failed to generate default config file %s: %s.", BungeeCross.configurationFileName, e));
-        }
-    }
 
     public static String generateTopicId() {
         var rng = new SecureRandom();
