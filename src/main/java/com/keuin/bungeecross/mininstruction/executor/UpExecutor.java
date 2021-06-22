@@ -14,11 +14,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 public class UpExecutor extends AbstractInstructionExecutor {
 
     private final ProxyServer proxyServer;
     private final long timeoutMillis = 3000;
+    private final Logger logger = Logger.getLogger(UpExecutor.class.getName());
 
     public UpExecutor(@NotNull ProxyServer proxyServer) {
         super("up", "check status of all servers.", new String[0]);
@@ -30,13 +32,22 @@ public class UpExecutor extends AbstractInstructionExecutor {
         final Map<String, ServerInfo> serverMap = proxyServer.getServers();
         final Map<String, Boolean> pingResult = Collections.synchronizedMap(new TreeMap<>());
 
-        final AtomicInteger counterRemainingResponses = new AtomicInteger(serverMap.size()); // number of not arrived responses
-        final Object responseAlarm = new Object(); // the main thread waits, the last response callback notifies
+        // number of not arrived responses
+        final AtomicInteger counterRemainingResponses = new AtomicInteger(serverMap.size());
+        // the main thread waits, the last response callback notifies
+        final Object responseAlarm = new Object();
 
         for (Map.Entry<String, ServerInfo> entry : serverMap.entrySet()) {
             final String serverName = entry.getKey();
+            logger.info(String.format("Pinging server %s...", serverName));
             entry.getValue().ping((result, error) -> {
                 pingResult.put(serverName, error == null);
+                if (error == null) {
+                    logger.info(String.format("Server %s is up.", serverName));
+                } else {
+                    logger.info(String.format("Server %s is down: %s %s", serverName,
+                            error.getClass().getName(), error.getMessage()));
+                }
                 if (counterRemainingResponses.decrementAndGet() == 0) {
                     // this is the last response
                     // all servers are up
@@ -49,7 +60,9 @@ public class UpExecutor extends AbstractInstructionExecutor {
 
         try {
             // to handle spurious wakeup
-            while (counterRemainingResponses.get() != 0) {
+            int remainingCount;
+            while ((remainingCount = counterRemainingResponses.get()) != 0) {
+                logger.info(String.format("Waiting response from %d servers...", remainingCount));
                 synchronized (responseAlarm) {
                     responseAlarm.wait(timeoutMillis);
                 }
@@ -58,6 +71,7 @@ public class UpExecutor extends AbstractInstructionExecutor {
             // all up
             // do nothing here
         }
+        logger.info("Finished pinging.");
 
         // if not interrupted, means timed out, and at least one server has down
         var builder = new ComponentBuilder()
