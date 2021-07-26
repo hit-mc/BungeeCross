@@ -6,4 +6,6 @@ public interface BungeeCrossConfig {
     int getMicroApiPort();
 
     ProxyConfig getProxy();
+
+    int getHistoryMessageLifeSeconds();
 }

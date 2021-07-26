@@ -129,7 +129,8 @@ public class BungeeCross extends Plugin {
             brokerManager = new BrokerManager(inGameRedisRelayRepeater, instructionDispatcher);
             inGameChatProcessor = new InGameChatHandler(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater,
                     brokerManager, instructionDispatcher);
-            recentMessageManager = new ConcreteRecentMessageManager();
+            recentMessageManager = new ConcreteRecentMessageManager(ConfigManager.INSTANCE.getRootConfig()
+                    .getHistoryMessageLifeSeconds());
 
             // register history message logger
             brokerManager.registerHistoryLogger(recentMessageManager);

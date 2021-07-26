@@ -14,16 +14,12 @@ import java.util.logging.Logger;
 public class ConcreteRecentMessageManager implements RecentMessageManager {
 
     private final Logger logger = Logger.getLogger(ConcreteRecentMessageManager.class.getName());
-    private final long keptSecondsThreshold; // how long the messages should be kept in the manager.
+    private final long maxMessageLifeSeconds; // how long the messages should be kept in the manager.
     private final Deque<HistoryMessage> messages = new LinkedList<>();
     private long checkId = 0;
 
-    public ConcreteRecentMessageManager(long keptSecondsThreshold) {
-        this.keptSecondsThreshold = keptSecondsThreshold;
-    }
-
-    public ConcreteRecentMessageManager() {
-        this.keptSecondsThreshold = 600;
+    public ConcreteRecentMessageManager(long maxMessageLifeSeconds) {
+        this.maxMessageLifeSeconds = maxMessageLifeSeconds;
     }
 
     @Override
@@ -62,7 +58,7 @@ public class ConcreteRecentMessageManager implements RecentMessageManager {
                 HistoryMessage oldestMessage = messages.peekFirst();
                 if (oldestMessage != null && (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
                         - oldestMessage.getSentTime().toEpochSecond(ZoneOffset.UTC)
-                        >= keptSecondsThreshold)) {
+                        >= maxMessageLifeSeconds)) {
 //                    logger.info("Message " + oldestMessage + " is too old. Delete it.");
                     ++messagesDeleted;
                     messages.pollFirst(); // too old, remove

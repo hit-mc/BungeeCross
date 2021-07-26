@@ -11,12 +11,14 @@ public class MutableBungeeCrossConfig implements BungeeCrossConfig {
 
     private final MutableMessageBrokerConfig brokerServer = new MutableMessageBrokerConfig();
     private int microApiPort = 7000;
+    private int historyMessageLifeSeconds = 600;
     private final MutableProxyConfig proxy = new MutableProxyConfig();
 
     public synchronized void copyFrom(BungeeCrossConfig from) {
         this.brokerServer.copyFrom(from.getBroker());
         this.microApiPort = from.getMicroApiPort();
         this.proxy.copyFrom(from.getProxy());
+        this.historyMessageLifeSeconds = from.getHistoryMessageLifeSeconds();
     }
 
     @Override public synchronized MessageBrokerConfig getBroker() {
@@ -29,5 +31,10 @@ public class MutableBungeeCrossConfig implements BungeeCrossConfig {
 
     @Override public synchronized ProxyConfig getProxy() {
         return proxy;
+    }
+
+    @Override
+    public int getHistoryMessageLifeSeconds() {
+        return historyMessageLifeSeconds;
     }
 }
