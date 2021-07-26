@@ -17,7 +17,6 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class ConfigManager {
 
     public static final ConfigManager INSTANCE = new ConfigManager();
-    private static final Logger logger = Logger.getLogger(ConfigManager.class.getName());
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // the only instance of root config

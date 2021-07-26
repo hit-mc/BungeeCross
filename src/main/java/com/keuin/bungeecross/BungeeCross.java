@@ -3,7 +3,7 @@ package com.keuin.bungeecross;
 import com.google.gson.JsonParseException;
 import com.keuin.bungeecross.config.ConfigManager;
 import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
-import com.keuin.bungeecross.intercommunicate.redis.RedisManager;
+import com.keuin.bungeecross.intercommunicate.redis.BrokerManager;
 import com.keuin.bungeecross.intercommunicate.repeater.CrossServerChatRepeater;
 import com.keuin.bungeecross.intercommunicate.repeater.InGameRedisRelayRepeater;
 import com.keuin.bungeecross.microapi.BungeeMicroApi;
@@ -34,7 +34,7 @@ public class BungeeCross extends Plugin {
     private ProxyServer proxyServer;
     private CrossServerChatRepeater crossServerChatRepeater;
     private InGameRedisRelayRepeater inGameRedisRelayRepeater;
-    private RedisManager redisManager;
+    private BrokerManager brokerManager;
     private InGameChatHandler inGameChatProcessor;
     private MinInstructionInterpreter interpreter;
     private ActivityProvider activityProvider;
@@ -126,20 +126,20 @@ public class BungeeCross extends Plugin {
             interpreter = new MinInstructionInterpreter(this, activityProvider, proxyServer);
             instructionDispatcher = new ConcreteInstructionDispatcher(interpreter);
 //            redisManager.setInstructionDispatcher(instructionDispatcher);
-            redisManager = new RedisManager(inGameRedisRelayRepeater, instructionDispatcher);
+            brokerManager = new BrokerManager(inGameRedisRelayRepeater, instructionDispatcher);
             inGameChatProcessor = new InGameChatHandler(repeatMessagePrefix, inGameCommandPrefix, crossServerChatRepeater,
-                    redisManager, instructionDispatcher);
+                    brokerManager, instructionDispatcher);
             recentMessageManager = new ConcreteRecentMessageManager();
 
             // register history message logger
-            redisManager.registerHistoryLogger(recentMessageManager);
+            brokerManager.registerHistoryLogger(recentMessageManager);
             inGameChatProcessor.registerHistoryLogger(recentMessageManager);
 
             // register events
             getProxy().getPluginManager().registerListener(this, new BungeeEventHandler(this, inGameChatProcessor, activityProvider, recentMessageManager));
 
             // start redis thread
-            redisManager.start();
+            brokerManager.start();
 
             // start micro api server
             int port;
@@ -149,7 +149,7 @@ public class BungeeCross extends Plugin {
                         port
                 ));
             } else {
-                microApi = new BungeeMicroApi(port, redisManager);
+                microApi = new BungeeMicroApi(port, brokerManager);
             }
 
 //        // Start the repeat thread
@@ -172,7 +172,7 @@ public class BungeeCross extends Plugin {
         activityProvider.close();
 
         logger.info("Stopping RedisManager...");
-        Optional.ofNullable(redisManager).ifPresent(RedisManager::stop);
+        Optional.ofNullable(brokerManager).ifPresent(BrokerManager::stop);
 
         logger.info("Stopping InGameChatHandler...");
         Optional.ofNullable(inGameChatProcessor).ifPresent(InGameChatHandler::close);

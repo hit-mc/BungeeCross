@@ -1,64 +1,61 @@
 package com.keuin.bungeecross.config.mutable;
 
 import com.keuin.bungeecross.BungeeCross;
-import com.keuin.bungeecross.config.RedisConfig;
+import com.keuin.bungeecross.config.MessageBrokerConfig;
+
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
  * Redis configuration section
  */
-public class MutableRedisConfig implements RedisConfig {
+public class MutableMessageBrokerConfig implements MessageBrokerConfig {
+
     private String host =  "";
     private int port = 6379;
-    private String password = "";
-    private String pushQueueName = "";
-    private String popQueueName = "";
     private int maxRetryTimes = 10;
-    private int popTimeoutSeconds = 1;
-    private String redisCommandPrefix = "!";
+    private String commandPrefix = "!";
     private int sendCoolDownMillis = 500;
-    private boolean sslEnabled = false;
-    private boolean legacyProtocol = false;
     private String topicId = BungeeCross.generateTopicId();
     private String endpointName = "noname_endpoint";
     private String topicPrefix = "bc.";
     private String chatRelayPrefix = "";
     private int maxJoinedMessageCount = 10;
+    private int keepAliveIntervalMillis = 0;
+    private long subscriberId = 0;
+    private long subscriberReconnectIntervalMillis = 10000;
 
     /**
      * Create a config using new protocol.
      */
-    public MutableRedisConfig(String host, int port, String password,
-                              String topicId, String endpointName, String topicPrefix) {
+    public MutableMessageBrokerConfig(String host, int port,
+                                      String topicId, String endpointName, String topicPrefix) {
         this();
         this.host = host;
         this.port = port;
-        this.password = password;
         this.topicId = topicId;
         this.endpointName = endpointName;
-        this.legacyProtocol = false;
         this.topicPrefix = topicPrefix;
     }
 
-    public MutableRedisConfig() {
+    public MutableMessageBrokerConfig() {
     }
 
-    public void copyFrom(RedisConfig from) {
+    public void copyFrom(MessageBrokerConfig from) {
+        // TODO: rewrite using clone
         this.host = from.getHost();
         this.port = from.getPort();
-        this.password = from.getPassword();
-        this.popQueueName = from.getPopQueueName();
-        this.pushQueueName = from.getPushQueueName();
         this.maxRetryTimes = from.getMaxRetryTimes();
-        this.popTimeoutSeconds = from.getPopTimeoutSeconds();
-        this.redisCommandPrefix = from.getRedisCommandPrefix();
+        this.commandPrefix = from.getCommandPrefix();
         this.sendCoolDownMillis = from.getSendCoolDownMillis();
-        this.sslEnabled = from.isSslEnabled();
-        this.legacyProtocol = from.isLegacyProtocol();
         this.topicId = from.getTopicId();
         this.endpointName = from.getEndpointName();
         this.topicPrefix = from.getTopicPrefix();
         this.chatRelayPrefix = from.getChatRelayPrefix();
         this.maxJoinedMessageCount = from.getMaxJoinedMessageCount();
+        this.keepAliveIntervalMillis = from.getKeepAliveIntervalMillis();
+        this.subscriberId = from.getSubscriberId();
+        this.subscriberReconnectIntervalMillis = from.getSubscriberReconnectIntervalMillis();
     }
 
     @Override
@@ -72,48 +69,18 @@ public class MutableRedisConfig implements RedisConfig {
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getPushQueueName() {
-        return pushQueueName;
-    }
-
-    @Override
-    public String getPopQueueName() {
-        return popQueueName;
-    }
-
-    @Override
     public int getMaxRetryTimes() {
         return maxRetryTimes;
     }
 
     @Override
-    public int getPopTimeoutSeconds() {
-        return popTimeoutSeconds;
-    }
-
-    @Override
-    public String getRedisCommandPrefix() {
-        return redisCommandPrefix;
+    public String getCommandPrefix() {
+        return commandPrefix;
     }
 
     @Override
     public int getSendCoolDownMillis() {
         return sendCoolDownMillis;
-    }
-
-    @Override
-    public boolean isSslEnabled() {
-        return sslEnabled;
-    }
-
-    @Override
-    public boolean isLegacyProtocol() {
-        return legacyProtocol;
     }
 
     @Override
@@ -141,6 +108,21 @@ public class MutableRedisConfig implements RedisConfig {
         return maxJoinedMessageCount;
     }
 
+    @Override
+    public int getKeepAliveIntervalMillis() {
+        return keepAliveIntervalMillis;
+    }
+
+    @Override
+    public long getSubscriberId() {
+        return subscriberId;
+    }
+
+    @Override
+    public long getSubscriberReconnectIntervalMillis() {
+        return subscriberReconnectIntervalMillis;
+    }
+
     public void setHost(String host) {
         this.host = host;
     }
@@ -149,40 +131,16 @@ public class MutableRedisConfig implements RedisConfig {
         this.port = port;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setPushQueueName(String pushQueueName) {
-        this.pushQueueName = pushQueueName;
-    }
-
-    public void setPopQueueName(String popQueueName) {
-        this.popQueueName = popQueueName;
-    }
-
     public void setMaxRetryTimes(int maxRetryTimes) {
         this.maxRetryTimes = maxRetryTimes;
     }
 
-    public void setPopTimeoutSeconds(int popTimeoutSeconds) {
-        this.popTimeoutSeconds = popTimeoutSeconds;
-    }
-
-    public void setRedisCommandPrefix(String redisCommandPrefix) {
-        this.redisCommandPrefix = redisCommandPrefix;
+    public void setCommandPrefix(String commandPrefix) {
+        this.commandPrefix = commandPrefix;
     }
 
     public void setSendCoolDownMillis(int sendCoolDownMillis) {
         this.sendCoolDownMillis = sendCoolDownMillis;
-    }
-
-    public void setSslEnabled(boolean sslEnabled) {
-        this.sslEnabled = sslEnabled;
-    }
-
-    public void setLegacyProtocol(boolean legacyProtocol) {
-        this.legacyProtocol = legacyProtocol;
     }
 
     public void setTopicId(String topicId) {
@@ -203,5 +161,17 @@ public class MutableRedisConfig implements RedisConfig {
 
     public void setMaxJoinedMessageCount(int maxJoinedMessageCount) {
         this.maxJoinedMessageCount = maxJoinedMessageCount;
+    }
+
+    public void setKeepAliveIntervalMillis(int keepAliveIntervalMillis) {
+        this.keepAliveIntervalMillis = keepAliveIntervalMillis;
+    }
+
+    public void setSubscriberId(long subscriberId) {
+        this.subscriberId = subscriberId;
+    }
+
+    public void setSubscriberReconnectIntervalMillis(long subscriberReconnectIntervalMillis) {
+        this.subscriberReconnectIntervalMillis = subscriberReconnectIntervalMillis;
     }
 }

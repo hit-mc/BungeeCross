@@ -1,27 +1,15 @@
 package com.keuin.bungeecross.config;
 
-public interface RedisConfig {
+public interface MessageBrokerConfig {
     String getHost();
 
     int getPort();
 
-    String getPassword();
-
-    String getPushQueueName();
-
-    String getPopQueueName();
-
     int getMaxRetryTimes();
 
-    int getPopTimeoutSeconds();
-
-    String getRedisCommandPrefix();
+    String getCommandPrefix();
 
     int getSendCoolDownMillis();
-
-    boolean isSslEnabled();
-
-    boolean isLegacyProtocol();
 
     String getTopicId();
 
@@ -32,4 +20,10 @@ public interface RedisConfig {
     String getChatRelayPrefix();
 
     int getMaxJoinedMessageCount();
+
+    int getKeepAliveIntervalMillis();
+
+    long getSubscriberId();
+
+    long getSubscriberReconnectIntervalMillis();
 }

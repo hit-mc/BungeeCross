@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.intercommunicate.redis.worker;
 
 import com.google.gson.Gson;
-import com.keuin.bungeecross.config.mutable.MutableRedisConfig;
+import com.keuin.bungeecross.config.mutable.MutableMessageBrokerConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.testutil.TestConfig;
@@ -57,9 +57,9 @@ public class SubscribingRedisReceiverWorkerTest {
 
                 var flg = new AtomicBoolean(true);
                 var que = new LinkedBlockingDeque<>();
-                var senderConfig = new MutableRedisConfig(config.host, config.port, config.password,
+                var senderConfig = new MutableMessageBrokerConfig(config.host, config.port,
                         senderTopic, senderEndpoint, topicPrefix);
-                var receiverConfig = new MutableRedisConfig(config.host, config.port, config.password,
+                var receiverConfig = new MutableMessageBrokerConfig(config.host, config.port,
                         receiverTopic, receiverEndpoint, topicPrefix);
 
                 var msgReceived = new Message[1];
@@ -73,8 +73,8 @@ public class SubscribingRedisReceiverWorkerTest {
                 };
                 logger.info("starting sender and receiver...");
 
-                var receiveWorker = new SubscribingRedisReceiverWorker(receiverConfig, receiver::repeat);
-                var sendWorker = new RedisSenderWorker(senderConfig, flg);
+                var receiveWorker = new MessageSubscriber(receiverConfig, receiver::repeat);
+                var sendWorker = new MessagePublisher(senderConfig, flg);
                 sendWorker.start();
                 receiveWorker.start();
 
@@ -107,7 +107,7 @@ public class SubscribingRedisReceiverWorkerTest {
 
         var flg = new AtomicBoolean(true);
         var que = new LinkedBlockingDeque<>();
-        var senderConfig = new MutableRedisConfig(config.host, config.port, config.password,
+        var senderConfig = new MutableMessageBrokerConfig(config.host, config.port,
                 senderTopic, senderEndpoint, topicPrefix);
 
         var msgReceived = new Message[1];
@@ -121,8 +121,8 @@ public class SubscribingRedisReceiverWorkerTest {
         };
         logger.info("starting sender and receiver...");
 
-        var receiveWorker = new SubscribingRedisReceiverWorker(senderConfig, receiver::repeat);
-        var sendWorker = new RedisSenderWorker(senderConfig, flg);
+        var receiveWorker = new MessageSubscriber(senderConfig, receiver::repeat);
+        var sendWorker = new MessagePublisher(senderConfig, flg);
         sendWorker.start();
         receiveWorker.start();
 
