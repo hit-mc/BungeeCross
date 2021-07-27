@@ -3,7 +3,7 @@ package com.keuin.bungeecross;
 import com.google.gson.JsonParseException;
 import com.keuin.bungeecross.config.ConfigManager;
 import com.keuin.bungeecross.intercommunicate.msghandler.InGameChatHandler;
-import com.keuin.bungeecross.intercommunicate.redis.BrokerManager;
+import com.keuin.bungeecross.intercommunicate.pubsub.BrokerManager;
 import com.keuin.bungeecross.intercommunicate.repeater.CrossServerChatRepeater;
 import com.keuin.bungeecross.intercommunicate.repeater.InGameRedisRelayRepeater;
 import com.keuin.bungeecross.microapi.BungeeMicroApi;

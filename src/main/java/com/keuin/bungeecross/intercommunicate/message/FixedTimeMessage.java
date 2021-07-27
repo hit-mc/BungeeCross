@@ -33,23 +33,12 @@ public abstract class FixedTimeMessage implements Message {
     }
 
     /**
-     * Pack message into Redis format.
-     *
-     * @return packed string.
-     */
-    @Override
-    public String pack() {
-        String SPLIT = "||";
-        return String.format("%s%s%s", getSender(), SPLIT, getMessage());
-    }
-
-    /**
      * Get new protocol serialized BSON data.
      *
      * @return the BSON bytes array. Do not modify it.
      */
     @Override
-    public byte[] pack2(String endpoint) {
+    public byte[] pack(String endpoint) {
         Objects.requireNonNull(endpoint);
         var doc = new BsonDocument()
                 .append("endpoint", new BsonString(endpoint))

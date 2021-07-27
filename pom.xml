@@ -6,7 +6,7 @@
 
     <groupId>com.keuin</groupId>
     <artifactId>bungeecross</artifactId>
-    <version>2.0.0-pre11-ANNIVERSARY-EDITION</version>
+    <version>2.0.0-pre12</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,32 +30,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                        <!--                        <manifestEntries>-->
-                        <!--                            <Build-Time>${maven.build.timestamp}</Build-Time>-->
-                        <!--                        </manifestEntries>-->
-                        <manifestSections>
-                            <manifestSection>
-                                <name>${build.manifest.section}</name>
-                                <manifestEntries>
-                                    <Implementation-Title>${project.name}</Implementation-Title>
-                                    <Implementation-Version>${project.version}</Implementation-Version>
-                                    <Implementation-Build-Number>${build.number}</Implementation-Build-Number>
-                                    <Implementation-SCM-Revision>${build.revision}</Implementation-SCM-Revision>
-                                </manifestEntries>
-                            </manifestSection>
-                        </manifestSections>
-                    </archive>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -111,6 +85,51 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                        <!--                        <manifestEntries>-->
+                        <!--                            <Build-Time>${maven.build.timestamp}</Build-Time>-->
+                        <!--                        </manifestEntries>-->
+                        <manifestSections>
+                            <manifestSection>
+                                <name>${build.manifest.section}</name>
+                                <manifestEntries>
+                                    <Implementation-Title>${project.name}</Implementation-Title>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
+                                    <Implementation-Build-Number>${build.number}</Implementation-Build-Number>
+                                    <Implementation-SCM-Revision>${build.revision}</Implementation-SCM-Revision>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
 
@@ -171,21 +190,6 @@
             <artifactId>bson</artifactId>
             <version>4.2.3</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.keuin</groupId>
-            <artifactId>psmb4j</artifactId>
-            <version>1.1-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/psmb4j-1.1-SNAPSHOT.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.keuin</groupId>
-            <artifactId>psmb4j</artifactId>
-            <version>1.1-SNAPSHOT</version>
-            <type>javadoc</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/psmb4j-1.1-SNAPSHOT-sources.jar</systemPath>
         </dependency>
     </dependencies>
 

@@ -1,7 +1,7 @@
 package com.keuin.bungeecross.config;
 
 public interface BungeeCrossConfig {
-    MessageBrokerConfig getBroker();
+    MessageBrokerConfig getBrokerServer();
 
     int getMicroApiPort();
 

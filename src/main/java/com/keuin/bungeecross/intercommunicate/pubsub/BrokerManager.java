@@ -1,11 +1,11 @@
-package com.keuin.bungeecross.intercommunicate.redis;
+package com.keuin.bungeecross.intercommunicate.pubsub;
 
 import com.keuin.bungeecross.config.ConfigManager;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.msghandler.InboundMessageHandler;
-import com.keuin.bungeecross.intercommunicate.redis.worker.AbstractMessageSubscriber;
-import com.keuin.bungeecross.intercommunicate.redis.worker.MessagePublisher;
-import com.keuin.bungeecross.intercommunicate.redis.worker.MessageSubscriber;
+import com.keuin.bungeecross.intercommunicate.pubsub.worker.AbstractMessageSubscriber;
+import com.keuin.bungeecross.intercommunicate.pubsub.worker.MessagePublisher;
+import com.keuin.bungeecross.intercommunicate.pubsub.worker.MessageSubscriber;
 import com.keuin.bungeecross.intercommunicate.repeater.LoggableMessageSource;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.dispatcher.InstructionDispatcher;
@@ -32,7 +32,7 @@ public class BrokerManager implements MessageRepeatable, LoggableMessageSource {
     private final AbstractMessageSubscriber subscriber;
 
     public BrokerManager(MessageRepeatable inBoundMessageDispatcher, InstructionDispatcher instructionDispatcher) {
-        var brokerConfig = ConfigManager.INSTANCE.getRootConfig().getBroker();
+        var brokerConfig = ConfigManager.INSTANCE.getRootConfig().getBrokerServer();
         logger.info(String.format("%s created with PSMB info: %s", this.getClass().getName(), brokerConfig.toString()));
         this.instructionDispatcher = Objects.requireNonNull(instructionDispatcher);
         this.publisher = new MessagePublisher(brokerConfig, enabled);

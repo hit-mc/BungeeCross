@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.intercommunicate.redis.worker;
+package com.keuin.bungeecross.intercommunicate.pubsub.worker;
 
 import com.google.gson.Gson;
 import com.keuin.bungeecross.config.mutable.MutableMessageBrokerConfig;

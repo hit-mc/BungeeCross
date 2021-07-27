@@ -12,25 +12,17 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MessageTest {
-
-    @org.junit.Test
-    public void fromRedisRawString() {
-        Message message = Message.fromRedisRawString("sender||message");
-        assertNotNull(message);
-        assertEquals(message.getMessage(), "message");
-        assertEquals(message.getSender().getName(), "sender");
-        assertEquals(message.getSender().toString(), "sender@QQ");
-    }
 
     @Test
     public void testMessagePackBSON() throws FixedTimeMessage.IllegalPackedMessageException, IOException {
         var endpoint = "test-endpoint";
         var sender = "message_sender";
         var message = Message.build("message", sender);
-        var bson = message.pack2(endpoint);
+        var bson = message.pack(endpoint);
         var unpacked = Message.unpack(bson);
         assertEquals(message.getMessage(), unpacked.getMessage());
         assertEquals(sender, unpacked.getSender().getName());

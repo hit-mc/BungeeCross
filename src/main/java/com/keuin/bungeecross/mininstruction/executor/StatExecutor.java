@@ -1,6 +1,6 @@
 package com.keuin.bungeecross.mininstruction.executor;
 
-import com.keuin.bungeecross.intercommunicate.redis.BrokerManager;
+import com.keuin.bungeecross.intercommunicate.pubsub.BrokerManager;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.mininstruction.context.UserContext;
 import net.md_5.bungee.api.ChatColor;

@@ -1,8 +1,8 @@
 package com.keuin.bungeecross.config.mutable;
 
 import com.keuin.bungeecross.config.BungeeCrossConfig;
-import com.keuin.bungeecross.config.ProxyConfig;
 import com.keuin.bungeecross.config.MessageBrokerConfig;
+import com.keuin.bungeecross.config.ProxyConfig;
 
 /**
  * Root config.
@@ -15,13 +15,13 @@ public class MutableBungeeCrossConfig implements BungeeCrossConfig {
     private final MutableProxyConfig proxy = new MutableProxyConfig();
 
     public synchronized void copyFrom(BungeeCrossConfig from) {
-        this.brokerServer.copyFrom(from.getBroker());
-        this.microApiPort = from.getMicroApiPort();
-        this.proxy.copyFrom(from.getProxy());
-        this.historyMessageLifeSeconds = from.getHistoryMessageLifeSeconds();
+        brokerServer.copyFrom(from.getBrokerServer());
+        microApiPort = from.getMicroApiPort();
+        historyMessageLifeSeconds = from.getHistoryMessageLifeSeconds();
+        proxy.copyFrom(from.getProxy());
     }
 
-    @Override public synchronized MessageBrokerConfig getBroker() {
+    @Override public synchronized MessageBrokerConfig getBrokerServer() {
         return brokerServer;
     }
 

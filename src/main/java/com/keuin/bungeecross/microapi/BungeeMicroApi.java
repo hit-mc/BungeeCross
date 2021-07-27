@@ -16,9 +16,9 @@ public class BungeeMicroApi {
     public BungeeMicroApi(int port, MessageRepeatable redisRepeater) throws IOException {
         Objects.requireNonNull(redisRepeater);
         if (port <= 0)
-            throw new IllegalArgumentException("API listening port must be positive.");
+            throw new IllegalArgumentException("Port must be positive.");
 
-        logger.info(String.format("Starting MicroApi at localhost:%d...", port));
+        logger.info(String.format("Starting MicroApi server at localhost:%d...", port));
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", new RootHandler());
         server.createContext("/message", new MessageHandler(redisRepeater));

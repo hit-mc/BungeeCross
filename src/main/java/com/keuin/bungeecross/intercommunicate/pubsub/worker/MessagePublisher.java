@@ -1,13 +1,12 @@
-package com.keuin.bungeecross.intercommunicate.redis.worker;
+package com.keuin.bungeecross.intercommunicate.pubsub.worker;
 
 import com.keuin.bungeecross.config.MessageBrokerConfig;
 import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.util.MessageUtil;
-import com.keuin.psmb4j.*;
+import com.keuin.psmb4j.PublishClient;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -28,12 +27,13 @@ public class MessagePublisher extends Thread implements MessageRepeatable {
     private final int joinWaitMillis = 125;
     private final BlockingQueue<Message> sendQueue = new LinkedBlockingQueue<>();
     private final int sendCoolDownMillis = 500;
+    private final String topicString;
     private PublishClient client = null;
 
     public MessagePublisher(MessageBrokerConfig messageBrokerConfig, AtomicBoolean enabled) {
         this.config = messageBrokerConfig;
         this.enabled = enabled;
-        var topicString = (messageBrokerConfig.getTopicPrefix() + messageBrokerConfig.getTopicId());
+        this.topicString = (messageBrokerConfig.getTopicPrefix() + messageBrokerConfig.getTopicId());
         logger.info(String.format("Set sender topic id to `%s`.", topicString));
     }
 
@@ -47,7 +47,7 @@ public class MessagePublisher extends Thread implements MessageRepeatable {
             if (client != null) {
                 client.close();
             }
-            client = new PublishClient(config.getHost(), config.getPort(), config.getTopicId(),
+            client = new PublishClient(config.getHost(), config.getPort(), topicString,
                     config.getKeepAliveIntervalMillis(), e -> {
                 e.printStackTrace();
                 resetClient();
@@ -90,7 +90,7 @@ public class MessagePublisher extends Thread implements MessageRepeatable {
         // send outbound message
         while (enabled.get()) {
             try {
-                client.publish(message.pack2(config.getEndpointName()));
+                client.publish(message.pack(config.getEndpointName()));
                 logger.info("Message was sent to the broker.");
                 return;
             } catch (Exception e) {

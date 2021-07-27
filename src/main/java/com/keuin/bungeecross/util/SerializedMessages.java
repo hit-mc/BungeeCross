@@ -28,9 +28,9 @@ public class SerializedMessages {
             var os = new GZIPInputStream(new ByteArrayInputStream(data));
             return new ComponentBuilder(new String(os.readAllBytes(), StandardCharsets.UTF_8)).create();
         } else if (type == MessageType.IMAGE) {
-            return new ComponentBuilder("[图片]").color(ChatColor.RED).bold(true).create();
+            return new ComponentBuilder("[图片]").color(ChatColor.GOLD).bold(true).create();
         } else {
-            return new ComponentBuilder("[未知消息]").color(ChatColor.GOLD).bold(true).create();
+            return new ComponentBuilder("[未知消息]").color(ChatColor.RED).bold(true).create();
         }
     }
 

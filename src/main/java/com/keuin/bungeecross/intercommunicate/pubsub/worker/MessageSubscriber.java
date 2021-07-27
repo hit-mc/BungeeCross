@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.intercommunicate.redis.worker;
+package com.keuin.bungeecross.intercommunicate.pubsub.worker;
 
 import com.keuin.bungeecross.config.MessageBrokerConfig;
 import com.keuin.bungeecross.intercommunicate.message.FixedTimeMessage;
@@ -9,7 +9,6 @@ import com.keuin.psmb4j.error.CommandFailureException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Optional;
@@ -34,16 +33,17 @@ public class MessageSubscriber extends AbstractMessageSubscriber {
         // TODO: handle or filter special chars
         prefix = prefix.replace(".", "\\.");
         selfTopic = selfTopic.replace(".", "\\.");
-        return String.format("%s(?!%s)", prefix, selfTopic);
+        return String.format("%s(?:(?:(?!%s).+)|(?:%s.+))$", prefix, selfTopic, selfTopic);
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                logger.info("Connecting...");
+                var subscribePattern = getSubscribePattern(config.getTopicPrefix(), config.getTopicId());
+                logger.info("Subscribing on " + subscribePattern);
                 try (var client = new SubscribeClient(config.getHost(), config.getPort(),
-                        getSubscribePattern(config.getTopicPrefix(), config.getTopicId()),
+                        subscribePattern,
                         config.getKeepAliveIntervalMillis(), this::onMessage, config.getSubscriberId())) {
                     client.subscribe();
                 } catch (IOException | CommandFailureException e) {
@@ -65,9 +65,10 @@ public class MessageSubscriber extends AbstractMessageSubscriber {
             logger.info("Unpacked message: " + message);
 
             var messageCreateTime = message.getCreateTime();
-            var timeDelta = Math.abs(Instant.now().getEpochSecond() - messageCreateTime);
-            if (timeDelta > 180)
+            var timeDelta = Math.abs(System.currentTimeMillis() - messageCreateTime);
+            if (timeDelta > 20 * 60 * 1000) {
                 logger.warning(String.format("Too far UTC timestamp %d. Potentially wrong time?", messageCreateTime));
+            }
 
             // TODO: this should not be synchronized, or it will block the jedis pool loop
             inboundMessageHandler.accept(message);

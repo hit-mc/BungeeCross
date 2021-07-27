@@ -1,4 +1,4 @@
-package com.keuin.bungeecross.intercommunicate.redis.worker;
+package com.keuin.bungeecross.intercommunicate.pubsub.worker;
 
 import com.keuin.bungeecross.intercommunicate.repeater.LoggableMessageSource;
 

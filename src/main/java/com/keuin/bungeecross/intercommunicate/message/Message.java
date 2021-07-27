@@ -8,12 +8,9 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public interface Message {
     /**
@@ -90,24 +87,6 @@ public interface Message {
         return new ConcreteMessage(sender, message);
     }
 
-    /**
-     * Construct a Message object by raw string from Redis.
-     *
-     * @param rawString the raw string.
-     * @return a Message object. If the raw string is invalid, return null.
-     */
-    @Deprecated
-    static @Nullable Message fromRedisRawString(String rawString) {
-        Pattern pattern = Pattern.compile("([^|]*)\\|\\|([\\s\\S]*)");
-        Matcher matcher = pattern.matcher(rawString);
-        if (matcher.matches()) {
-            String sender = matcher.group(1);
-            String body = matcher.group(2);
-            return new RedisMessage(new RedisUser(sender), body);
-        }
-        return null;
-    }
-
     long getCreateTime();
 
     /**
@@ -131,8 +110,6 @@ public interface Message {
      */
     MessageUser getSender();
 
-    String pack();
-
     /**
      * If the message could be joined with neighbouring messages sent by the same user.
      *
@@ -140,11 +117,11 @@ public interface Message {
      */
     boolean ifCanBeJoined();
 
-    byte[] pack2(String endpoint);
+    byte[] pack(String endpoint);
 
     BaseComponent[] toChatInGameRepeatFormat();
 
-    public static class IllegalPackedMessageException extends Exception {
+    class IllegalPackedMessageException extends Exception {
         public IllegalPackedMessageException() {
             super();
         }
