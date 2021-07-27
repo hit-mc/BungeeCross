@@ -87,6 +87,10 @@ public interface Message {
         return new ConcreteMessage(sender, message);
     }
 
+    /**
+     * Get the unix time milliseconds of the time when the message was created.
+     * @return the unix millis.
+     */
     long getCreateTime();
 
     /**

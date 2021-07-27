@@ -9,7 +9,6 @@ import org.bson.codecs.EncoderContext;
 import org.bson.io.BasicOutputBuffer;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
@@ -20,7 +19,7 @@ public abstract class FixedTimeMessage implements Message {
 //    private static final Logger logger = Logger.getLogger("AbstractMessageStaticContext");
 
     public FixedTimeMessage() {
-        this.createTime = Instant.now().getEpochSecond();
+        this.createTime = System.currentTimeMillis();
     }
 
     public FixedTimeMessage(long createTime) {
