@@ -63,15 +63,19 @@ public class BrokerManager implements MessageRepeatable, LoggableMessageSource {
             if (publisher.isAlive()) {
                 logger.info("Stopping publisher...");
                 publisher.interrupt();
-                publisher.join();
+                publisher.join(5000);
             }
         } catch (InterruptedException ignored) {
         }
         try {
             if (subscriber.isAlive()) {
                 logger.info("Stopping subscriber...");
+                try {
+                    subscriber.close();
+                } catch (Exception ignored) {
+                }
                 subscriber.interrupt();
-                subscriber.join();
+                subscriber.join(5000);
             }
         } catch (InterruptedException ignored) {
         }

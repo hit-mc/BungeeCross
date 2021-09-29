@@ -5,6 +5,7 @@ import com.keuin.bungeecross.intercommunicate.message.Message;
 import com.keuin.bungeecross.intercommunicate.repeater.MessageRepeatable;
 import com.keuin.bungeecross.util.MessageUtil;
 import com.keuin.psmb4j.PublishClient;
+import com.keuin.psmb4j.error.CommandFailureException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class MessagePublisher extends Thread implements MessageRepeatable {
                 e.printStackTrace();
                 resetClient();
             });
-        } catch (IOException e) {
+        } catch (IOException | CommandFailureException e) {
             logger.severe(String.format("Failed to connect/disconnect: %s", e));
         }
     }
@@ -76,6 +77,9 @@ public class MessagePublisher extends Thread implements MessageRepeatable {
             }
         } catch (InterruptedException exception) {
             logger.info("Sender thread was interrupted. Quitting.");
+            if (client != null) {
+                client.close();
+            }
         }
     }
 

@@ -22,6 +22,7 @@ public class MessageSubscriber extends AbstractMessageSubscriber {
     private final Set<HistoryMessageLogger> loggers = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Consumer<Message> inboundMessageHandler;
     private final MessageBrokerConfig config;
+    private SubscribeClient client = null;
 
     public MessageSubscriber(MessageBrokerConfig messageBrokerConfig,
                              Consumer<Message> inboundMessageHandler) {
@@ -37,22 +38,33 @@ public class MessageSubscriber extends AbstractMessageSubscriber {
     }
 
     @Override
+    public void close() {
+        if (client != null) {
+            client.close();
+        }
+    }
+
+    @Override
     public void run() {
         try {
             while (true) {
                 var subscribePattern = getSubscribePattern(config.getTopicPrefix(), config.getTopicId());
                 logger.info("Subscribing on " + subscribePattern);
-                try (var client = new SubscribeClient(config.getHost(), config.getPort(),
-                        subscribePattern,
-                        config.getKeepAliveIntervalMillis(), this::onMessage, config.getSubscriberId())) {
+                try {
+                    client = new SubscribeClient(config.getHost(), config.getPort(),
+                            subscribePattern,
+                            config.getKeepAliveIntervalMillis(), this::onMessage, config.getSubscriberId());
                     client.subscribe();
                 } catch (IOException | CommandFailureException e) {
                     e.printStackTrace();
+                } finally {
+                    client = null;
                 }
                 logger.severe("Waiting for reconnect...");
                 Thread.sleep(config.getSubscriberReconnectIntervalMillis());
             }
         } catch (InterruptedException ignored) {
+            logger.info("Subscriber is quitting...");
         }
     }
 
