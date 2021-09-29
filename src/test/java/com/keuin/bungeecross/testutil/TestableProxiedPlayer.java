@@ -45,6 +45,16 @@ public class TestableProxiedPlayer implements ProxiedPlayer {
     }
 
     @Override
+    public void sendMessage(UUID uuid, BaseComponent baseComponent) {
+        ++messageCount;
+    }
+
+    @Override
+    public void sendMessage(UUID uuid, BaseComponent... baseComponents) {
+        ++messageCount;
+    }
+
+    @Override
     public void setDisplayName(String s) {
         this.displayName = s;
     }
