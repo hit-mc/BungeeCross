@@ -150,7 +150,7 @@ public class BungeeCross extends Plugin {
                         port
                 ));
             } else {
-                microApi = new BungeeMicroApi(port, brokerManager);
+                microApi = new BungeeMicroApi(port, brokerManager, inGameRedisRelayRepeater);
             }
 
 //        // Start the repeat thread

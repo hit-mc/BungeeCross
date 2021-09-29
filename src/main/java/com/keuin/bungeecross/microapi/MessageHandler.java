@@ -18,10 +18,12 @@ class MessageHandler implements HttpHandler {
 
     private final Logger logger = Logger.getLogger("MicroApiMessageHandler");
 
-    private final MessageRepeatable redisRepeater;
+    private final MessageRepeatable outRepeater;
+    private final MessageRepeatable inRepeater;
 
-    MessageHandler(MessageRepeatable redisRepeater) {
-        this.redisRepeater = redisRepeater;
+    MessageHandler(MessageRepeatable outboundRepeater, MessageRepeatable inGameRepeater) {
+        this.outRepeater = outboundRepeater;
+        this.inRepeater = inGameRepeater;
     }
 
 
@@ -34,17 +36,28 @@ class MessageHandler implements HttpHandler {
                     String responseFailed = "{\"success\": failed}";
                     InputStream is = exchange.getRequestBody();
                     String request = new String(InputStreams.toByteArray(is), StandardCharsets.UTF_8);
-                    MethodMessage mm = (new Gson()).fromJson(request, MethodMessage.class);
-                    if (mm.isValid()) {
+                    RequestJsonBody req = (new Gson()).fromJson(request, RequestJsonBody.class);
+                    MethodMessage mm = req.toMessage();
+                    if (!mm.isValid()) {
+                        throw new Response(400);
+                    }
+                    if (req.sendToGame()) {
+                        logger.info(String.format(
+                                "Send message{sender=%s, message=%s} to game.",
+                                mm.getSender(),
+                                mm.getMessage()
+                        ));
+                        inRepeater.repeat(Message.build(mm.getMessage(), mm.getSender()));
+                    }
+                    if (req.sendToOutbound()) {
                         logger.info(String.format(
                                 "Send message{sender=%s, message=%s} to redis.",
                                 mm.getSender(),
                                 mm.getMessage()
                         ));
-                        redisRepeater.repeat(Message.build(mm.getMessage(), mm.getSender()));
-                        throw new Response(200, responseSuccess.getBytes(StandardCharsets.UTF_8));
+                        outRepeater.repeat(Message.build(mm.getMessage(), mm.getSender()));
                     }
-                    throw new Response(400);
+                    throw new Response(200, responseSuccess.getBytes(StandardCharsets.UTF_8));
                 }
                 throw new Response(405);
             } catch (JsonSyntaxException e) {

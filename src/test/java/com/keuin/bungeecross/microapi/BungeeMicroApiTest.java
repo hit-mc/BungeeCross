@@ -17,9 +17,10 @@ import static org.junit.Assert.*;
 
 public class BungeeMicroApiTest {
 
-    private final TestableRepeatable testableRepeater = new TestableRepeatable();
+    private final TestableRepeatable testOutboundRepeater = new TestableRepeatable();
+    private final TestableRepeatable testInboundRepeater = new TestableRepeatable();
     private final int port = (new Random()).nextInt(30000) + 30000;
-    private final BungeeMicroApi microApi = new BungeeMicroApi(port, testableRepeater);
+    private final BungeeMicroApi microApi = new BungeeMicroApi(port, testOutboundRepeater, testInboundRepeater);
     private final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON
             = MediaType.get("application/json; charset=utf-8");
@@ -48,7 +49,7 @@ public class BungeeMicroApiTest {
     }
 
     @Test
-    public void testMessage() {
+    public void testImplicitOutboundOnlyMessage() {
         try {
             String sender = "sender";
             String message = "message";
@@ -60,8 +61,73 @@ public class BungeeMicroApiTest {
             Success success = (new Gson()).fromJson(response, Success.class);
             assertTrue("server response is not success", success.success);
             System.out.println(response);
-            assertTrue(testableRepeater.getMessageList().contains(Message.build(message, sender)));
-            assertEquals(1, testableRepeater.getMessageList().size());
+            assertTrue(testOutboundRepeater.getMessageList().contains(Message.build(message, sender)));
+            assertEquals(1, testOutboundRepeater.getMessageList().size());
+            assertTrue(testInboundRepeater.getMessageList().isEmpty());
+        } catch (IOException e) {
+            fail(e.toString());
+        }
+    }
+
+    @Test
+    public void testOutboundOnlyMessage() {
+        try {
+            String sender = "sender";
+            String message = "message";
+            String response = post(String.format("http://localhost:%d/message", port), String.format(
+                    "{\"sender\":\"%s\", \"message\": \"%s\", \"target\":\"out\"}",
+                    sender,
+                    message
+            ));
+            Success success = (new Gson()).fromJson(response, Success.class);
+            assertTrue("server response is not success", success.success);
+            System.out.println(response);
+            assertTrue(testOutboundRepeater.getMessageList().contains(Message.build(message, sender)));
+            assertEquals(1, testOutboundRepeater.getMessageList().size());
+            assertTrue(testInboundRepeater.getMessageList().isEmpty());
+        } catch (IOException e) {
+            fail(e.toString());
+        }
+    }
+
+    @Test
+    public void testInboundOnlyMessage() {
+        try {
+            String sender = "sender";
+            String message = "message";
+            String response = post(String.format("http://localhost:%d/message", port), String.format(
+                    "{\"sender\":\"%s\", \"message\": \"%s\", \"target\":\"in\"}",
+                    sender,
+                    message
+            ));
+            Success success = (new Gson()).fromJson(response, Success.class);
+            assertTrue("server response is not success", success.success);
+            System.out.println(response);
+            assertTrue(testInboundRepeater.getMessageList().contains(Message.build(message, sender)));
+            assertEquals(1, testInboundRepeater.getMessageList().size());
+            assertTrue(testOutboundRepeater.getMessageList().isEmpty());
+        } catch (IOException e) {
+            fail(e.toString());
+        }
+    }
+
+    @Test
+    public void testBothTargetMessage() {
+        try {
+            String sender = "sender";
+            String message = "message";
+            String response = post(String.format("http://localhost:%d/message", port), String.format(
+                    "{\"sender\":\"%s\", \"message\": \"%s\", \"target\":\"both\"}",
+                    sender,
+                    message
+            ));
+            Success success = (new Gson()).fromJson(response, Success.class);
+            assertTrue("server response is not success", success.success);
+            System.out.println(response);
+            assertTrue(testOutboundRepeater.getMessageList().contains(Message.build(message, sender)));
+            assertEquals(1, testOutboundRepeater.getMessageList().size());
+            assertTrue(testInboundRepeater.getMessageList().contains(Message.build(message, sender)));
+            assertEquals(1, testInboundRepeater.getMessageList().size());
         } catch (IOException e) {
             fail(e.toString());
         }
